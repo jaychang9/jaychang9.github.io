@@ -14,13 +14,6 @@
 
 
 
-  
-  
-    
-    
-  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
-  <link href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2" rel="stylesheet">
-
 
 
 
@@ -135,6 +128,16 @@
 
 
 
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?d383fa81ebb62476e09fe22470595b8d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
 
 
 
@@ -420,7 +423,7 @@
 <p>Spring Cloud是一个基于Spring Boot实现的云应用开发工具，它为基于JVM的云应用开发中涉及的配置管理、服务发现、断路器、智能路由、微代理、控制总线、全局锁、决策竞选、分布式会话和集群状态管理等操作提供了一种简单的开发方式。</p>
 <p>Spring Cloud包含了多个子项目（针对分布式系统中涉及的多个不同开源产品），比如：Spring Cloud Config、Spring Cloud Netflix、Spring Cloud CloudFoundry、Spring Cloud AWS、Spring Cloud Security、Spring Cloud Commons、Spring Cloud Zookeeper、Spring Cloud CLI等项目。</p>
 <p>Eureka：实际上在整个过程中维护者每个服务的生命周期。每一个服务都要被注册到Eureka服务器上，这里被注册到Eureka的服务又称为Client。Eureka通过心跳来确定服务是否正常。Eureka只做请求转发。同时Eureka是支持集群的呦！！！ （当然用其他的也是可以如consul,zookeeper）Zuul：类似于网关，反向代理。为外部请求提供统一入口。Ribbon/Feign：可以理解为调用服务的客户端。Hystrix：断路器，服务调用通常是深层的，一个底层服务通常为多个上层服务提供服务，那么如果底层服务失败则会造成大面积失败，Hystrix就是就调用失败后触发定义好的处理方法，从而更友好的解决出错。也是微服务的容错机制。</p>
-<h1 id="创建服务注册中心"><a href="#创建服务注册中心" class="headerlink" title="创建服务注册中心"></a>创建服务注册中心</h1>
+<h1 id="创建服务注册中心"><a href="#创建服务注册中心" class="headerlink" title="创建服务注册中心"></a>创建服务注册中心</h1><img src="/2017/08/27/【Spring-Cloud微服务全家桶】01之服务注册、服务发现-Eureka、Consul作为服务注册中心/01.png">
 <p>上图简要描述了Eureka的基本架构，由3个角色组成：</p>
 <ul>
 <li><p>Eureka Server：提供服务注册和发现</p>
@@ -433,7 +436,7 @@
 </li>
 </ul>
 <p>在创建服务注册中心前，我们先创建一个maven的pom父项目，然后在这个maven父项目里，使用Spring Initializr创建一个module。</p>
-
+<img src="/2017/08/27/【Spring-Cloud微服务全家桶】01之服务注册、服务发现-Eureka、Consul作为服务注册中心/02.png">
 <p>发现在pom.xml已经自动生成了依赖，当然也可以创建一个普通的maven项目，将以下pom.xml的配置添加进去</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.5.6.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">project.reporting.outputEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.reporting.outputEncoding</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">java.version</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">java.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">spring-cloud.version</span>&gt;</span>Dalston.SR1<span class="tag">&lt;/<span class="name">spring-cloud.version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-eureka-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>Dalston.SR1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencyManagement</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>修改application.properties配置</p>
@@ -443,7 +446,7 @@
 <p>启动类上加上 @EnableEurekaServer注解，表示开启Eureka注册中心服务</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableEurekaServer</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RegistryApplication</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">( String[] args )</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(RegistryApplication.class,args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>看到Instances currently registered with Eureka 还没有服务实例在线</p>
-
+<img src="/2017/08/27/【Spring-Cloud微服务全家桶】01之服务注册、服务发现-Eureka、Consul作为服务注册中心/03.png">
 <h1 id="创建一个简单的服务提供者"><a href="#创建一个简单的服务提供者" class="headerlink" title="创建一个简单的服务提供者"></a>创建一个简单的服务提供者</h1><p>服务向注册中心注册完成后，服务的eureka client会告知注册中心它的元数据信息，例如ServiceId、主机名、URI、端口号等。Eureka Server接受每个Eureka客户端的心跳，当注册中心感知不到服务实例的存在时（比如心跳超时），那么该服务实例就会从注册中心中剔除。</p>
 <p>创建一个SpringBoot应用，怎么创建的过程不再赘述，名为provider-service-ms，由于本例是服务注册、服务发现，可以写个打印所有服务实例服务方法。</p>
 <p>创建完后，pom.xml</p>
@@ -456,11 +459,11 @@
 <p>spring.application.name是很重的一个配置，该名称会作为注册中心中服务实例的id(即ServiceId)，当其他服务需要调用此服务的时候，就需要知道此服务的ServiceId，eureka.client.serviceUrl.defaultZone 指明注册中心的地址。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">server.port=2104</span><br><span class="line">spring.application.name=provider-ms</span><br><span class="line">eureka.client.serviceUrl.defaultZone=http://registry-ms.pay-inner.com:1001/eureka</span><br></pre></td></tr></table></figure>
 <p>启动ProviderApplication，观察当前注册到eureka的服务实例，看到此时已经有名为PROVIDER-MS的服务实例上线了（Status为UP）。</p>
-
+<img src="/2017/08/27/【Spring-Cloud微服务全家桶】01之服务注册、服务发现-Eureka、Consul作为服务注册中心/04.png">
 <p>也可以通过访问<a href="http://127.0.0.1:2103/services（provider-ms.pay-inner.com是为了访问方便，配了本地hosts域名解析），查看注册到eureka的服务实例。" target="_blank" rel="noopener">http://127.0.0.1:2103/services（provider-ms.pay-inner.com是为了访问方便，配了本地hosts域名解析），查看注册到eureka的服务实例。</a></p>
-
+<img src="/2017/08/27/【Spring-Cloud微服务全家桶】01之服务注册、服务发现-Eureka、Consul作为服务注册中心/05.png">
 <p>控制台也打印了 ServiceId、Host、Port、URI这些信息</p>
-
+<img src="/2017/08/27/【Spring-Cloud微服务全家桶】01之服务注册、服务发现-Eureka、Consul作为服务注册中心/06.png">
 <p>#将eureka改用consul实现服务注册</p>
 <ul>
 <li><p>Consul是什么</p>
@@ -479,14 +482,14 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">server.port=2103</span><br><span class="line">spring.application.name=provider-ms</span><br><span class="line">#eureka.client.serviceUrl.defaultZone=http://registry-ms.pay-inner.com:1001/eureka</span><br><span class="line">spring.cloud.consul.host=localhost</span><br><span class="line">spring.cloud.consul.port=8500</span><br></pre></td></tr></table></figure>
 <p>由于Spring Cloud 对于DiscoveryClient已经做了一层抽象，我们无需关心eureka与consul不同的实现细节。而我们需要做的只是更改springcloud封装的不同服务治理依赖，以及在配置文件中配置不同的属性</p>
 <p>将consul用dev模式启动。由于consul已经为我们提供了服务，无需像之前创建eureka那样创建服务注册中心，直接从consul官网下载服务端即可,<a href="https://www.consul.io/" target="_blank" rel="noopener">https://www.consul.io/</a></p>
-
+<img src="/2017/08/27/【Spring-Cloud微服务全家桶】01之服务注册、服务发现-Eureka、Consul作为服务注册中心/07.png">
 <p>重新启动ProviderApplication</p>
 <p>观察Consul UI（<a href="http://127.0.0.1:8500/ui/），是否有服务上线，可以看到PROVIDER-MS已经注册到consul了" target="_blank" rel="noopener">http://127.0.0.1:8500/ui/），是否有服务上线，可以看到PROVIDER-MS已经注册到consul了</a></p>
-
+<img src="/2017/08/27/【Spring-Cloud微服务全家桶】01之服务注册、服务发现-Eureka、Consul作为服务注册中心/08.png">
 <p>通过访问<a href="http://127.0.0.1:2103/services" target="_blank" rel="noopener">http://127.0.0.1:2103/services</a></p>
-
+<img src="/2017/08/27/【Spring-Cloud微服务全家桶】01之服务注册、服务发现-Eureka、Consul作为服务注册中心/09.png">
 <p>控制台也打印了 ServiceId、Host、Port、URI这些信息，这里也会把consul打印，因为默认是将consul本身也注册到服务注册中心</p>
-
+<img src="/2017/08/27/【Spring-Cloud微服务全家桶】01之服务注册、服务发现-Eureka、Consul作为服务注册中心/10.png">
 <p>注意：这里看到<a href="http://XXXXXX:2103/health" target="_blank" rel="noopener">http://XXXXXX:2103/health</a> 404原因是少依赖了，pom.xml添加以下依赖即可</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-actuator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>示例代码：<a href="https://git.oschina.net/jaychang/spring-cloud-demo.git" target="_blank" rel="noopener">https://git.oschina.net/jaychang/spring-cloud-demo.git</a></p>

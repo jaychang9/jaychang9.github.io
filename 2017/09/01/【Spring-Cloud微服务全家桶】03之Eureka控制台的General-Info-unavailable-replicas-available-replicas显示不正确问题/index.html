@@ -14,13 +14,6 @@
 
 
 
-  
-  
-    
-    
-  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
-  <link href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2" rel="stylesheet">
-
 
 
 
@@ -135,6 +128,16 @@
 
 
 
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?d383fa81ebb62476e09fe22470595b8d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
 
 
 
@@ -415,9 +418,9 @@
 
       
         <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>之前【Spring Cloud微服务全家桶】之高可用服务注册中心 文章介绍了Eureka Server高可用</p>
-<h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1>
+<h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><img src="/2017/09/01/【Spring-Cloud微服务全家桶】03之Eureka控制台的General-Info-unavailable-replicas-available-replicas显示不正确问题/01.png">
 <p>观察eureka-peer1，发现unavailable-replicas与available-replicas显示信息不正确，按理说所有eureka节点都启动后，eureka-peer3,eureka-peer2应该出现在available-replicas列表</p>
-
+<img src="/2017/09/01/【Spring-Cloud微服务全家桶】03之Eureka控制台的General-Info-unavailable-replicas-available-replicas显示不正确问题/02.png">
 <h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><p>修改下每个eureka节点的配置，把自身注册到注册中心</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">eureka.client.fetch-registry=true</span><br><span class="line">eureka.client.register-with-eureka=true</span><br><span class="line">eureka.instance.prefer-ip-address=false</span><br></pre></td></tr></table></figure>
 <ul>
@@ -433,9 +436,9 @@
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">server.port=1013</span><br><span class="line">spring.application.name=registry-ha-ms</span><br><span class="line"></span><br><span class="line">eureka.instance.hostname=eureka-peer3</span><br><span class="line">eureka.client.serviceUrl.defaultZone=http://eureka-peer1:1011/eureka,http://eureka-peer2:1012/eureka</span><br><span class="line"></span><br><span class="line">eureka.client.fetch-registry=true</span><br><span class="line">eureka.client.register-with-eureka=true</span><br><span class="line">eureka.instance.prefer-ip-address=false</span><br></pre></td></tr></table></figure>
 <p>重启每个eureka节点<br>发现available-replicas栏可以出现了</p>
-
-
-
+<img src="/2017/09/01/【Spring-Cloud微服务全家桶】03之Eureka控制台的General-Info-unavailable-replicas-available-replicas显示不正确问题/03.png">
+<img src="/2017/09/01/【Spring-Cloud微服务全家桶】03之Eureka控制台的General-Info-unavailable-replicas-available-replicas显示不正确问题/04.png">
+<img src="/2017/09/01/【Spring-Cloud微服务全家桶】03之Eureka控制台的General-Info-unavailable-replicas-available-replicas显示不正确问题/05.png">
       
     </div>
     
