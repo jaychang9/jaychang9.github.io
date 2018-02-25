@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-j.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-j.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-j.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo_j.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="线性表," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jay Chang's Blog" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="线性表链式存储结构定义线性表的链式存储结构的特点是用一组任务的存储单元存储线性表的数据元素，这组存储单元可以是连续的，也可以是非连续的。这就意味着，这些数据元素可以存储在内存未被占用的任意位置。 线性表的顺序存储结构中，每个数据元素只需要存储数据元素信息就可以了。现在链式结构中，除了要存储数据元素外，还要存储它的后继元素的存储地址。 为了表示每个数据元素ai与其直接后继元素的ai+1之间的逻辑关系">
+<meta name="keywords" content="线性表">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据结构-线性表的链式表示与实现">
+<meta property="og:url" content="http://jaychang.cn/2018/02/06/数据结构-线性表的链式表示与实现/index.html">
+<meta property="og:site_name" content="Jay Chang&#39;s Blog">
+<meta property="og:description" content="线性表链式存储结构定义线性表的链式存储结构的特点是用一组任务的存储单元存储线性表的数据元素，这组存储单元可以是连续的，也可以是非连续的。这就意味着，这些数据元素可以存储在内存未被占用的任意位置。 线性表的顺序存储结构中，每个数据元素只需要存储数据元素信息就可以了。现在链式结构中，除了要存储数据元素外，还要存储它的后继元素的存储地址。 为了表示每个数据元素ai与其直接后继元素的ai+1之间的逻辑关系">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://jaychang.cn/2018/02/06/数据结构-线性表的链式表示与实现/linkedlist.jpg">
+<meta property="og:image" content="http://jaychang.cn/2018/02/06/数据结构-线性表的链式表示与实现/list_insert.jpg">
+<meta property="og:image" content="http://jaychang.cn/2018/02/06/数据结构-线性表的链式表示与实现/list_delete.jpg">
+<meta property="og:image" content="http://jaychang.cn/2018/02/06/数据结构-线性表的链式表示与实现/list_reverse.jpg">
+<meta property="og:updated_time" content="2018-02-25T07:24:09.165Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="数据结构-线性表的链式表示与实现">
+<meta name="twitter:description" content="线性表链式存储结构定义线性表的链式存储结构的特点是用一组任务的存储单元存储线性表的数据元素，这组存储单元可以是连续的，也可以是非连续的。这就意味着，这些数据元素可以存储在内存未被占用的任意位置。 线性表的顺序存储结构中，每个数据元素只需要存储数据元素信息就可以了。现在链式结构中，除了要存储数据元素外，还要存储它的后继元素的存储地址。 为了表示每个数据元素ai与其直接后继元素的ai+1之间的逻辑关系">
+<meta name="twitter:image" content="http://jaychang.cn/2018/02/06/数据结构-线性表的链式表示与实现/linkedlist.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://jaychang.cn/2018/02/06/数据结构-线性表的链式表示与实现/"/>
+
+
+
+
+
+  <title>数据结构-线性表的链式表示与实现 | Jay Chang's Blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?d383fa81ebb62476e09fe22470595b8d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	
+	<a href="https://github.com/jaychang9"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+	
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jay Chang's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">我的技术博客</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jaychang.cn/2018/02/06/数据结构-线性表的链式表示与实现/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jay Chang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/default_avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jay Chang's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">数据结构-线性表的链式表示与实现</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-06T23:11:40+08:00">
+                2018-02-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据结构与算法/" itemprop="url" rel="index">
+                    <span itemprop="name">数据结构与算法</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/02/06/数据结构-线性表的链式表示与实现/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/02/06/数据结构-线性表的链式表示与实现/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,535
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="线性表链式存储结构定义"><a href="#线性表链式存储结构定义" class="headerlink" title="线性表链式存储结构定义"></a>线性表链式存储结构定义</h1><p>线性表的链式存储结构的特点是用一组任务的存储单元存储线性表的数据元素，这组存储单元可以是连续的，也可以是非连续的。这就意味着，这些数据元素可以存储在内存未被占用的任意位置。</p>
+<p>线性表的顺序存储结构中，每个数据元素只需要存储数据元素信息就可以了。现在链式结构中，除了要存储数据元素外，还要存储它的后继元素的存储地址。</p>
+<p>为了表示每个数据元素ai与其直接后继元素的ai+1之间的逻辑关系，对数据元素ai来说，除了存储其本身的信息之外，还需存储一个指示其后继的信息(即直接后继的存储位置)。我们把存储数据元素的域称为数据域，把存储直接后继位置的域成为指针域。指针域中存储的信息称作指针或链。这两部分信息组成数据元素ai的存储映像，成为结点(Node)。</p>
+<p>n个结点链结成一个链表，即为线性表(a1,a2,…ai，ai+1，…，an)的链式存储结构，因为此链表的每个结点中只包含一个指针域，所以叫做单链表。</p>
+<img src="/2018/02/06/数据结构-线性表的链式表示与实现/linkedlist.jpg">
+<h1 id="线性表链式存储结构"><a href="#线性表链式存储结构" class="headerlink" title="线性表链式存储结构"></a>线性表链式存储结构</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">int</span> ElementType;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">Node</span> &#123;</span></span><br><span class="line">	ElementType data;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">Node</span>* <span class="title">next</span>;</span></span><br><span class="line">&#125; Node;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">Node</span> *<span class="title">LinkedList</span>;</span></span><br></pre></td></tr></table></figure>
+<p>data为数据域，next为指针域</p>
+<h1 id="线性表链式存储结构的插入"><a href="#线性表链式存储结构的插入" class="headerlink" title="线性表链式存储结构的插入"></a>线性表链式存储结构的插入</h1><p><strong>插入操作算法描述</strong></p>
+<ul>
+<li>p初始指向链表头结点，迭代p,最终使得p指向第i-1个结点</li>
+<li>如果p为NULL，表示第i-1个结点不存在，返回FAILURE</li>
+<li>创建新结点，令p的后继是新结点，返回SUCCESS</li>
+</ul>
+<img src="/2018/02/06/数据结构-线性表的链式表示与实现/list_insert.jpg">
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Status <span class="title">listInsert</span><span class="params">(LinkedList linkedList, <span class="keyword">int</span> i, ElementType e)</span> </span>&#123;</span><br><span class="line">	Node *p = linkedList;</span><br><span class="line">	<span class="comment">// j=0表示从头结点开始</span></span><br><span class="line">	<span class="keyword">int</span> j = <span class="number">0</span>;</span><br><span class="line">	<span class="comment">// j &lt; i - 1条件表示循环完成后（j == i - 1结束循环），p指向第i-1个结点</span></span><br><span class="line">	<span class="keyword">while</span> (p &amp;&amp; j &lt; i - <span class="number">1</span>) &#123;</span><br><span class="line">		p = p-&gt;next;</span><br><span class="line">		j++;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (!p || j &gt; i - <span class="number">1</span>) &#123;</span><br><span class="line">		<span class="keyword">return</span> FAILURE;</span><br><span class="line">	&#125;</span><br><span class="line">	Node *newNode = (Node*) <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</span><br><span class="line">	newNode-&gt;data = e;</span><br><span class="line">	newNode-&gt;next = p-&gt;next;</span><br><span class="line">	p-&gt;next = newNode;</span><br><span class="line">    linkedList-&gt;data++;</span><br><span class="line">	<span class="keyword">return</span> SUCCESS;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="线性表链式存储结构的删除"><a href="#线性表链式存储结构的删除" class="headerlink" title="线性表链式存储结构的删除"></a>线性表链式存储结构的删除</h1><p><strong>删除操作算法描述</strong></p>
+<ul>
+<li>p初始指向链表头结点，迭代p,最终使得p指向第i-1个结点</li>
+<li>如果p为NULL，则返回FAILURE</li>
+<li>tmp指向第i个结点，p的后继为第i个结点的后继</li>
+<li>释放掉tmp指向的结点所占内存，返回SUCCESS</li>
+</ul>
+<img src="/2018/02/06/数据结构-线性表的链式表示与实现/list_delete.jpg">
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Status <span class="title">listDelete</span><span class="params">(LinkedList linkedList, <span class="keyword">int</span> i, ElementType *e)</span> </span>&#123;</span><br><span class="line">	Node *p = linkedList;</span><br><span class="line">	<span class="keyword">int</span> j = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">while</span> (p &amp;&amp; j &lt; i - <span class="number">1</span>) &#123;</span><br><span class="line">		p = p-&gt;next;</span><br><span class="line">		j++;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (!p || j &gt; i - <span class="number">1</span>) &#123;</span><br><span class="line">		<span class="keyword">return</span> FAILURE;</span><br><span class="line">	&#125;</span><br><span class="line">	Node *tmp = p-&gt;next;</span><br><span class="line">	p-&gt;next = tmp-&gt;next;</span><br><span class="line">	*e = tmp-&gt;data;</span><br><span class="line">	<span class="built_in">free</span>(tmp);</span><br><span class="line">    linkedList-&gt;data--;</span><br><span class="line">	<span class="keyword">return</span> SUCCESS;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="线性表链式存储结构的逆转"><a href="#线性表链式存储结构的逆转" class="headerlink" title="线性表链式存储结构的逆转"></a>线性表链式存储结构的逆转</h1><p><strong>反转算法描述</strong></p>
+<p>设置3个指针，cur指向当前要操作的元素(操作当前元素的指针域)，pre指向前驱元素，next指向后继元素，next用于保存暂存后继元素的位置信息</p>
+<ul>
+<li>使得next指向cur的后继元素，因为下一步要修改cur元素的指针域，如果没有这一步，将找不到cur的后继元素</li>
+<li>将cur指向的当前元素的指针域修改为指向pre指向的元素</li>
+<li>使得pre指向cur指向的元素</li>
+<li>令cur与next的指向相同</li>
+<li>循环结束后，创建新的头结点（当然用之前的头节点也可以，只要修改指针域令其指向pre指向的结点），令头结点的指针域指向pre指向的结点</li>
+<li>释放原来头结点占用的内存空间</li>
+</ul>
+<img src="/2018/02/06/数据结构-线性表的链式表示与实现/list_reverse.jpg">
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">LinkedList <span class="title">listReverse</span><span class="params">(LinkedList <span class="built_in">list</span>)</span> </span>&#123;</span><br><span class="line">	Node *cur = <span class="built_in">list</span>-&gt;next;</span><br><span class="line">	<span class="keyword">if</span> (!cur || !cur-&gt;next) &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="built_in">list</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	Node *pre = <span class="literal">NULL</span>;</span><br><span class="line">	Node *next = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span> (cur) &#123;</span><br><span class="line">		next = cur-&gt;next;</span><br><span class="line">		cur-&gt;next = pre;</span><br><span class="line">		pre = cur;</span><br><span class="line">		cur = next;</span><br><span class="line">	&#125;</span><br><span class="line">	LinkedList reverseList = (LinkedList) <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</span><br><span class="line">	<span class="comment">// 拷贝链表长度数据</span></span><br><span class="line">	reverseList-&gt;data = <span class="built_in">list</span>-&gt;data;</span><br><span class="line">	reverseList-&gt;next = pre;</span><br><span class="line">	<span class="built_in">free</span>(<span class="built_in">list</span>);</span><br><span class="line">	<span class="keyword">return</span> reverseList;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="线性表链式存储结构的查找"><a href="#线性表链式存储结构的查找" class="headerlink" title="线性表链式存储结构的查找"></a>线性表链式存储结构的查找</h1><p><strong>算法描述</strong></p>
+<ul>
+<li>p指向第一个结点，j=1</li>
+<li>迭代直到j=i，退出循环</li>
+<li>如果p为NULL则返回FAILURE</li>
+<li>用e来返回第i个元素的数据</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Status <span class="title">listSearch</span><span class="params">(LinkedList <span class="built_in">list</span>, <span class="keyword">int</span> i, ElementType *e)</span> </span>&#123;</span><br><span class="line">	Node *p = <span class="built_in">list</span>-&gt;next;</span><br><span class="line">	<span class="comment">// j=1表示从第1个结点开始</span></span><br><span class="line">	<span class="keyword">int</span> j = <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">while</span> (p &amp;&amp; j &lt; i) &#123;</span><br><span class="line">		p = p-&gt;next;</span><br><span class="line">		++j;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"i=%d,j=%d\n"</span>, i, j);</span><br><span class="line">	<span class="keyword">if</span> (!p || j &gt; i) &#123;</span><br><span class="line">		<span class="keyword">return</span> FAILURE;</span><br><span class="line">	&#125;</span><br><span class="line">	*e = p-&gt;data;</span><br><span class="line">	<span class="keyword">return</span> SUCCESS;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="线性表链式存储结构查找倒数第k个结点"><a href="#线性表链式存储结构查找倒数第k个结点" class="headerlink" title="线性表链式存储结构查找倒数第k个结点"></a>线性表链式存储结构查找倒数第k个结点</h1><p><strong>算法描述</strong></p>
+<ul>
+<li>设置两个指针p1,p2初始都指向第1个结点</li>
+<li>p2向右移动k个位置</li>
+<li>p1,p2一起向右移动，直至p2移动到末尾</li>
+<li>返回p1,即倒数第k个结点</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Node* <span class="title">listTheBackKthNode</span><span class="params">(LinkedList <span class="built_in">list</span>, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (!<span class="built_in">list</span>-&gt;next || k &lt;= <span class="number">0</span> || k &gt; <span class="built_in">list</span>-&gt;data) &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 设置两个指针p1,p2初始都指向第1个结点，p2向右移动k个位置,然后p1,p2同时向右移动，直至p2移动到末尾</span></span><br><span class="line">	Node *p1 = <span class="built_in">list</span>-&gt;next;</span><br><span class="line">	Node *p2 = p1;</span><br><span class="line">	<span class="keyword">int</span> j = <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">while</span> (p2-&gt;next &amp;&amp; j &lt; k) &#123;</span><br><span class="line">		p2 = p2-&gt;next;</span><br><span class="line">		j++;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">while</span> (p2-&gt;next) &#123;</span><br><span class="line">		p2 = p2-&gt;next;</span><br><span class="line">		p1 = p1-&gt;next;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> p1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="线性表链式存储结构查中间结点"><a href="#线性表链式存储结构查中间结点" class="headerlink" title="线性表链式存储结构查中间结点"></a>线性表链式存储结构查中间结点</h1><p><strong>算法描述</strong></p>
+<p>与上述查找倒数第k个结点的算法一样，只不过倒数第几个，要根据链表长度计算一下而已，不再赘述</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Node* <span class="title">listTheMiddleNode</span><span class="params">(LinkedList <span class="built_in">list</span>)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (!<span class="built_in">list</span>-&gt;next) &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 获取链表的长度（头结点数据域存储了链表的长度）</span></span><br><span class="line">	<span class="keyword">int</span> len = <span class="built_in">list</span>-&gt;data;</span><br><span class="line">	<span class="keyword">int</span> mid = len / <span class="number">2</span>;</span><br><span class="line">	Node *p1 = <span class="built_in">list</span>-&gt;next;</span><br><span class="line">	Node *p2 = p1;</span><br><span class="line">	<span class="keyword">int</span> j = <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">while</span> (p2 &amp;&amp; j &lt; mid + <span class="number">1</span>) &#123;</span><br><span class="line">		p2 = p2-&gt;next;</span><br><span class="line">		j++;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">while</span> (p2-&gt;next) &#123;</span><br><span class="line">		p2 = p2-&gt;next;</span><br><span class="line">		p1 = p1-&gt;next;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> p1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="线性表链式存储完整代码"><a href="#线性表链式存储完整代码" class="headerlink" title="线性表链式存储完整代码"></a>线性表链式存储完整代码</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SUCCESS 1</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FAILURE 0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">int</span> Status;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">int</span> ElementType;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">Node</span> &#123;</span></span><br><span class="line">	ElementType data;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">Node</span>* <span class="title">next</span>;</span></span><br><span class="line">&#125; Node;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">Node</span> *<span class="title">LinkedList</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">listInit</span><span class="params">(LinkedList *<span class="built_in">list</span>)</span> </span>&#123;</span><br><span class="line">	<span class="comment">// 头结点数据域存储链表长度</span></span><br><span class="line">	(*<span class="built_in">list</span>)-&gt;data = <span class="number">0</span>;</span><br><span class="line">	(*<span class="built_in">list</span>)-&gt;next = <span class="literal">NULL</span>;</span><br><span class="line">	<span class="comment">// list的值是linkedList的地址，所以跟&amp;linkedList是一样的</span></span><br><span class="line">	<span class="comment">//printf("init method list's address = %p\n", list);</span></span><br><span class="line">	<span class="comment">// &amp;list是指向linkedList指针的地址</span></span><br><span class="line">	<span class="comment">//printf("init method &amp;list's address = %p\n", &amp;list);</span></span><br><span class="line">	<span class="comment">// 是头结点的地址</span></span><br><span class="line">	<span class="comment">//printf("init method *list's address = %p\n", *list);</span></span><br><span class="line">	</span><br><span class="line">    <span class="comment">// 若在这里初始化n个结点，则参数必须是LinkedList *list,不能是LinkedList list。需要用到指向指针的指针，因为main函数中的linkedList与listInit的形参list指向的内存地址不一样。</span></span><br><span class="line">    <span class="comment">// 以下代码还是注释掉吧，初始化只需要把data值置为0，next指针域置为NULL</span></span><br><span class="line">	<span class="comment">//	Node *p = (*list);</span></span><br><span class="line">	<span class="comment">//	for (int i = 0; i &lt; n; i++) &#123;</span></span><br><span class="line">	<span class="comment">//		p-&gt;next = (Node*) malloc(sizeof(Node));</span></span><br><span class="line">	<span class="comment">//		p-&gt;next-&gt;data = i;</span></span><br><span class="line">	<span class="comment">//		p-&gt;next-&gt;next = NULL;</span></span><br><span class="line">	<span class="comment">//		p = p-&gt;next;</span></span><br><span class="line">	<span class="comment">//	&#125;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Status <span class="title">listSearch</span><span class="params">(LinkedList <span class="built_in">list</span>, <span class="keyword">int</span> i, ElementType *e)</span> </span>&#123;</span><br><span class="line">	Node *p = <span class="built_in">list</span>-&gt;next;</span><br><span class="line">	<span class="comment">// j=1表示从第1个结点开始</span></span><br><span class="line">	<span class="keyword">int</span> j = <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">while</span> (p &amp;&amp; j &lt; i) &#123;</span><br><span class="line">		p = p-&gt;next;</span><br><span class="line">		++j;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"i=%d,j=%d\n"</span>, i, j);</span><br><span class="line">	<span class="keyword">if</span> (!p || j &gt; i) &#123;</span><br><span class="line">		<span class="keyword">return</span> FAILURE;</span><br><span class="line">	&#125;</span><br><span class="line">	*e = p-&gt;data;</span><br><span class="line">	<span class="keyword">return</span> SUCCESS;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Status <span class="title">listInsert</span><span class="params">(LinkedList linkedList, <span class="keyword">int</span> i, ElementType e)</span> </span>&#123;</span><br><span class="line">	Node *p = linkedList;</span><br><span class="line">	<span class="comment">// j=0表示从头结点开始</span></span><br><span class="line">	<span class="keyword">int</span> j = <span class="number">0</span>;</span><br><span class="line">	<span class="comment">// j &lt; i - 1条件表示循环完成后（j == i - 1结束循环），p指向第i-1个结点</span></span><br><span class="line">	<span class="keyword">while</span> (p &amp;&amp; j &lt; i - <span class="number">1</span>) &#123;</span><br><span class="line">		p = p-&gt;next;</span><br><span class="line">		j++;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (!p || j &gt; i - <span class="number">1</span>) &#123;</span><br><span class="line">		<span class="keyword">return</span> FAILURE;</span><br><span class="line">	&#125;</span><br><span class="line">	Node *newNode = (Node*) <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</span><br><span class="line">	newNode-&gt;data = e;</span><br><span class="line">	newNode-&gt;next = p-&gt;next;</span><br><span class="line">	p-&gt;next = newNode;</span><br><span class="line">	linkedList-&gt;data++;</span><br><span class="line">	<span class="keyword">return</span> SUCCESS;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Status <span class="title">listDelete</span><span class="params">(LinkedList linkedList, <span class="keyword">int</span> i, ElementType *e)</span> </span>&#123;</span><br><span class="line">	Node *p = linkedList;</span><br><span class="line">	<span class="keyword">int</span> j = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">while</span> (p &amp;&amp; j &lt; i - <span class="number">1</span>) &#123;</span><br><span class="line">		p = p-&gt;next;</span><br><span class="line">		j++;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (!p || j &gt; i - <span class="number">1</span>) &#123;</span><br><span class="line">		<span class="keyword">return</span> FAILURE;</span><br><span class="line">	&#125;</span><br><span class="line">	Node *tmp = p-&gt;next;</span><br><span class="line">	p-&gt;next = tmp-&gt;next;</span><br><span class="line">	*e = tmp-&gt;data;</span><br><span class="line">	<span class="built_in">free</span>(tmp);</span><br><span class="line">	linkedList-&gt;data--;</span><br><span class="line">	<span class="keyword">return</span> SUCCESS;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">LinkedList <span class="title">listReverse</span><span class="params">(LinkedList <span class="built_in">list</span>)</span> </span>&#123;</span><br><span class="line">	Node *cur = <span class="built_in">list</span>-&gt;next;</span><br><span class="line">	<span class="keyword">if</span> (!cur || !cur-&gt;next) &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="built_in">list</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	Node *pre = <span class="literal">NULL</span>;</span><br><span class="line">	Node *next = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span> (cur) &#123;</span><br><span class="line">		next = cur-&gt;next;</span><br><span class="line">		cur-&gt;next = pre;</span><br><span class="line">		pre = cur;</span><br><span class="line">		cur = next;</span><br><span class="line">	&#125;</span><br><span class="line">	LinkedList reverseList = (LinkedList) <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</span><br><span class="line">	<span class="comment">// 拷贝链表长度数据</span></span><br><span class="line">	reverseList-&gt;data = <span class="built_in">list</span>-&gt;data;</span><br><span class="line">	reverseList-&gt;next = pre;</span><br><span class="line">	<span class="built_in">free</span>(<span class="built_in">list</span>);</span><br><span class="line">	<span class="keyword">return</span> reverseList;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 找倒数第k个结点</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function">Node* <span class="title">listTheBackKthNode</span><span class="params">(LinkedList <span class="built_in">list</span>, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (!<span class="built_in">list</span>-&gt;next || k &lt;= <span class="number">0</span> || k &gt; <span class="built_in">list</span>-&gt;data) &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 设置两个指针p1,p2初始都指向第1个结点，p2向右移动k个位置,然后p1,p2同时向右移动，直至p2移动到末尾</span></span><br><span class="line">	Node *p1 = <span class="built_in">list</span>-&gt;next;</span><br><span class="line">	Node *p2 = p1;</span><br><span class="line">	<span class="keyword">int</span> j = <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">while</span> (p2-&gt;next &amp;&amp; j &lt; k) &#123;</span><br><span class="line">		p2 = p2-&gt;next;</span><br><span class="line">		j++;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">while</span> (p2-&gt;next) &#123;</span><br><span class="line">		p2 = p2-&gt;next;</span><br><span class="line">		p1 = p1-&gt;next;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> p1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 找到中间结点</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function">Node* <span class="title">listTheMiddleNode</span><span class="params">(LinkedList <span class="built_in">list</span>)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (!<span class="built_in">list</span>-&gt;next) &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 获取链表的长度（头结点数据域存储了链表的长度）</span></span><br><span class="line">	<span class="keyword">int</span> len = <span class="built_in">list</span>-&gt;data;</span><br><span class="line">	<span class="keyword">int</span> mid = len / <span class="number">2</span>;</span><br><span class="line">	Node *p1 = <span class="built_in">list</span>-&gt;next;</span><br><span class="line">	Node *p2 = p1;</span><br><span class="line">	<span class="keyword">int</span> j = <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">while</span> (p2 &amp;&amp; j &lt; mid + <span class="number">1</span>) &#123;</span><br><span class="line">		p2 = p2-&gt;next;</span><br><span class="line">		j++;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">while</span> (p2-&gt;next) &#123;</span><br><span class="line">		p2 = p2-&gt;next;</span><br><span class="line">		p1 = p1-&gt;next;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> p1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">listPrint</span><span class="params">(LinkedList <span class="built_in">list</span>)</span> </span>&#123;</span><br><span class="line">	Node *p = <span class="built_in">list</span>-&gt;next;</span><br><span class="line">	<span class="keyword">while</span> (p) &#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"%d "</span>, p-&gt;data);</span><br><span class="line">		p = p-&gt;next;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="comment">// 初始化一个单项链表的头结点</span></span><br><span class="line">	<span class="comment">// LinkedList linkedList = (Node*)malloc(sizeof(Node));</span></span><br><span class="line">	LinkedList linkedList = (LinkedList) <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</span><br><span class="line">	<span class="comment">// 头结点的地址</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"main method linkedList's address = %p\n"</span>, linkedList);</span><br><span class="line">	<span class="comment">// 指向头结点的指针的地址</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"main method &amp;linkedList's address = %p\n"</span>, &amp;linkedList);</span><br><span class="line">	listInit(&amp;linkedList);</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= <span class="number">10</span>; i++) &#123;</span><br><span class="line">		ElementType data = i;</span><br><span class="line">		listInsert(linkedList, i, data);</span><br><span class="line">	&#125;</span><br><span class="line">	ElementType searchElement = <span class="number">-1</span>;</span><br><span class="line">	Status searchResult = listSearch(linkedList, <span class="number">3</span>, &amp;searchElement);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"search result:%d,the element is %d\n"</span>, searchResult, searchElement);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"insert %d\n"</span>, listInsert(linkedList, <span class="number">10</span>, <span class="number">33</span>));</span><br><span class="line">	listPrint(linkedList);</span><br><span class="line">	ElementType deletedElement = <span class="number">-1</span>;</span><br><span class="line">	Status deleteResult = listDelete(linkedList, <span class="number">2</span>, &amp;deletedElement);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"delete result:%d,deleted element:%d\n"</span>, deleteResult,</span><br><span class="line">			deletedElement);</span><br><span class="line">	listPrint(linkedList);</span><br><span class="line">	LinkedList reverseList = listReverse(linkedList);</span><br><span class="line">	listPrint(reverseList);</span><br><span class="line">	<span class="keyword">int</span> k = <span class="number">2</span>;</span><br><span class="line">	Node *theBackKthNode = listTheBackKthNode(reverseList, k);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"the back %dth node is %d\n"</span>, k,</span><br><span class="line">			theBackKthNode ? theBackKthNode-&gt;data : <span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">	Node *theMiddleNode = listTheMiddleNode(reverseList);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"the middle node is %d\n"</span>, theMiddleNode-&gt;data);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/线性表/" rel="tag"><i class="fa fa-tag"></i> 线性表</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/22/数据结构-线性表的顺序表示与实现/" rel="next" title="数据结构-线性表的顺序表示与实现">
+                <i class="fa fa-chevron-left"></i> 数据结构-线性表的顺序表示与实现
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+<span class="jiathis_txt">分享到：</span>
+<a class="jiathis_button_weixin">微信</a>
+<a class="jiathis_button_tsina">新浪微博</a>
+<a class="jiathis_button_twitter">Twitter</a>
+<a class="jiathis_button_fb">Facebook</a>
+<a class="jiathis_button_copy">复制网址</a>
+<a class="jiathis_button_email">邮件</a>
+<a class="jiathis_button_fav">收藏夹</a>
+<a class="jiathis_button_share">一键分享</a>
+
+<a href="http://www.jiathis.com/share?uid=2140465" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+var jiathis_config={
+  data_track_clickback:true,
+  summary:"",
+  shortUrl:false,
+  hideMore:false
+}
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=2154652" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/default_avatar.png"
+                alt="Jay Chang" />
+            
+              <p class="site-author-name" itemprop="name">Jay Chang</p>
+              <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/jaychang9" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://twitter.com/jaychang1987" target="_blank" title="Twitter">
+                      
+                        <i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.facebook.com/jaychang1987" target="_blank" title="Facebook">
+                      
+                        <i class="fa fa-fw fa-facebook"></i>Facebook</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://plus.google.com/jaychang1987" target="_blank" title="Google">
+                      
+                        <i class="fa fa-fw fa-google"></i>Google</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:jaychang1987@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tech.meituan.com/" title="美团点评" target="_blank">美团点评</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tech.youzan.com/" title="有赞技术" target="_blank">有赞技术</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://tech.lede.com/" title="网易乐得" target="_blank">网易乐得</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://lovestblog.cn/" title="你假笨" target="_blank">你假笨</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.jianshu.com/u/90ab66c248e6" title="占小狼" target="_blank">占小狼</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/quhongwei_zhanqiu" title="斩秋" target="_blank">斩秋</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.iocoder.cn/" title="芋道源码" target="_blank">芋道源码</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://wuchong.me/" title="伍翀Jark" target="_blank">伍翀Jark</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.jasongj.com/" title="郭俊Jason" target="_blank">郭俊Jason</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/chenssy" title="Chenssy" target="_blank">Chenssy</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://techlog.cn/" title="龙谭斋" target="_blank">龙谭斋</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://imququ.com/" title="Jerry Qu" target="_blank">Jerry Qu</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/morewindows/article/details/17488865" title="MoreWindows" target="_blank">MoreWindows</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#线性表链式存储结构定义"><span class="nav-number">1.</span> <span class="nav-text">线性表链式存储结构定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线性表链式存储结构"><span class="nav-number">2.</span> <span class="nav-text">线性表链式存储结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线性表链式存储结构的插入"><span class="nav-number">3.</span> <span class="nav-text">线性表链式存储结构的插入</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线性表链式存储结构的删除"><span class="nav-number">4.</span> <span class="nav-text">线性表链式存储结构的删除</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线性表链式存储结构的逆转"><span class="nav-number">5.</span> <span class="nav-text">线性表链式存储结构的逆转</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线性表链式存储结构的查找"><span class="nav-number">6.</span> <span class="nav-text">线性表链式存储结构的查找</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线性表链式存储结构查找倒数第k个结点"><span class="nav-number">7.</span> <span class="nav-text">线性表链式存储结构查找倒数第k个结点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线性表链式存储结构查中间结点"><span class="nav-number">8.</span> <span class="nav-text">线性表链式存储结构查中间结点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线性表链式存储完整代码"><span class="nav-number">9.</span> <span class="nav-text">线性表链式存储完整代码</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jay Chang</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://jay-changs-blog.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://jaychang.cn/2018/02/06/数据结构-线性表的链式表示与实现/';
+          this.page.identifier = '2018/02/06/数据结构-线性表的链式表示与实现/';
+          this.page.title = '数据结构-线性表的链式表示与实现';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://jay-changs-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
