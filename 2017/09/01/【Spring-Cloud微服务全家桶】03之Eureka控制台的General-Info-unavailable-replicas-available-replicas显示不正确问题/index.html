@@ -81,23 +81,23 @@
 
 
 
-<meta name="description" content="前言之前【Spring Cloud微服务全家桶】之高可用服务注册中心 文章介绍了Eureka Server高可用 问题描述 观察eureka-peer1，发现unavailable-replicas与available-replicas显示信息不正确，按理说所有eureka节点都启动后，eureka-peer3,eureka-peer2应该出现在available-replicas列表  解决方案">
+<meta name="description" content="前言之前【Spring Cloud微服务全家桶】之高可用服务注册中心 文章介绍了Eureka Server高可用">
 <meta name="keywords" content="微服务,Spring Cloud">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【Spring Cloud微服务全家桶】03之Eureka控制台的General Info(unavailable-replicas available-replicas显示不正确问题)">
 <meta property="og:url" content="http://jaychang.cn/2017/09/01/【Spring-Cloud微服务全家桶】03之Eureka控制台的General-Info-unavailable-replicas-available-replicas显示不正确问题/index.html">
 <meta property="og:site_name" content="Jay Chang&#39;s Blog">
-<meta property="og:description" content="前言之前【Spring Cloud微服务全家桶】之高可用服务注册中心 文章介绍了Eureka Server高可用 问题描述 观察eureka-peer1，发现unavailable-replicas与available-replicas显示信息不正确，按理说所有eureka节点都启动后，eureka-peer3,eureka-peer2应该出现在available-replicas列表  解决方案">
+<meta property="og:description" content="前言之前【Spring Cloud微服务全家桶】之高可用服务注册中心 文章介绍了Eureka Server高可用">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://jaychang.cn/2017/09/01/【Spring-Cloud微服务全家桶】03之Eureka控制台的General-Info-unavailable-replicas-available-replicas显示不正确问题/01.png">
 <meta property="og:image" content="http://jaychang.cn/2017/09/01/【Spring-Cloud微服务全家桶】03之Eureka控制台的General-Info-unavailable-replicas-available-replicas显示不正确问题/02.png">
 <meta property="og:image" content="http://jaychang.cn/2017/09/01/【Spring-Cloud微服务全家桶】03之Eureka控制台的General-Info-unavailable-replicas-available-replicas显示不正确问题/03.png">
 <meta property="og:image" content="http://jaychang.cn/2017/09/01/【Spring-Cloud微服务全家桶】03之Eureka控制台的General-Info-unavailable-replicas-available-replicas显示不正确问题/04.png">
 <meta property="og:image" content="http://jaychang.cn/2017/09/01/【Spring-Cloud微服务全家桶】03之Eureka控制台的General-Info-unavailable-replicas-available-replicas显示不正确问题/05.png">
-<meta property="og:updated_time" content="2018-01-23T06:20:57.344Z">
+<meta property="og:updated_time" content="2018-04-29T22:51:01.177Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【Spring Cloud微服务全家桶】03之Eureka控制台的General Info(unavailable-replicas available-replicas显示不正确问题)">
-<meta name="twitter:description" content="前言之前【Spring Cloud微服务全家桶】之高可用服务注册中心 文章介绍了Eureka Server高可用 问题描述 观察eureka-peer1，发现unavailable-replicas与available-replicas显示信息不正确，按理说所有eureka节点都启动后，eureka-peer3,eureka-peer2应该出现在available-replicas列表  解决方案">
+<meta name="twitter:description" content="前言之前【Spring Cloud微服务全家桶】之高可用服务注册中心 文章介绍了Eureka Server高可用">
 <meta name="twitter:image" content="http://jaychang.cn/2017/09/01/【Spring-Cloud微服务全家桶】03之Eureka控制台的General-Info-unavailable-replicas-available-replicas显示不正确问题/01.png">
 
 
@@ -437,6 +437,7 @@
 
       
         <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>之前【Spring Cloud微服务全家桶】之高可用服务注册中心 文章介绍了Eureka Server高可用</p>
+<a id="more"></a>
 <h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><img src="/2017/09/01/【Spring-Cloud微服务全家桶】03之Eureka控制台的General-Info-unavailable-replicas-available-replicas显示不正确问题/01.png">
 <p>观察eureka-peer1，发现unavailable-replicas与available-replicas显示信息不正确，按理说所有eureka节点都启动后，eureka-peer3,eureka-peer2应该出现在available-replicas列表</p>
 <img src="/2017/09/01/【Spring-Cloud微服务全家桶】03之Eureka控制台的General-Info-unavailable-replicas-available-replicas显示不正确问题/02.png">
