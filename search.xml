@@ -6,6 +6,7 @@
       <title><![CDATA[Docker下Zookeeper集群搭建]]></title>
       <url>/2018/05/05/Docker%E4%B8%8BZookeeper%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/</url>
       <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>自己了解一些Docker容器技术，想在自己机器上搭建一个zookeeper集群，以前在虚拟机上有过实践经验，这次就想着在Docker下也搞一个Zookeeper集群。Docker的相关介绍这里就不多讲了，大家可以通过搜索引擎查阅相关资料。</p>
+<img src="/2018/05/05/Docker下Zookeeper集群搭建/00.jpg">
 <a id="more"></a>
 <h1 id="zookeeper简介"><a href="#zookeeper简介" class="headerlink" title="zookeeper简介"></a>zookeeper简介</h1><p>Apache ZooKeeper是Apache的一个软件项目，它提供了一个开放源码的分布式配置服务、同步服务和大型分布式系统的命名注册服务。ZooKeeper是Hadoop的一个子项目，但目前是它本身就是一个顶级项目。</p>
 <h1 id="安装包下载、镜像下载"><a href="#安装包下载、镜像下载" class="headerlink" title="安装包下载、镜像下载"></a>安装包下载、镜像下载</h1><p><a href="http://archive.apache.org/dist/zookeeper/zookeeper-3.4.11/zookeeper-3.4.11.tar.gz" target="_blank" rel="noopener">http://archive.apache.org/dist/zookeeper/zookeeper-3.4.11/zookeeper-3.4.11.tar.gz</a></p>
@@ -58,7 +59,7 @@
 <p>如果没有映射配置文件目录或映射配置文件也没关系，zookeeper官方镜像提供了以下启动容器时的环境变量参数</p>
 <p>启动一个zookeeper容器</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> docker run --name some-zookeeper --restart always -d zookeeper</span><br></pre></td></tr></table></figure>
-<p>启动一个应用的容器，这个应用是需要用到zookeeper的，可以通过–link some-zookeeper:zookeeper连接到上一步启动的zookeeper容器</p>
+<p>启动一个应用的容器，这个应用是需要用到zookeeper的，可以通过–link some-zookeeper:zookeeper连接到上一步启动的zookeeper容器。some-zookeeper冒号后的zookeeper是别名</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> docker run --name some-app --link some-zookeeper:zookeeper -d application-that-uses-zookeeper</span><br></pre></td></tr></table></figure>
 <p>通过命令行客户端连接zookeeper，由于这里加了–rm参数，使得退出容器，容器马上会被删掉</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> docker run -it --rm --link some-zookeeper:zookeeper zookeeper zkCli.sh -server zookeeper</span><br><span class="line"><span class="meta">#</span> 可以直接指定ip:port</span><br><span class="line"><span class="meta">$</span> docker run -it --rm --link some-zookeeper:zookeeper zookeeper zkCli.sh -server 192.168.56.101:2181</span><br><span class="line"><span class="meta">#</span> 连接集群</span><br><span class="line"><span class="meta">$</span> docker run -it --rm --link some-zookeeper:zookeeper zookeeper zkCli.sh -server 192.168.56.101:2181,192.168.56.101:2182,192.168.56.101:2183</span><br></pre></td></tr></table></figure>
@@ -269,6 +270,7 @@
 <p><a href="https://www.hifreud.com/2017/01/09/zookeeper-06-common-configurations/" target="_blank" rel="noopener">https://www.hifreud.com/2017/01/09/zookeeper-06-common-configurations/</a></p>
 <p><a href="http://www.cnblogs.com/sunddenly/articles/4071730.html" target="_blank" rel="noopener">http://www.cnblogs.com/sunddenly/articles/4071730.html</a></p>
 <p><a href="https://my.oschina.net/xiaotian120/blog/194820" target="_blank" rel="noopener">https://my.oschina.net/xiaotian120/blog/194820</a></p>
+<p><a href="https://yq.aliyun.com/articles/30328" target="_blank" rel="noopener">https://yq.aliyun.com/articles/30328</a></p>
 ]]></content>
       
         <categories>
