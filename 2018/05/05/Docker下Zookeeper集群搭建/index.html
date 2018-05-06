@@ -91,7 +91,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://jaychang.cn/2018/05/05/Docker下Zookeeper集群搭建/00.jpg">
 <meta property="og:image" content="http://jaychang.cn/2018/05/05/Docker下Zookeeper集群搭建/01.png">
-<meta property="og:updated_time" content="2018-05-06T12:39:59.100Z">
+<meta property="og:updated_time" content="2018-05-06T15:01:32.445Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Docker下Zookeeper集群搭建">
 <meta name="twitter:description" content="前言自己了解一些Docker容器技术，想在自己机器上搭建一个zookeeper集群，以前在虚拟机上有过实践经验，这次就想着在Docker下也搞一个Zookeeper集群。Docker的相关介绍这里就不多讲了，大家可以通过搜索引擎查阅相关资料。">
@@ -439,7 +439,7 @@
 <h1 id="zookeeper简介"><a href="#zookeeper简介" class="headerlink" title="zookeeper简介"></a>zookeeper简介</h1><p>Apache ZooKeeper是Apache的一个软件项目，它提供了一个开放源码的分布式配置服务、同步服务和大型分布式系统的命名注册服务。ZooKeeper是Hadoop的一个子项目，但目前是它本身就是一个顶级项目。</p>
 <h1 id="安装包下载、镜像下载"><a href="#安装包下载、镜像下载" class="headerlink" title="安装包下载、镜像下载"></a>安装包下载、镜像下载</h1><p><a href="http://archive.apache.org/dist/zookeeper/zookeeper-3.4.11/zookeeper-3.4.11.tar.gz" target="_blank" rel="noopener">http://archive.apache.org/dist/zookeeper/zookeeper-3.4.11/zookeeper-3.4.11.tar.gz</a></p>
 <p>docker pull zookeeper</p>
-<p>到写文章时，pull下来ookeeper的版本也是3.4.11，后续pull下来可能不是3.4.11了，需注意，后续新版本有配置变更也请留意</p>
+<p>到写文章时，pull下来zookeeper的版本也是3.4.11，后续pull下来可能不是3.4.11了，需注意，后续新版本有配置变更也请留意</p>
 <h1 id="Zookeeper集群及容灾"><a href="#Zookeeper集群及容灾" class="headerlink" title="Zookeeper集群及容灾"></a>Zookeeper集群及容灾</h1><h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2><p>Zookeeper集群部署并非一定需要奇数台服务器，任意台Zookeeper服务器都能部署且能够正常运行。</p>
 <p>一个Zookeeper集群如果要对外提供可用的服务，那么集群中必须要有过半的机器正常工作并且彼此之间能够正常通信。基于这个特性，如果想搭建一个能够允许N台机器挂掉的集群，那么就需要部署一个由2XN+1台服务器构成的Zookeeper集群。因此，一个由5台机器构成的Zookeeper集群，能够在挂掉2台机器后依然正常工作，而如果是一个由6台服务器构成的Zookeeper集群，同样只能够挂掉2台机器，因为如果挂掉3台，剩下的机器就无法实现过半了。</p>
 <p>因此，从上面的讲解中，我们可以看出，对于一个由6台服务器组成的Zookeeper集群来说，和一个由5台服务器构成的Zookeeper集群相比，其在容灾能力上没有任何明显的提升。基于这个原因，Zookeeper集群通常设计部署成奇数台服务器即可。</p>
