@@ -120,6 +120,24 @@
 <ul>
 <li>离线安装内核及cgroup</li>
 </ul>
+<table>
+<thead>
+<tr>
+<th>安装包名</th>
+<th>下载地址</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>linux4.4.132-1内核安装包</td>
+<td><a href="http://elrepo.org/linux/kernel/el6/x86_64/RPMS/kernel-lt-4.4.132-1.el6.elrepo.x86_64.rpm" target="_blank" rel="noopener">http://elrepo.org/linux/kernel/el6/x86_64/RPMS/kernel-lt-4.4.132-1.el6.elrepo.x86_64.rpm</a></td>
+</tr>
+<tr>
+<td>cgroup安装包</td>
+<td><a href="http://mirror.centos.org/centos/6/updates/x86_64/Packages/libcgroup-0.40.rc1-24.el6_9.x86_64.rpm" target="_blank" rel="noopener">http://mirror.centos.org/centos/6/updates/x86_64/Packages/libcgroup-0.40.rc1-24.el6_9.x86_64.rpm</a></td>
+</tr>
+</tbody>
+</table>
 <blockquote>
 <p>rpm -ivh kernel-lt-4.4.132-1.el6.elrepo.x86_64.rpm</p>
 <p>rpm -ivh libcgroup-0.40.rc1-24.el6_9.x86_64.rpm</p>
@@ -178,8 +196,7 @@
 <p>echo “CentOS release 6.x (Final)” | tee  /usr/lib/os-release</p>
 </blockquote>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# echo "CentOS release 6.x (Final)" | tee  /usr/lib/os-release</span><br><span class="line">CentOS release 6.x (Final)</span><br></pre></td></tr></table></figure>
-<p>##docker exec -it 报错的问题</p>
-<p>报的错误是rpc error: code = 2 desc = oci runtime error: exec failed: container_linux.go:262: starting container process caused “open /dev/ptmx: no such file or directory “，我看了下宿主机上是有这个文件，那么应该是容器里没有的原因，目前还没查到原因。不过可以通过启动容器时指定  -v /dev:/dev 映射宿主机/dev来解决</p>
+<h2 id="docker-exec-it-报错的问题"><a href="#docker-exec-it-报错的问题" class="headerlink" title="docker exec -it 报错的问题"></a>docker exec -it 报错的问题</h2><p>报的错误是rpc error: code = 2 desc = oci runtime error: exec failed: container_linux.go:262: starting container process caused “open /dev/ptmx: no such file or directory “，我看了下宿主机上是有这个文件，那么应该是容器里没有的原因，目前还没查到原因。不过可以通过启动容器时指定  -v /dev:/dev 映射宿主机/dev来解决</p>
 <p>此问题可以在启动容器的时候时候，通过<strong>-v /dev:/dev</strong>来解决，如：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -it -d --name mynginx -p 80:80  -v /dev:/dev nginx:alpine</span><br><span class="line">docker run -it -d --name myjdk -v /dev:/dev openjdk:8-jdk-alpine</span><br></pre></td></tr></table></figure>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>踩了好多坑，还是一点点解决了，有点抓狂，有点惊喜；还是得多多总结，多多把遇到的坑，怎么解决的经历整理成文，分享出来，以免更多人踩同样的坑。希望此文对有需要在CentOS6.6或CentOS6.x上安装docker的读者有一些帮助。</p>
