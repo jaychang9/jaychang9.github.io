@@ -84,7 +84,7 @@
 <meta name="description" content="当你的才华还撑不起你的野心时，你就应该静下心来学习。">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Jay Chang&#39;s Blog">
-<meta property="og:url" content="http://jaychang.cn/tags/Docker/index.html">
+<meta property="og:url" content="http://jaychang.cn/tags/docker/index.html">
 <meta property="og:site_name" content="Jay Chang&#39;s Blog">
 <meta property="og:description" content="当你的才华还撑不起你的野心时，你就应该静下心来学习。">
 <meta property="og:locale" content="zh-Hans">
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://jaychang.cn/tags/Docker/"/>
+  <link rel="canonical" href="http://jaychang.cn/tags/docker/"/>
 
 
 
 
 
-  <title>标签: Docker | Jay Chang's Blog</title>
+  <title>标签: docker | Jay Chang's Blog</title>
   
 
 
@@ -302,7 +302,7 @@
 
     <div id="posts" class="posts-collapse">
       <div class="collection-title">
-        <h1>Docker<small>标签</small>
+        <h1>docker<small>标签</small>
         </h1>
       </div>
 
@@ -314,37 +314,9 @@
 
       <h2 class="post-title">
         
-            <a class="post-title-link" href="/2018/05/24/CentOS6-x内核升级-安装docker17-06-2-ce/" itemprop="url">
+            <a class="post-title-link" href="/2019/05/15/Ubuntu 18.04 Docker Swarm集群搭建/" itemprop="url">
               
-                <span itemprop="name">CentOS6.6内核升级,安装docker17.06.2-ce</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-05-24T22:05:44+08:00"
-              content="2018-05-24" >
-          05-24
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/05/05/Docker下Zookeeper集群搭建/" itemprop="url">
-              
-                <span itemprop="name">Docker下Zookeeper集群搭建</span>
+                <span itemprop="name">Ubuntu18.04 Swarm集群搭建</span>
               
             </a>
         
@@ -352,9 +324,9 @@
 
       <div class="post-meta">
         <time class="post-time" itemprop="dateCreated"
-              datetime="2018-05-05T17:32:24+08:00"
-              content="2018-05-05" >
-          05-05
+              datetime="2019-05-15T22:56:00+08:00"
+              content="2019-05-15" >
+          05-15
         </time>
       </div>
 
@@ -418,7 +390,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -429,7 +401,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -440,7 +412,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -584,7 +556,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
@@ -1059,6 +1031,51 @@
       e.stopPropagation();
     });
     $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
+yup', function (event) {
       var shouldDismissSearchPopup = event.which === 27 &&
         $('.search-popup').is(':visible');
       if (shouldDismissSearchPopup) {
