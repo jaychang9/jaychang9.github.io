@@ -4,7 +4,7 @@
     
     <entry>
       <title><![CDATA[Ubuntu18.04 Tengine+Lua+GraphicsMagick图片缩放]]></title>
-      <url>/2019/06/10/buntu18-04-%E5%AE%89%E8%A3%85tengine/</url>
+      <url>/2019/06/10/untu18-04-%E5%AE%89%E8%A3%85tengine/</url>
       <content type="html"><![CDATA[<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>自己搭建的图片服务器，有图片缩放的需求，大致思路是可以使用nginx调用lua，使用GraphicMagick的命令来做图片缩放</p>
 <h1 id="所需软件"><a href="#所需软件" class="headerlink" title="所需软件"></a>所需软件</h1><ul>
 <li>lua-5.3.5.tar.gz</li>
@@ -220,97 +220,6 @@
             <tag> docker </tag>
             
             <tag> swarm </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Ubuntu16.04下使用kubeadm一键部署kubernetes集群]]></title>
-      <url>/2018/07/29/Ubuntu16.04%E4%B8%8B%E4%BD%BF%E7%94%A8kubeadm%E4%B8%80%E9%94%AE%E9%83%A8%E7%BD%B2kubernetes%E9%9B%86%E7%BE%A4/</url>
-      <content type="html"><![CDATA[<p># </p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1>]]></content>
-      
-        <categories>
-            
-            <category> Kubernates </category>
-            
-        </categories>
-        
-        
-        <tags>
-            
-            <tag> k8s </tag>
-            
-            <tag> kubernates </tag>
-            
-            <tag> 容器编排 </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Ubuntu16.04下使用kubeadm一键部署kubernetes集群]]></title>
-      <url>/2018/07/29/Ubuntu16-04%E5%AE%89%E8%A3%85kubernates%E9%9B%86%E7%BE%A4/</url>
-      <content type="html"><![CDATA[<h1 id="一、环境规划"><a href="#一、环境规划" class="headerlink" title="一、环境规划"></a>一、环境规划</h1><table>
-<thead>
-<tr>
-<th>主机名</th>
-<th>IP地址</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>k8s-master</td>
-<td>192.168.56.121</td>
-</tr>
-<tr>
-<td>k8s-node01</td>
-<td>192.168.56.122</td>
-</tr>
-<tr>
-<td>k8s-node02</td>
-<td>192.168.56.103</td>
-</tr>
-<tr>
-<td>k8s-node03</td>
-<td>192.168.56.104</td>
-</tr>
-</tbody>
-</table>
-<p><strong>环境说明</strong></p>
-<ul>
-<li>操作系统：Ubuntu 16.04 or CentOS 7</li>
-<li>Kubernates版本：v1.10.3</li>
-<li>Docker版本：17.03.2</li>
-</ul>
-<p>CentOS7 关闭selinux，Ubuntu关闭swap</p>
-<p><strong>架构拓扑</strong></p>
-
-<h1 id="二、安装说明"><a href="#二、安装说明" class="headerlink" title="二、安装说明"></a>二、安装说明</h1><p>k8s-master、k8s-node01、k8s-node02、k8s-node03都需要做以下工作，如配置软件源，安装docker，配置docker镜像加速</p>
-<h2 id="2-1-配置ubuntu16-04阿里云源"><a href="#2-1-配置ubuntu16-04阿里云源" class="headerlink" title="2.1 配置ubuntu16.04阿里云源"></a>2.1 配置ubuntu16.04阿里云源</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">sudo cp /etc/apk/sources.list /etc/apk/sources.list.$(date &apos;+%Y%m%d%H%M%S&apos;).bak</span><br><span class="line">sudo cat &lt;&lt;EOF &gt; /etc/apt/sources.list</span><br><span class="line">deb http://mirrors.aliyun.com/ubuntu/ xenial main</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ xenial main</span><br><span class="line">deb http://mirrors.aliyun.com/ubuntu/ xenial-updates main</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ xenial-updates main</span><br><span class="line">deb http://mirrors.aliyun.com/ubuntu/ xenial universe</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ xenial universe</span><br><span class="line">deb http://mirrors.aliyun.com/ubuntu/ xenial-updates universe</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ xenial-updates universe</span><br><span class="line">deb http://mirrors.aliyun.com/ubuntu/ xenial-security main</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ xenial-security main</span><br><span class="line">deb http://mirrors.aliyun.com/ubuntu/ xenial-security universe</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ xenial-security universe</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
-<h2 id="2-2-安装指定版本docker"><a href="#2-2-安装指定版本docker" class="headerlink" title="2.2 安装指定版本docker"></a>2.2 安装指定版本docker</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get -y install apt-transport-https ca-certificates curl software-properties-common</span><br><span class="line">sudo curl -fsSL http://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | sudo apt-key add -</span><br><span class="line">sudo add-apt-repository "deb [arch=amd64] http://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable"</span><br><span class="line">sudo apt-get -y update</span><br><span class="line"><span class="meta">#</span>查看有哪些可用的docker版本</span><br><span class="line">sudo apt-cache madison docker-ce</span><br><span class="line"><span class="meta">#</span>sudo apt-get -y install docker-ce=[VERSION]</span><br><span class="line">sudo apt-get -y install docker-ce=17.03.2~ce-0~ubuntu-xenial</span><br></pre></td></tr></table></figure>
-<h3 id="2-2-1-配置docker镜像加速"><a href="#2-2-1-配置docker镜像加速" class="headerlink" title="2.2.1 配置docker镜像加速"></a>2.2.1 配置docker镜像加速</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir -p /etc/docker</span><br><span class="line">sudo tee /etc/docker/daemon.json &lt;&lt;-'EOF'</span><br><span class="line">&#123;</span><br><span class="line">  "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn"]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
-<h3 id="2-2-2-重启docker"><a href="#2-2-2-重启docker" class="headerlink" title="2.2.2 重启docker"></a>2.2.2 重启docker</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl restart docker</span><br></pre></td></tr></table></figure>
-<h1 id="三、安装k8s-master"><a href="#三、安装k8s-master" class="headerlink" title="三、安装k8s master"></a>三、安装k8s master</h1><h1 id="四、安装k8s-node"><a href="#四、安装k8s-node" class="headerlink" title="四、安装k8s node"></a>四、安装k8s node</h1><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://github.com/cookcodeblog/k8s-deploy" target="_blank" rel="noopener">https://github.com/cookcodeblog/k8s-deploy</a></p>
-<p><a href="https://blog.csdn.net/zhenliang8/article/details/78611004" target="_blank" rel="noopener">https://blog.csdn.net/zhenliang8/article/details/78611004</a></p>
-]]></content>
-      
-        <categories>
-            
-            <category> Kubernates </category>
-            
-        </categories>
-        
-        
-        <tags>
-            
-            <tag> k8s </tag>
-            
-            <tag> kubernates </tag>
-            
-            <tag> 容器编排 </tag>
             
         </tags>
         
