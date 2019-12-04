@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-j.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-j.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-j.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo_j.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,Spring,Spring Cloud,中间件,RocketMQ,高并发,分布式,分布式事务,流式计算,Storm,机器学习,深度学习,Python,大数据,Spark,Hadoop,HDFS" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jay Chang's Blog" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="title: 如何构建SpringBoot应用的Docker镜像date: 2019-12-04 22:17:54categories:   SpringBoottags: Docker SpringBoot   背景SpringBoot大道其行，微服务也是大道其行，越来越多的SpringBoot应用使用Docker容器来运行。既然要用Docker容器运行，那首先得把SpringBoot应用打包">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何构建SpringBoot应用的Docker镜像">
+<meta property="og:url" content="http://jaychang.cn/2019/12/02/何构建SpringBoot应用的Docker镜像/index.html">
+<meta property="og:site_name" content="Jay Chang&#39;s Blog">
+<meta property="og:description" content="title: 如何构建SpringBoot应用的Docker镜像date: 2019-12-04 22:17:54categories:   SpringBoottags: Docker SpringBoot   背景SpringBoot大道其行，微服务也是大道其行，越来越多的SpringBoot应用使用Docker容器来运行。既然要用Docker容器运行，那首先得把SpringBoot应用打包">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-12-04T14:29:02.617Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何构建SpringBoot应用的Docker镜像">
+<meta name="twitter:description" content="title: 如何构建SpringBoot应用的Docker镜像date: 2019-12-04 22:17:54categories:   SpringBoottags: Docker SpringBoot   背景SpringBoot大道其行，微服务也是大道其行，越来越多的SpringBoot应用使用Docker容器来运行。既然要用Docker容器运行，那首先得把SpringBoot应用打包">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://jaychang.cn/2019/12/02/何构建SpringBoot应用的Docker镜像/"/>
+
+
+
+
+
+  <title>如何构建SpringBoot应用的Docker镜像 | Jay Chang's Blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?d383fa81ebb62476e09fe22470595b8d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	
+	<a href="https://github.com/jaychang9"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+	
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jay Chang's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">我的技术博客</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jaychang.cn/2019/12/02/何构建SpringBoot应用的Docker镜像/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jay Chang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/default_avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jay Chang's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">如何构建SpringBoot应用的Docker镜像</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-02T20:57:36+08:00">
+                2019-12-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/12/02/何构建SpringBoot应用的Docker镜像/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/12/02/何构建SpringBoot应用的Docker镜像/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,990
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<p>title: 如何构建SpringBoot应用的Docker镜像<br>date: 2019-12-04 22:17:54<br>categories: </p>
+<ul>
+<li>SpringBoot<br>tags:</li>
+<li>Docker</li>
+<li>SpringBoot</li>
+</ul>
+<hr>
+<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>SpringBoot大道其行，微服务也是大道其行，越来越多的SpringBoot应用使用Docker容器来运行。既然要用Docker容器运行，那首先得把SpringBoot应用打包成Docker镜像。</p>
+<h1 id="构建方法"><a href="#构建方法" class="headerlink" title="构建方法"></a>构建方法</h1><p>目前主要的方法有三种：</p>
+<ul>
+<li>1.使用dockerfile-maven-plugin插件构建</li>
+<li>2.使用Google Jib插件构建</li>
+<li>3.手动构建</li>
+</ul>
+<p>下面我们一一来介绍，首先来介绍</p>
+<h2 id="使用dockerfile-maven-plugin插件构建"><a href="#使用dockerfile-maven-plugin插件构建" class="headerlink" title="使用dockerfile-maven-plugin插件构建"></a>使用dockerfile-maven-plugin插件构建</h2><p>项目地址：<a href="https://github.com/spotify/dockerfile-maven" target="_blank" rel="noopener">https://github.com/spotify/dockerfile-maven</a></p>
+<h3 id="项目根目录下创建Dockerfile"><a href="#项目根目录下创建Dockerfile" class="headerlink" title="项目根目录下创建Dockerfile"></a>项目根目录下创建Dockerfile</h3><blockquote>
+<blockquote>
+<p>以下给出了多个Dockerfile，根据实际情况选择</p>
+</blockquote>
+</blockquote>
+<ol>
+<li><p>简洁版</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> openjdk:<span class="number">8</span>-jdk-alpine</span><br><span class="line"><span class="keyword">MAINTAINER</span> jaychang &lt;jaychang1987@gmail.com&gt;</span><br><span class="line"><span class="keyword">VOLUME</span> /tmp</span><br><span class="line">ARG FILE</span><br><span class="line">ARG APP_NAME</span><br><span class="line">ADD $&#123;FILE&#125; /app.jar</span><br><span class="line">ENV JAVA_OPTS="-XX:MaxRAMFraction=2"</span><br><span class="line"># Configure ustc alpine software source and timezone</span><br><span class="line">RUN sed -i "s#http://dl-cdn.alpinelinux.org#https://mirrors.aliyun.com#g" /etc/apk/repositories \</span><br><span class="line">    &amp;&amp; apk update \</span><br><span class="line">    &amp;&amp; apk --no-cache add tzdata curl tini \</span><br><span class="line">    &amp;&amp; cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \</span><br><span class="line">    &amp;&amp; echo "Asia/Shanghai" &gt;  /etc/timezone \</span><br><span class="line">    &amp;&amp; rm -rf /var/cache/apk/*</span><br><span class="line"># To reduce Tomcat startup time we added a system property pointing to "/dev/urandom" as a source of entropy.</span><br><span class="line">ENTRYPOINT ["/sbin/tini", "--"]</span><br><span class="line">CMD ["sh","-c","java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar app.jar"]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>有带-D的参数</p>
+</li>
+</ol>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> openjdk:<span class="number">8</span>-jdk-alpine</span><br><span class="line"><span class="keyword">MAINTAINER</span> jaychang &lt;jaychang1987@gmail.com&gt;</span><br><span class="line"><span class="keyword">VOLUME</span> /tmp</span><br><span class="line">ARG FILE</span><br><span class="line">ARG APP_NAME</span><br><span class="line">ADD $&#123;FILE&#125; /app.jar</span><br><span class="line"># PINPOINT_VERSION Default 1.6.2 it can be replaced at docker run use -e or docker service -e or environment in docker-compose.yml</span><br><span class="line">ENV PINPOINT_VERSION=1.6.2</span><br><span class="line">ENV JAVA_OPTS="-XX:MaxRAMFraction=2"</span><br><span class="line">ENV PINPOINT_OPTS="-Dpinpoint.agentId=$&#123;APP_NAME&#125; -Dpinpoint.applicationName=$APP_NAME"</span><br><span class="line"># Configure ustc alpine software source and timezone</span><br><span class="line">RUN sed -i "s/http:\/\/dl-cdn.alpinelinux.org/https:\/\/mirrors.aliyun.com/g" /etc/apk/repositories \</span><br><span class="line">    &amp;&amp; apk update \</span><br><span class="line">    &amp;&amp; apk --no-cache add tzdata curl tini \</span><br><span class="line">    &amp;&amp; cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \</span><br><span class="line">    &amp;&amp; echo "Asia/Shanghai" &gt;  /etc/timezone \</span><br><span class="line">    &amp;&amp; rm -rf /var/cache/apk/*</span><br><span class="line"># To reduce Tomcat startup time we added a system property pointing to "/dev/urandom" as a source of entropy.</span><br><span class="line">ENTRYPOINT ["/sbin/tini", "--"]</span><br><span class="line">CMD ["sh","-c","java $JAVA_OPTS -javaagent:/pinpoint_data/pinpoint-agent-$&#123;PINPOINT_VERSION&#125;/pinpoint-bootstrap-$PINPOINT_VERSION.jar $PINPOINT_OPTS -Djava.security.egd=file:/dev/./urandom -jar app.jar"]</span><br></pre></td></tr></table></figure>
+<ol>
+<li>带字体版<blockquote>
+<p>常见的场景如excel导出，验证码</p>
+</blockquote>
+</li>
+</ol>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> openjdk:<span class="number">8</span>-jdk-alpine</span><br><span class="line"><span class="keyword">MAINTAINER</span> jaychang &lt;jaychang1987@gmail.com&gt;</span><br><span class="line"><span class="keyword">VOLUME</span> /tmp</span><br><span class="line">ARG FILE</span><br><span class="line">ARG APP_NAME</span><br><span class="line">ADD $&#123;FILE&#125; /app.jar</span><br><span class="line">ENV JAVA_OPTS="-XX:MaxRAMFraction=2"</span><br><span class="line"># Configure ustc alpine software source and timezone</span><br><span class="line">RUN sed -i "s/http:\/\/dl-cdn.alpinelinux.org/https:\/\/mirrors.aliyun.com/g" /etc/apk/repositories \</span><br><span class="line">    &amp;&amp; apk update \</span><br><span class="line">    &amp;&amp; apk --no-cache add tzdata curl tini \</span><br><span class="line">    &amp;&amp; apk --no-cahce add font-adobe-100dpi ttf-dejavu fontconfig \</span><br><span class="line">    &amp;&amp; cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \</span><br><span class="line">    &amp;&amp; echo "Asia/Shanghai" &gt;  /etc/timezone \</span><br><span class="line">    &amp;&amp; rm -rf /var/cache/apk/*</span><br><span class="line"># To reduce Tomcat startup time we added a system property pointing to "/dev/urandom" as a source of entropy.</span><br><span class="line">ENTRYPOINT ["/sbin/tini", "--"]</span><br><span class="line">CMD ["sh","-c","java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar app.jar"]</span><br></pre></td></tr></table></figure>
+<h3 id="在pom-xml中配置maven插件"><a href="#在pom-xml中配置maven插件" class="headerlink" title="在pom.xml中配置maven插件"></a>在pom.xml中配置maven插件</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1.6.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">goal</span>&gt;</span>repackage<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.spotify<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>dockerfile-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.4.12<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">id</span>&gt;</span>build-image<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">phase</span>&gt;</span>package<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">goal</span>&gt;</span>build<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">id</span>&gt;</span>tag-image-version<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">phase</span>&gt;</span>package<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">goal</span>&gt;</span>tag<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">goal</span>&gt;</span>push<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">tag</span>&gt;</span>$&#123;project.version&#125;<span class="tag">&lt;/<span class="name">tag</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">id</span>&gt;</span>tag-image-latest<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">phase</span>&gt;</span>package<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">goal</span>&gt;</span>tag<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">goal</span>&gt;</span>push<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">tag</span>&gt;</span>latest<span class="tag">&lt;/<span class="name">tag</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">tag</span>&gt;</span>$&#123;project.version&#125;<span class="tag">&lt;/<span class="name">tag</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">repository</span>&gt;</span>$&#123;docker.image.prefix&#125;/$&#123;project.artifactId&#125;<span class="tag">&lt;/<span class="name">repository</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">buildArgs</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">FILE</span>&gt;</span>target/$&#123;project.build.finalName&#125;.jar<span class="tag">&lt;/<span class="name">FILE</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">APP_NAME</span>&gt;</span>$&#123;project.artifactId&#125;<span class="tag">&lt;/<span class="name">APP_NAME</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">buildArgs</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>docker.image.prefix可以预先在properties标签中定义好，如果要区分不同环境传到不同的镜像中心可使用profiles标签来定义不同环境的docker.image.prefix</p>
+</blockquote>
+<h3 id="开始构建镜像"><a href="#开始构建镜像" class="headerlink" title="开始构建镜像"></a>开始构建镜像</h3><p>前提是要先安装好docker服务</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn clean package -Dmaven.test.skip=true -U</span><br></pre></td></tr></table></figure>
+<h2 id="使用Google-Jib插件构建"><a href="#使用Google-Jib插件构建" class="headerlink" title="使用Google Jib插件构建"></a>使用Google Jib插件构建</h2><p>项目地址：<a href="https://github.com/GoogleContainerTools/jib" target="_blank" rel="noopener">https://github.com/GoogleContainerTools/jib</a></p>
+<p>Google Jib的优势是无需事先安装docker，无需定义Dockerfile文件，而且Google Jib可以分层,依赖的jar构成一层，resource构成一层，然后项目本身的classes构建一层。这样如果只是改变项目本身代码，那么构建是非常快的。且推送的镜像也是非常小的，可以大大节省网络流量。</p>
+<h3 id="在pom-xml中配置maven插件-1"><a href="#在pom-xml中配置maven插件-1" class="headerlink" title="在pom.xml中配置maven插件"></a>在pom.xml中配置maven插件</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-compiler-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">version</span>&gt;</span>3.8.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">source</span>&gt;</span>$&#123;java.version&#125;<span class="tag">&lt;/<span class="name">source</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">target</span>&gt;</span>$&#123;java.version&#125;<span class="tag">&lt;/<span class="name">target</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">encoding</span>&gt;</span>$&#123;project.build.sourceEncoding&#125;<span class="tag">&lt;/<span class="name">encoding</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">annotationProcessorPaths</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">path</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;lombok.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">path</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">path</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mapstruct<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mapstruct-processor<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;mapstruct.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">path</span>&gt;</span></span><br><span class="line">					<span class="comment">&lt;!-- other annotation processors --&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">annotationProcessorPaths</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">compilerArgs</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">compilerArg</span>&gt;</span>-Amapstruct.defaultComponentModel=default<span class="tag">&lt;/<span class="name">compilerArg</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">compilerArg</span>&gt;</span>-Amapstruct.unmappedTargetPolicy=WARN<span class="tag">&lt;/<span class="name">compilerArg</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">compilerArgs</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.google.cloud.tools<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jib-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.7.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">from</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">image</span>&gt;</span>harbor.chaomeifan.com/library/openjdk:8-jdk-alpine-v1<span class="tag">&lt;/<span class="name">image</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">from</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">allowInsecureRegistries</span>&gt;</span>true<span class="tag">&lt;/<span class="name">allowInsecureRegistries</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">to</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">image</span>&gt;</span>$&#123;docker.image.prefix&#125;/$&#123;project.artifactId&#125;<span class="tag">&lt;/<span class="name">image</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">tags</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">tag</span>&gt;</span>$&#123;project.version&#125;<span class="tag">&lt;/<span class="name">tag</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">tag</span>&gt;</span>latest<span class="tag">&lt;/<span class="name">tag</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">tags</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">to</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">container</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">creationTime</span>&gt;</span>USE_CURRENT_TIMESTAMP<span class="tag">&lt;/<span class="name">creationTime</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">environment</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">PINPOINT_VERSION</span>&gt;</span>1.8.4<span class="tag">&lt;/<span class="name">PINPOINT_VERSION</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">PINPOINT_OPTS</span>&gt;</span>-Dpinpoint.agentId=$&#123;project.artifactId&#125; -Dpinpoint.applicationName=$&#123;project.artifactId&#125;<span class="tag">&lt;/<span class="name">PINPOINT_OPTS</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">NACOS_OPTS</span>&gt;</span>-Dregistry.nacos.namespace=bbae7e8e-29cb-48e3-8c36-c8a9759975a9<span class="tag">&lt;/<span class="name">NACOS_OPTS</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">environment</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">user</span>&gt;</span>zcckj:zcckj<span class="tag">&lt;/<span class="name">user</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">entrypoint</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">arg</span>&gt;</span>/sbin/tini<span class="tag">&lt;/<span class="name">arg</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">arg</span>&gt;</span>--<span class="tag">&lt;/<span class="name">arg</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">arg</span>&gt;</span>/bin/sh<span class="tag">&lt;/<span class="name">arg</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">arg</span>&gt;</span>-c<span class="tag">&lt;/<span class="name">arg</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">arg</span>&gt;</span>java $&#123;JAVA_OPTS&#125; -javaagent:/pinpoint_data/pinpoint-agent-$&#123;PINPOINT_VERSION&#125;/pinpoint-bootstrap-$PINPOINT_VERSION.jar $PINPOINT_OPTS $NACOS_OPTS -Djava.security.egd=file:/dev/./urandom -cp /app/resources/:/app/classes/:/app/libs/* com.zcckj.jingtian.biz.server.JingtianBizApplication<span class="tag">&lt;/<span class="name">arg</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">entrypoint</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">container</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">phase</span>&gt;</span>package<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">goal</span>&gt;</span>build<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>lombok.version为1.18.8</p>
+</li>
+<li><p>mapstruct.version为1.3.0.Final</p>
+</li>
+</ul>
+<blockquote>
+<blockquote>
+<p>如果您的项目没有用到Pinpoint,Nacos可以完全精简为如下</p>
+</blockquote>
+</blockquote>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">plugin</span>&gt;</span>编译插件省略(同上)...<span class="tag">&lt;/<span class="name">plugin</span>&gt;</span> </span><br><span class="line">		 <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.google.cloud.tools<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jib-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.7.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">from</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">image</span>&gt;</span>harbor.chaomeifan.com/library/openjdk:8-jdk-alpine-v1<span class="tag">&lt;/<span class="name">image</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">from</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">allowInsecureRegistries</span>&gt;</span>true<span class="tag">&lt;/<span class="name">allowInsecureRegistries</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">to</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">image</span>&gt;</span>$&#123;docker.image.prefix&#125;/$&#123;project.artifactId&#125;<span class="tag">&lt;/<span class="name">image</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">tags</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">tag</span>&gt;</span>$&#123;project.version&#125;<span class="tag">&lt;/<span class="name">tag</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">tag</span>&gt;</span>latest<span class="tag">&lt;/<span class="name">tag</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">tags</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">to</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">container</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">creationTime</span>&gt;</span>USE_CURRENT_TIMESTAMP<span class="tag">&lt;/<span class="name">creationTime</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">user</span>&gt;</span>zcckj:zcckj<span class="tag">&lt;/<span class="name">user</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">entrypoint</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">arg</span>&gt;</span>/sbin/tini<span class="tag">&lt;/<span class="name">arg</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">arg</span>&gt;</span>--<span class="tag">&lt;/<span class="name">arg</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">arg</span>&gt;</span>/bin/sh<span class="tag">&lt;/<span class="name">arg</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">arg</span>&gt;</span>-c<span class="tag">&lt;/<span class="name">arg</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">arg</span>&gt;</span>java -cp /app/resources/:/app/classes/:/app/libs/* com.zcckj.jingtian.biz.server.JingtianBizApplication<span class="tag">&lt;/<span class="name">arg</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">entrypoint</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">container</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">phase</span>&gt;</span>package<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">goal</span>&gt;</span>build<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这里我们构建了一个基镜像harbor.chaomeifan.com/library/openjdk:8-jdk-alpine-v1，以下给出基镜像的Dockerfile</p>
+</blockquote>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> openjdk:<span class="number">8</span>-jdk-alpine</span><br><span class="line"><span class="keyword">MAINTAINER</span> zhangjie &lt;jaychang1987@gmail.com&gt;</span><br><span class="line"></span><br><span class="line"><span class="keyword">ARG</span> <span class="keyword">user</span>=zcckj</span><br><span class="line"><span class="keyword">ARG</span> group=zcckj</span><br><span class="line"><span class="keyword">ARG</span> uid=<span class="number">1739</span></span><br><span class="line"><span class="keyword">ARG</span> gid=<span class="number">1739</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ENV</span> JAVA_OPTS=<span class="string">"-Xmx1024M -Xms1024M -Xmn192M -XX:MaxMetaspaceSize=256M -XX:MetaspaceSize=256M -XX:+UseParallelGC -XX:+UseAdaptiveSizePolicy -XX:MaxGCPauseMillis=100 -XX:ErrorFile=/tmp/hs_err_pid%p.log   -Xloggc:/tmp/gc.log -XX:HeapDumpPath=/tmp -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+HeapDumpOnOutOfMemoryError"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Configure aliyun alpine software source and timezone</span></span><br><span class="line"><span class="keyword">RUN</span> set -x \</span><br><span class="line">    &amp;&amp; sed -i "s/http:\/\/dl-cdn.alpinelinux.org/https:\/\/mirrors.aliyun.com/g" /etc/apk/repositories \</span><br><span class="line">    &amp;&amp; apk update \</span><br><span class="line">    &amp;&amp; apk --no-cache add bash bash-completion bash-doc \</span><br><span class="line">    &amp;&amp; apk --no-cache add tzdata curl tini \</span><br><span class="line">    &amp;&amp; apk --no-cahce add font-adobe-100dpi ttf-dejavu fontconfig \</span><br><span class="line">    &amp;&amp; cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \</span><br><span class="line">    &amp;&amp; echo "Asia/Shanghai" &gt;  /etc/timezone \</span><br><span class="line">    &amp;&amp; rm -rf /var/cache/apk/* \</span><br><span class="line">    &amp;&amp; addgroup --gid $&#123;gid&#125; $&#123;group&#125; \</span><br><span class="line">    &amp;&amp; adduser --uid $&#123;uid&#125; -G $&#123;group&#125; $&#123;user&#125; -s /bin/bash -D</span><br></pre></td></tr></table></figure>
+<blockquote>
+<blockquote>
+<p>由于基镜像用了非root用户启动进程，故如果有映射到容器的目录需要将目录所有者所属组改为Dockerfile中定义的用户id,组id，chown -R 1739:1739 /path/directory</p>
+<p>如果觉得嫌麻烦，可以在基镜像中直接用root</p>
+</blockquote>
+</blockquote>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> openjdk:<span class="number">8</span>-jdk-alpine</span><br><span class="line"><span class="keyword">MAINTAINER</span> zhangjie &lt;jaychang1987@gmail.com&gt;</span><br><span class="line"></span><br><span class="line"><span class="keyword">ENV</span> JAVA_OPTS=<span class="string">"-Xmx1024M -Xms1024M -Xmn192M -XX:MaxMetaspaceSize=256M -XX:MetaspaceSize=256M -XX:+UseParallelGC -XX:+UseAdaptiveSizePolicy -XX:MaxGCPauseMillis=100 -XX:ErrorFile=/tmp/hs_err_pid%p.log   -Xloggc:/tmp/gc.log -XX:HeapDumpPath=/tmp -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+HeapDumpOnOutOfMemoryError"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Configure aliyun alpine software source and timezone</span></span><br><span class="line"><span class="keyword">RUN</span> set -x \</span><br><span class="line">    &amp;&amp; sed -i "s/http:\/\/dl-cdn.alpinelinux.org/https:\/\/mirrors.aliyun.com/g" /etc/apk/repositories \</span><br><span class="line">    &amp;&amp; apk update \</span><br><span class="line">    &amp;&amp; apk --no-cache add bash bash-completion bash-doc \</span><br><span class="line">    &amp;&amp; apk --no-cache add tzdata curl tini \</span><br><span class="line">    &amp;&amp; apk --no-cahce add font-adobe-100dpi ttf-dejavu fontconfig \</span><br><span class="line">    &amp;&amp; cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \</span><br><span class="line">    &amp;&amp; echo "Asia/Shanghai" &gt;  /etc/timezone \</span><br><span class="line">    &amp;&amp; rm -rf /var/cache/apk/*</span><br></pre></td></tr></table></figure>
+<blockquote>
+<blockquote>
+<p>这样就无需在jib插件配置中设置<user>zcckj:zcckj</user></p>
+</blockquote>
+</blockquote>
+<h3 id="开始构建镜像-1"><a href="#开始构建镜像-1" class="headerlink" title="开始构建镜像"></a>开始构建镜像</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn clean compile jib:build -Dmaven.test.skip=true -DsendCredentialsOverHttp=true -U</span><br></pre></td></tr></table></figure>
+<h2 id="手工构建"><a href="#手工构建" class="headerlink" title="手工构建"></a>手工构建</h2>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/14/ntitled/" rel="next" title="使用Helm安装harbor到Kubernates集群">
+                <i class="fa fa-chevron-left"></i> 使用Helm安装harbor到Kubernates集群
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+<span class="jiathis_txt">分享到：</span>
+<a class="jiathis_button_weixin">微信</a>
+<a class="jiathis_button_tsina">新浪微博</a>
+<a class="jiathis_button_twitter">Twitter</a>
+<a class="jiathis_button_fb">Facebook</a>
+<a class="jiathis_button_copy">复制网址</a>
+<a class="jiathis_button_email">邮件</a>
+<a class="jiathis_button_fav">收藏夹</a>
+<a class="jiathis_button_share">一键分享</a>
+
+<a href="http://www.jiathis.com/share?uid=2140465" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+var jiathis_config={
+  data_track_clickback:true,
+  summary:"",
+  shortUrl:false,
+  hideMore:false
+}
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=2154652" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/default_avatar.png"
+                alt="Jay Chang" />
+            
+              <p class="site-author-name" itemprop="name">Jay Chang</p>
+              <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/jaychang9" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://twitter.com/jaychang1987" target="_blank" title="Twitter">
+                      
+                        <i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.facebook.com/jaychang1987" target="_blank" title="Facebook">
+                      
+                        <i class="fa fa-fw fa-facebook"></i>Facebook</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://plus.google.com/jaychang1987" target="_blank" title="Google">
+                      
+                        <i class="fa fa-fw fa-google"></i>Google</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:jaychang1987@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tech.meituan.com/" title="美团点评" target="_blank">美团点评</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tech.youzan.com/" title="有赞技术" target="_blank">有赞技术</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://tech.lede.com/" title="网易乐得" target="_blank">网易乐得</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://lovestblog.cn/" title="你假笨" target="_blank">你假笨</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.jianshu.com/u/90ab66c248e6" title="占小狼" target="_blank">占小狼</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/quhongwei_zhanqiu" title="斩秋" target="_blank">斩秋</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.iocoder.cn/" title="芋道源码" target="_blank">芋道源码</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://wuchong.me/" title="伍翀Jark" target="_blank">伍翀Jark</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.jasongj.com/" title="郭俊Jason" target="_blank">郭俊Jason</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/chenssy" title="Chenssy" target="_blank">Chenssy</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://techlog.cn/" title="龙谭斋" target="_blank">龙谭斋</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://imququ.com/" title="Jerry Qu" target="_blank">Jerry Qu</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/morewindows/article/details/17488865" title="MoreWindows" target="_blank">MoreWindows</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.philipphauer.de/" title="Philipp Hauer" target="_blank">Philipp Hauer</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#构建方法"><span class="nav-number">2.</span> <span class="nav-text">构建方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用dockerfile-maven-plugin插件构建"><span class="nav-number">2.1.</span> <span class="nav-text">使用dockerfile-maven-plugin插件构建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#项目根目录下创建Dockerfile"><span class="nav-number">2.1.1.</span> <span class="nav-text">项目根目录下创建Dockerfile</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在pom-xml中配置maven插件"><span class="nav-number">2.1.2.</span> <span class="nav-text">在pom.xml中配置maven插件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#开始构建镜像"><span class="nav-number">2.1.3.</span> <span class="nav-text">开始构建镜像</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用Google-Jib插件构建"><span class="nav-number">2.2.</span> <span class="nav-text">使用Google Jib插件构建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#在pom-xml中配置maven插件-1"><span class="nav-number">2.2.1.</span> <span class="nav-text">在pom.xml中配置maven插件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#开始构建镜像-1"><span class="nav-number">2.2.2.</span> <span class="nav-text">开始构建镜像</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#手工构建"><span class="nav-number">2.3.</span> <span class="nav-text">手工构建</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jay Chang</span>
+  <span>
+	<a class="theme-link" target="_blank" href="http://zjca.miit.gov.cn/">
+		浙ICP备19027095号
+	</a>
+  </span>	
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://jay-changs-blog.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://jaychang.cn/2019/12/02/何构建SpringBoot应用的Docker镜像/';
+          this.page.identifier = '2019/12/02/何构建SpringBoot应用的Docker镜像/';
+          this.page.title = '如何构建SpringBoot应用的Docker镜像';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://jay-changs-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
