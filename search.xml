@@ -3,6 +3,51 @@
   
     
     <entry>
+      <title><![CDATA[Kafka安装及入门]]></title>
+      <url>/2020/03/15/afka%E5%AE%89%E8%A3%85%E5%8F%8A%E5%85%A5%E9%97%A8/</url>
+      <content type="html"><![CDATA[<h1 id="下载kafka-cmak"><a href="#下载kafka-cmak" class="headerlink" title="下载kafka,cmak"></a>下载kafka,cmak</h1><p>下载好后，分别解压到/opt目录下</p>
+<p>这里如果是单机kafka，可以直接用kafka自带的,启动方式为<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./$KAFKA_HOME/bin/zookeeper-server-start.sh -daemon config/zookeeper.properties</span><br></pre></td></tr></table></figure></p>
+<h1 id="配置kafka"><a href="#配置kafka" class="headerlink" title="配置kafka"></a>配置kafka</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">broker.id=0</span><br><span class="line">log.dirs=/tmp/kafka-logs</span><br><span class="line">zookeeper.connect=localhost:2181</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>大多数情况下，可能会改动的估计就是上述3个配置，由于kafka需要做持久化消息，故这里有一个log.dirs的配置项</p>
+</blockquote>
+<h1 id="启动kafka"><a href="#启动kafka" class="headerlink" title="启动kafka"></a>启动kafka</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> ./bin/kafka-server-start.sh -daemon config/server.properties</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>不加-daemon则是前台启动，若是在docker中启动，就不用加-daemon</p>
+</blockquote>
+<h1 id="cmak-kafka-manager"><a href="#cmak-kafka-manager" class="headerlink" title="cmak(kafka manager)"></a>cmak(kafka manager)</h1><p><strong>依赖的组件说明</strong></p>
+<p>cmak 3.x需要依赖jdk 11+ 且zookeeper需要3.5.x版本,我直接用了es 7.x的自带jdk13</p>
+<p>所以修改了cmak启动脚本get_java_cmd函数:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> Detect if we should use JAVA_HOME or just try PATH.</span><br><span class="line">get_java_cmd() &#123;</span><br><span class="line"><span class="meta">  #</span> High-priority override for Jlink images</span><br><span class="line"><span class="meta">  #</span>if [[ -n "$bundled_jvm" ]];  then</span><br><span class="line"><span class="meta">  #</span>  echo "$bundled_jvm/bin/java"</span><br><span class="line"><span class="meta">  #</span>elif [[ -n "$JAVA_HOME" ]] &amp;&amp; [[ -x "$JAVA_HOME/bin/java" ]];  then</span><br><span class="line"><span class="meta">  #</span>  echo "$JAVA_HOME/bin/java"</span><br><span class="line"><span class="meta">  #</span>else</span><br><span class="line"><span class="meta">  #</span>  echo "java"</span><br><span class="line"><span class="meta">  #</span>fi</span><br><span class="line">  echo "/opt/elasticsearch-7.6.1/jdk/bin/java"</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>修改配置</strong><br>修改conf/application.conf</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">kafka-manager.zkhosts=&quot;localhost:2181&quot;</span><br><span class="line">kafka-manager.zkhosts=$&#123;?ZK_HOSTS&#125;</span><br><span class="line">cmak.zkhosts=&quot;localhost:2181&quot;</span><br><span class="line">cmak.zkhosts=$&#123;?ZK_HOSTS&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>当然也可以不修改application.conf文件，而是提供环境变量ZK_HOSTS</p>
+</blockquote>
+<p><strong>启动cmak</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./bin/cmak &gt; cmak.out 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+<p><strong>添加集群</strong></p>
+<p>点添加集群（Add Cluster）<br><img src="/images/pasted-36.png" alt="upload successful"></p>
+<p>填写集群名称与zookeeper地址<br><img src="/images/pasted-37.png" alt="upload successful"></p>
+<p>添加完成查看集群信息，包括zookeepers连接地址，kafka版本，topic数量，broker数量<br><img src="/images/pasted-38.png" alt="upload successful"></p>
+<p><strong>查看broker信息</strong></p>
+<p><img src="/images/pasted-42.png" alt="upload successful"></p>
+<p><strong>查看、操作topic</strong></p>
+<p>之前已经创建过first-topic，topics列表就可以看到了<br><img src="/images/pasted-39.png" alt="upload successful"></p>
+<p>给topic增加分区</p>
+<p><img src="/images/pasted-40.png" alt="upload successful"></p>
+<p>创建topic<br><img src="/images/pasted-41.png" alt="upload successful"></p>
+<p>PS:更多cmak的功能有待实践</p>
+<p><strong>常见错误</strong><br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">This application is already running (Or delete /opt/kafka-cmak-3.0.0.4/RUNNING_PID file).</span><br></pre></td></tr></table></figure></p>
+<p>删掉RUNNING_PID重新启动</p>
+<h1 id="Kafka入门"><a href="#Kafka入门" class="headerlink" title="Kafka入门"></a>Kafka入门</h1><p><strong>创建Topic</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu:/opt/kafka_2.12-2.4.0# ./bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic first-topic</span><br><span class="line">Created topic first-topic.</span><br></pre></td></tr></table></figure>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="https://segmentfault.com/a/1190000012730949" target="_blank" rel="noopener">https://segmentfault.com/a/1190000012730949</a><br><a href="https://blog.wolfogre.com/posts/kafka-manager-download/" target="_blank" rel="noopener">https://blog.wolfogre.com/posts/kafka-manager-download/</a></p>
+]]></content>
+      
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[ElasticSearch7.x集群安装部署]]></title>
       <url>/2020/03/07/ElasticSearch7-x%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/</url>
       <content type="html"><![CDATA[<h1 id="创建用户"><a href="#创建用户" class="headerlink" title="创建用户"></a>创建用户</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">groupadd es &amp;&amp; useradd es -g es -M -s /bin/bash</span><br><span class="line">chown -R es:es /opt/$ES_HOME</span><br></pre></td></tr></table></figure>
