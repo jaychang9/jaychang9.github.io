@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-j.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-j.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-j.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo_j.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,Spring,Spring Cloud,中间件,RocketMQ,高并发,分布式,分布式事务,流式计算,Storm,机器学习,深度学习,Python,大数据,Spark,Hadoop,HDFS" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jay Chang's Blog" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="创建用户12groupadd es &amp;amp;&amp;amp; useradd es -g es -M -s /bin/bashchown -R es:es /opt/$ES_HOME 系统参数修改 vi /etc/sysctl.conf添加如下配置  1vm.max_map_count=262144  使得重启之后也生效，即永久生效   执行如下命令使得立即生效 1sysctl –p  修改/etc/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ElasticSearch7.x集群安装部署">
+<meta property="og:url" content="http://jaychang.cn/2020/03/07/ElasticSearch7-x集群安装部署/index.html">
+<meta property="og:site_name" content="Jay Chang&#39;s Blog">
+<meta property="og:description" content="创建用户12groupadd es &amp;amp;&amp;amp; useradd es -g es -M -s /bin/bashchown -R es:es /opt/$ES_HOME 系统参数修改 vi /etc/sysctl.conf添加如下配置  1vm.max_map_count=262144  使得重启之后也生效，即永久生效   执行如下命令使得立即生效 1sysctl –p  修改/etc/">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-03-15T03:15:05.198Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ElasticSearch7.x集群安装部署">
+<meta name="twitter:description" content="创建用户12groupadd es &amp;amp;&amp;amp; useradd es -g es -M -s /bin/bashchown -R es:es /opt/$ES_HOME 系统参数修改 vi /etc/sysctl.conf添加如下配置  1vm.max_map_count=262144  使得重启之后也生效，即永久生效   执行如下命令使得立即生效 1sysctl –p  修改/etc/">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://jaychang.cn/2020/03/07/ElasticSearch7-x集群安装部署/"/>
+
+
+
+
+
+  <title>ElasticSearch7.x集群安装部署 | Jay Chang's Blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?d383fa81ebb62476e09fe22470595b8d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	
+	<a href="https://github.com/jaychang9"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+	
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jay Chang's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">我的技术博客</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jaychang.cn/2020/03/07/ElasticSearch7-x集群安装部署/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jay Chang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/default_avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jay Chang's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ElasticSearch7.x集群安装部署</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-03-07T20:46:29+08:00">
+                2020-03-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/03/07/ElasticSearch7-x集群安装部署/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2020/03/07/ElasticSearch7-x集群安装部署/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,190
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="创建用户"><a href="#创建用户" class="headerlink" title="创建用户"></a>创建用户</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">groupadd es &amp;&amp; useradd es -g es -M -s /bin/bash</span><br><span class="line">chown -R es:es /opt/$ES_HOME</span><br></pre></td></tr></table></figure>
+<h1 id="系统参数修改"><a href="#系统参数修改" class="headerlink" title="系统参数修改"></a>系统参数修改</h1><ul>
+<li>vi /etc/sysctl.conf添加如下配置</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vm.max_map_count=262144</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>使得重启之后也生效，即永久生效</p>
+</blockquote>
+<p> 执行如下命令使得立即生效</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl –p</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>修改/etc/security/limits.conf添加以下配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">es hard nofile 65535</span><br><span class="line">es soft nofile 65535</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>/etc/systemd/user.conf和/etc/systemd/system.conf分别添加以下配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DefaultLimitNOFILE=65535</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>systemd启动elasticsearch，需要设置这两个文件，否则启动会报如下错误<br>[1] bootstrap checks failed<br>[1]: max file descriptors [4096] for elasticsearch process is too low, increase to at least [65535]</p>
+</blockquote>
+<h1 id="解压"><a href="#解压" class="headerlink" title="解压"></a>解压</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar xzvf elasticsearch-7.6.1-linux-x86_64.tar.gz -C /opt/</span><br></pre></td></tr></table></figure>
+<h1 id="配置ES"><a href="#配置ES" class="headerlink" title="配置ES"></a>配置ES</h1><p>1主2从的配置</p>
+<ul>
+<li>node-1</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">cluster.name:</span> <span class="string">my-es</span></span><br><span class="line"></span><br><span class="line"><span class="string">node.name:</span> <span class="string">node-1</span></span><br><span class="line"><span class="string">node.master:</span> <span class="literal">true</span></span><br><span class="line"><span class="string">node.data:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="string">network.host:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line"><span class="string">network.publish_host:</span> <span class="number">192.168</span><span class="number">.56</span><span class="number">.131</span></span><br><span class="line"></span><br><span class="line"><span class="string">discovery.seed_hosts:</span> <span class="string">[</span> <span class="string">"192.168.56.132"</span><span class="string">,"192.168.56.133"]</span></span><br><span class="line"><span class="string">cluster.initial_master_nodes:</span> <span class="string">["node-1"]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 允许跨域，elastic header需要</span></span><br><span class="line"><span class="string">http.cors.enabled:</span> <span class="literal">true</span></span><br><span class="line"><span class="string">http.cors.allow-origin:</span> <span class="string">"*"</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>node-2</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">cluster.name:</span> <span class="string">my-es</span></span><br><span class="line"></span><br><span class="line"><span class="string">node.name:</span> <span class="string">node-2</span></span><br><span class="line"><span class="string">node.master:</span> <span class="literal">false</span></span><br><span class="line"><span class="string">node.data:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="string">network.host:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line"><span class="string">network.publish_host:</span> <span class="number">192.168</span><span class="number">.56</span><span class="number">.132</span></span><br><span class="line"></span><br><span class="line"><span class="string">discovery.seed_hosts:</span> <span class="string">["192.168.56.131","192.168.56.133"]</span></span><br><span class="line"></span><br><span class="line"><span class="string">cluster.initial_master_nodes:</span> <span class="string">["node-1"]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 允许跨域，elastic header需要</span></span><br><span class="line"><span class="string">http.cors.enabled:</span> <span class="literal">true</span></span><br><span class="line"><span class="string">http.cors.allow-origin:</span> <span class="string">"*"</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>node-3</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">cluster.name:</span> <span class="string">my-es</span></span><br><span class="line"></span><br><span class="line"><span class="string">node.name:</span> <span class="string">node-3</span></span><br><span class="line"><span class="string">node.master:</span> <span class="literal">false</span></span><br><span class="line"><span class="string">node.data:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="string">network.host:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line"><span class="string">network.publish_host:</span> <span class="number">192.168</span><span class="number">.56</span><span class="number">.133</span></span><br><span class="line"></span><br><span class="line"><span class="string">discovery.seed_hosts:</span> <span class="string">["192.168.56.131",</span> <span class="string">"192.168.56.132"</span><span class="string">]</span></span><br><span class="line"></span><br><span class="line"><span class="string">cluster.initial_master_nodes:</span> <span class="string">["node-1"]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 允许跨域，elastic header需要</span></span><br><span class="line"><span class="string">http.cors.enabled:</span> <span class="literal">true</span></span><br><span class="line"><span class="string">http.cors.allow-origin:</span> <span class="string">"*"</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>生产环境建议network.host: 指定IP</p>
+</blockquote>
+<h1 id="检查集群状态"><a href="#检查集群状态" class="headerlink" title="检查集群状态"></a>检查集群状态</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">curl -XGET http://192.168.56.131:9200/_cluster/health?pretty</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">cluster_name: "my-es",</span><br><span class="line">status: "green",</span><br><span class="line">timed_out: false,</span><br><span class="line">number_of_nodes: 3,</span><br><span class="line">number_of_data_nodes: 3,</span><br><span class="line">active_primary_shards: 0,</span><br><span class="line">active_shards: 0,</span><br><span class="line">relocating_shards: 0,</span><br><span class="line">initializing_shards: 0,</span><br><span class="line">unassigned_shards: 0,</span><br><span class="line">delayed_unassigned_shards: 0,</span><br><span class="line">number_of_pending_tasks: 0,</span><br><span class="line">number_of_in_flight_fetch: 0,</span><br><span class="line">task_max_waiting_in_queue_millis: 0,</span><br><span class="line">active_shards_percent_as_number: 100</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="开机启动ElasticSearch"><a href="#开机启动ElasticSearch" class="headerlink" title="开机启动ElasticSearch"></a>开机启动ElasticSearch</h1><p><strong>方案一 在/etc/init.d目录下</strong></p>
+<p>创建名为elasticsearch的文件，内容如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/sh</span><br><span class="line"><span class="meta">#</span>description: elasticsearch</span><br><span class="line"><span class="meta">#</span>## BEGIN INIT INFO</span><br><span class="line"><span class="meta">#</span> Provides:          elasticsearch</span><br><span class="line"><span class="meta">#</span> Required-Start:    $all</span><br><span class="line"><span class="meta">#</span> Required-Stop:</span><br><span class="line"><span class="meta">#</span> Default-Start:     2 3 4 5</span><br><span class="line"><span class="meta">#</span> Default-Stop:</span><br><span class="line"><span class="meta">#</span> Short-Description: start elasticsearch</span><br><span class="line"><span class="meta">#</span>## END INIT INFO</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">case "$1" in</span><br><span class="line">start)</span><br><span class="line">    cd /opt/elasticsearch-7.6.1</span><br><span class="line">    ./bin/elasticsearch -d</span><br><span class="line">!</span><br><span class="line">    echo "elasticsearch startup"</span><br><span class="line">    ;;</span><br><span class="line">stop)</span><br><span class="line">    es_pid=`ps aux|grep elasticsearch | grep -v 'grep elasticsearch' | awk '&#123;print $2&#125;'`</span><br><span class="line">    kill -9 $es_pid</span><br><span class="line">    echo "elasticsearch stopped"</span><br><span class="line">    ;;</span><br><span class="line">restart)</span><br><span class="line">    es_pid=`ps aux|grep elasticsearch | grep -v 'grep elasticsearch' | awk '&#123;print $2&#125;'`</span><br><span class="line">    kill -9 $es_pid</span><br><span class="line">    echo "elasticsearch stopped"</span><br><span class="line">    cd /opt/elasticsearch-7.6.1</span><br><span class="line">    ./bin/elasticsearch -d</span><br><span class="line">!</span><br><span class="line">    echo "elasticsearch startup"</span><br><span class="line">    ;;</span><br><span class="line">*)</span><br><span class="line">    echo "start|stop|restart"</span><br><span class="line">    ;;</span><br><span class="line">esac</span><br><span class="line"></span><br><span class="line">exit $?</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> chmod a+x elasticsearch.sh</span><br></pre></td></tr></table></figure>
+<p><strong>方案二 在/lib/systemd/system目录下</strong></p>
+<p>创建名为elasticsearch.service的文件，内容如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=elasticsearch</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=simple</span><br><span class="line">ExecStart=/bin/bash /opt/elasticsearch-7.6.1/bin/elasticsearch</span><br><span class="line">Restart=always</span><br><span class="line">User=es</span><br><span class="line">Group=es</span><br><span class="line">WorkingDirectory=/opt/elasticsearch-7.6.1</span><br><span class="line">[Install]</span><br><span class="line">WantedBy=mutil-user.target</span><br></pre></td></tr></table></figure></p>
+<p>重载配置文件<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sudo systemctl daemon-reload</span><br></pre></td></tr></table></figure></p>
+<p>启用服务<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sudo systemctl enable elasticsearch</span><br></pre></td></tr></table></figure></p>
+<p>启动服务<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sudo systemctl start elasticsearch</span><br></pre></td></tr></table></figure></p>
+<p>如果启动失败，想看下日志</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 查看状态</span><br><span class="line"><span class="meta">$</span> sudo systemctl status elasticsearch</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 查看日志</span><br><span class="line"><span class="meta">$</span> sudo journalctl -u elasticsearch</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 实时输出最新日志</span><br><span class="line"><span class="meta">$</span> sudo journalctl --follow -u elasticsearch</span><br></pre></td></tr></table></figure>
+<p>通过systemctl 启动服务报如下错误<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Mar 15 10:08:51 ubuntu bash[1308]: ERROR: [1] bootstrap checks failed</span><br><span class="line">Mar 15 10:08:51 ubuntu bash[1308]: [1]: max file descriptors [4096] for elasticsearch process is too low, increase to at least [65535]</span><br><span class="line">Mar 15 10:08:51 ubuntu bash[1308]: ERROR: Elasticsearch did not exit normally - check the logs at /opt/elasticsearch-7.6.1/logs/my-es.log</span><br><span class="line">Mar 15 10:08:51 ubuntu bash[1308]: [2020-03-15T02:08:51,352][INFO ][o.e.n.Node               ] [node-1] stopping ...</span><br><span class="line">Mar 15 10:08:51 ubuntu bash[1308]: [2020-03-15T02:08:51,462][INFO ][o.e.n.Node               ] [node-1] stopped</span><br><span class="line">Mar 15 10:08:51 ubuntu bash[1308]: [2020-03-15T02:08:51,463][INFO ][o.e.n.Node               ] [node-1] closing ...</span><br><span class="line">Mar 15 10:08:51 ubuntu bash[1308]: [2020-03-15T02:08:51,535][INFO ][o.e.n.Node               ] [node-1] closed</span><br></pre></td></tr></table></figure></p>
+<p><em>划重点：通过systemctrl自建elasticsearch系统服务的形式来启动的es,则需要修改/etc/systemd/user.conf,/etc/systemd/system.conf这两个文件，添加以下配置</em><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DefaultLimitNOFILE=65536</span><br></pre></td></tr></table></figure></p>
+<h1 id="常见错误"><a href="#常见错误" class="headerlink" title="常见错误"></a>常见错误</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">org.elasticsearch.bootstrap.StartupException: java.lang.RuntimeException: can not run elasticsearch as root</span><br><span class="line">	at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:<span class="number">174</span>) ~[elasticsearch-<span class="number">7.6</span>.1.jar:<span class="number">7.6</span>.1]</span><br><span class="line">	at org.elasticsearch.bootstrap.Elasticsearch.execute(Elasticsearch.java:<span class="number">161</span>) ~[elasticsearch-<span class="number">7.6</span>.1.jar:<span class="number">7.6</span>.1]</span><br><span class="line">	at org.elasticsearch.cli.EnvironmentAwareCommand.execute(EnvironmentAwareCommand.java:<span class="number">86</span>) ~[elasticsearch-<span class="number">7.6</span>.1.jar:<span class="number">7.6</span>.1]</span><br><span class="line">	at org.elasticsearch.cli.Command.mainWithoutErrorHandling(Command.java:<span class="number">125</span>) ~[elasticsearch-cli-<span class="number">7.6</span>.1.jar:<span class="number">7.6</span>.1]</span><br><span class="line">	at org.elasticsearch.cli.Command.main(Command.java:<span class="number">90</span>) ~[elasticsearch-cli-<span class="number">7.6</span>.1.jar:<span class="number">7.6</span>.1]</span><br><span class="line">	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:<span class="number">126</span>) ~[elasticsearch-<span class="number">7.6</span>.1.jar:<span class="number">7.6</span>.1]</span><br><span class="line">	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:<span class="number">92</span>) ~[elasticsearch-<span class="number">7.6</span>.1.jar:<span class="number">7.6</span>.1]</span><br><span class="line">Caused by: java.lang.RuntimeException: can not run elasticsearch as root</span><br><span class="line">	at org.elasticsearch.bootstrap.Bootstrap.initializeNatives(Bootstrap.java:<span class="number">105</span>) ~[elasticsearch-<span class="number">7.6</span>.1.jar:<span class="number">7.6</span>.1]</span><br><span class="line">	at org.elasticsearch.bootstrap.Bootstrap.setup(Bootstrap.java:<span class="number">172</span>) ~[elasticsearch-<span class="number">7.6</span>.1.jar:<span class="number">7.6</span>.1]</span><br><span class="line">	at org.elasticsearch.bootstrap.Bootstrap.init(Bootstrap.java:<span class="number">349</span>) ~[elasticsearch-<span class="number">7.6</span>.1.jar:<span class="number">7.6</span>.1]</span><br><span class="line">	at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:<span class="number">170</span>) ~[elasticsearch-<span class="number">7.6</span>.1.jar:<span class="number">7.6</span>.1]</span><br></pre></td></tr></table></figure>
+<p>这个是最常见的了，不能用root用户来启动elasticsearch</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Exception in thread <span class="string">"main"</span> org.elasticsearch.bootstrap.BootstrapException: java.nio.file.AccessDeniedException: /opt/elasticsearch-<span class="number">7.6</span>.1/config/elasticsearch.keystore</span><br><span class="line">Likely root cause: java.nio.file.AccessDeniedException: /opt/elasticsearch-<span class="number">7.6</span>.1/config/elasticsearch.keystore</span><br><span class="line">	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:<span class="number">90</span>)</span><br><span class="line">	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:<span class="number">111</span>)</span><br><span class="line">	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:<span class="number">116</span>)</span><br><span class="line">	at java.base/sun.nio.fs.UnixFileSystemProvider.newByteChannel(UnixFileSystemProvider.java:<span class="number">219</span>)</span><br><span class="line">	at java.base/java.nio.file.Files.newByteChannel(Files.java:<span class="number">374</span>)</span><br><span class="line">	at java.base/java.nio.file.Files.newByteChannel(Files.java:<span class="number">425</span>)</span><br><span class="line">	at org.apache.lucene.store.SimpleFSDirectory.openInput(SimpleFSDirectory.java:<span class="number">77</span>)</span><br><span class="line">	at org.elasticsearch.common.settings.KeyStoreWrapper.load(KeyStoreWrapper.java:<span class="number">219</span>)</span><br><span class="line">	at org.elasticsearch.bootstrap.Bootstrap.loadSecureSettings(Bootstrap.java:<span class="number">234</span>)</span><br><span class="line">	at org.elasticsearch.bootstrap.Bootstrap.init(Bootstrap.java:<span class="number">305</span>)</span><br><span class="line">	at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:<span class="number">170</span>)</span><br><span class="line">	at org.elasticsearch.bootstrap.Elasticsearch.execute(Elasticsearch.java:<span class="number">161</span>)</span><br><span class="line">	at org.elasticsearch.cli.EnvironmentAwareCommand.execute(EnvironmentAwareCommand.java:<span class="number">86</span>)</span><br><span class="line">	at org.elasticsearch.cli.Command.mainWithoutErrorHandling(Command.java:<span class="number">125</span>)</span><br><span class="line">	at org.elasticsearch.cli.Command.main(Command.java:<span class="number">90</span>)</span><br><span class="line">	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:<span class="number">126</span>)</span><br><span class="line">	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:<span class="number">92</span>)</span><br></pre></td></tr></table></figure>
+<p>处理方法 chown -R es:es $ES_HOME/conf</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">2020-03-07 14:50:20,774 main ERROR Unable to invoke factory method in class org.apache.logging.log4j.core.appender.RollingFileAppender for element RollingFile: java.lang.IllegalStateException: No factory method found for class org.apache.logging.log4j.core.appender.RollingFileAppender java.lang.IllegalStateException: No factory method found for class org.apache.logging.log4j.core.appender.RollingFileAppender</span><br><span class="line">	at org.apache.logging.log4j.core.config.plugins.util.PluginBuilder.findFactoryMethod(PluginBuilder.java:<span class="number">235</span>)</span><br><span class="line">	at org.apache.logging.log4j.core.config.plugins.util.PluginBuilder.build(PluginBuilder.java:<span class="number">135</span>)</span><br><span class="line">	at org.apache.logging.log4j.core.config.AbstractConfiguration.createPluginObject(AbstractConfiguration.java:<span class="number">959</span>)</span><br><span class="line">	at org.apache.logging.log4j.core.config.AbstractConfiguration.createConfiguration(AbstractConfiguration.java:<span class="number">899</span>)</span><br><span class="line">	at org.apache.logging.log4j.core.config.AbstractConfiguration.createConfiguration(AbstractConfiguration.java:<span class="number">891</span>)</span><br><span class="line">	at org.apache.logging.log4j.core.config.AbstractConfiguration.doConfigure(AbstractConfiguration.java:<span class="number">514</span>)</span><br><span class="line">	at org.apache.logging.log4j.core.config.AbstractConfiguration.initialize(AbstractConfiguration.java:<span class="number">238</span>)</span><br><span class="line">	at org.apache.logging.log4j.core.config.AbstractConfiguration.start(AbstractConfiguration.java:<span class="number">250</span>)</span><br><span class="line">	at org.apache.logging.log4j.core.LoggerContext.setConfiguration(LoggerContext.java:<span class="number">547</span>)</span><br><span class="line">	at org.apache.logging.log4j.core.LoggerContext.start(LoggerContext.java:<span class="number">263</span>)</span><br><span class="line">	at org.elasticsearch.common.logging.LogConfigurator.configure(LogConfigurator.java:<span class="number">234</span>)</span><br><span class="line">	at org.elasticsearch.common.logging.LogConfigurator.configure(LogConfigurator.java:<span class="number">127</span>)</span><br><span class="line">	at org.elasticsearch.bootstrap.Bootstrap.init(Bootstrap.java:<span class="number">310</span>)</span><br><span class="line">	at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:<span class="number">170</span>)</span><br><span class="line">	at org.elasticsearch.bootstrap.Elasticsearch.execute(Elasticsearch.java:<span class="number">161</span>)</span><br><span class="line">	at org.elasticsearch.cli.EnvironmentAwareCommand.execute(EnvironmentAwareCommand.java:<span class="number">86</span>)</span><br><span class="line">	at org.elasticsearch.cli.Command.mainWithoutErrorHandling(Command.java:<span class="number">125</span>)</span><br><span class="line">	at org.elasticsearch.cli.Command.main(Command.java:<span class="number">90</span>)</span><br><span class="line">	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:<span class="number">126</span>)</span><br><span class="line">	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:<span class="number">92</span>)</span><br></pre></td></tr></table></figure>
+<p>处理方法 chown -R es:es $ES_HOME/logs</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">2020</span>-<span class="number">03</span>-<span class="number">07</span>T14:<span class="number">11</span>:<span class="number">03</span>,<span class="number">119</span>][WARN ][o.e.c.c.Coordinator      ] [node-<span class="number">1</span>] failed to validate incoming join request from node [&#123;node-<span class="number">2</span>&#125;&#123;OTFjHR3wRuyQBMbb9PdGoQ&#125;&#123;GH_dXyYZQIuyjnnBTsELRw&#125;&#123;<span class="number">192.168</span>.56.132&#125;&#123;<span class="number">192.168</span>.56.132:<span class="number">9300</span>&#125;&#123;dil&#125;&#123;ml.machine_memory=<span class="number">3665874944</span>, ml.max_open_jobs=<span class="number">20</span>, xpack.installed=<span class="keyword">true</span>&#125;]</span><br><span class="line">org.elasticsearch.transport.RemoteTransportException: [node-<span class="number">2</span>][<span class="number">192.168</span>.56.132:<span class="number">9300</span>][internal:cluster/coordination/join/validate]</span><br><span class="line">Caused by: org.elasticsearch.cluster.coordination.CoordinationStateRejectedException: join validation on cluster state with a different cluster uuid of6I6UasSd209Y_5-YdZ2A than local cluster uuid <span class="number">4</span>jifFlHcR9K7wQflerzo3g, rejecting</span><br><span class="line">	at org.elasticsearch.cluster.coordination.JoinHelper.lambda$<span class="keyword">new</span>$<span class="number">4</span>(JoinHelper.java:<span class="number">148</span>) ~[elasticsearch-<span class="number">7.6</span>.1.jar:<span class="number">7.6</span>.1]</span><br><span class="line">	at org.elasticsearch.xpack.security.transport.SecurityServerTransportInterceptor$ProfileSecuredRequestHandler$<span class="number">1</span>.doRun(SecurityServerTransportInterceptor.java:<span class="number">257</span>) ~[?:?]</span><br><span class="line">	at org.elasticsearch.common.util.concurrent.AbstractRunnable.run(AbstractRunnable.java:<span class="number">37</span>) ~[elasticsearch-<span class="number">7.6</span>.1.jar:<span class="number">7.6</span>.1]</span><br><span class="line">	at org.elasticsearch.xpack.security.transport.SecurityServerTransportInterceptor$ProfileSecuredRequestHandler.messageReceived(SecurityServerTransportInterceptor.java:<span class="number">315</span>) ~[?:?]</span><br><span class="line">	at org.elasticsearch.transport.RequestHandlerRegistry.processMessageReceived(RequestHandlerRegistry.java:<span class="number">63</span>) ~[elasticsearch-<span class="number">7.6</span>.1.jar:<span class="number">7.6</span>.1]</span><br><span class="line">	at org.elasticsearch.transport.InboundHandler$RequestHandler.doRun(InboundHandler.java:<span class="number">264</span>) ~[elasticsearch-<span class="number">7.6</span>.1.jar:<span class="number">7.6</span>.1]</span><br><span class="line">	at org.elasticsearch.common.util.concurrent.ThreadContext$ContextPreservingAbstractRunnable.doRun(ThreadContext.java:<span class="number">692</span>) ~[elasticsearch-<span class="number">7.6</span>.1.jar:<span class="number">7.6</span>.1]</span><br><span class="line">	at org.elasticsearch.common.util.concurrent.AbstractRunnable.run(AbstractRunnable.java:<span class="number">37</span>) ~[elasticsearch-<span class="number">7.6</span>.1.jar:<span class="number">7.6</span>.1]</span><br><span class="line">	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:<span class="number">1128</span>) [?:?]</span><br><span class="line">	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:<span class="number">628</span>) [?:?]</span><br><span class="line">	at java.lang.Thread.run(Thread.java:<span class="number">830</span>) [?:?]</span><br></pre></td></tr></table></figure>
+<p>如果集群所有节点cluster.name设置都一样的，但还是报以上错误，可以将集群内的节点的data目录删掉后重启</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-network.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-network.html</a><br><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/targz.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/elasticsearch/reference/current/targz.html</a><br><a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docker.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docker.html</a><br><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/settings.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/elasticsearch/reference/current/settings.html</a><br><a href="https://www.linuxtechi.com/set-ulimit-file-descriptors-limit-linux-servers/" target="_blank" rel="noopener">https://www.linuxtechi.com/set-ulimit-file-descriptors-limit-linux-servers/</a><br><a href="https://askubuntu.com/questions/1102512/set-ulimit-for-non-root-user" target="_blank" rel="noopener">https://askubuntu.com/questions/1102512/set-ulimit-for-non-root-user</a><br><a href="https://superuser.com/questions/1200539/cannot-increase-open-file-limit-past-4096-ubuntu/1200818#1200818" target="_blank" rel="noopener">https://superuser.com/questions/1200539/cannot-increase-open-file-limit-past-4096-ubuntu/1200818#1200818</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/02/何构建SpringBoot应用的Docker镜像/" rel="next" title="如何构建SpringBoot应用的Docker镜像">
+                <i class="fa fa-chevron-left"></i> 如何构建SpringBoot应用的Docker镜像
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+<span class="jiathis_txt">分享到：</span>
+<a class="jiathis_button_weixin">微信</a>
+<a class="jiathis_button_tsina">新浪微博</a>
+<a class="jiathis_button_twitter">Twitter</a>
+<a class="jiathis_button_fb">Facebook</a>
+<a class="jiathis_button_copy">复制网址</a>
+<a class="jiathis_button_email">邮件</a>
+<a class="jiathis_button_fav">收藏夹</a>
+<a class="jiathis_button_share">一键分享</a>
+
+<a href="http://www.jiathis.com/share?uid=2140465" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+var jiathis_config={
+  data_track_clickback:true,
+  summary:"",
+  shortUrl:false,
+  hideMore:false
+}
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=2154652" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/default_avatar.png"
+                alt="Jay Chang" />
+            
+              <p class="site-author-name" itemprop="name">Jay Chang</p>
+              <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/jaychang9" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://twitter.com/jaychang1987" target="_blank" title="Twitter">
+                      
+                        <i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.facebook.com/jaychang1987" target="_blank" title="Facebook">
+                      
+                        <i class="fa fa-fw fa-facebook"></i>Facebook</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://plus.google.com/jaychang1987" target="_blank" title="Google">
+                      
+                        <i class="fa fa-fw fa-google"></i>Google</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:jaychang1987@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tech.meituan.com/" title="美团点评" target="_blank">美团点评</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tech.youzan.com/" title="有赞技术" target="_blank">有赞技术</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://tech.lede.com/" title="网易乐得" target="_blank">网易乐得</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://lovestblog.cn/" title="你假笨" target="_blank">你假笨</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.jianshu.com/u/90ab66c248e6" title="占小狼" target="_blank">占小狼</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/quhongwei_zhanqiu" title="斩秋" target="_blank">斩秋</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.iocoder.cn/" title="芋道源码" target="_blank">芋道源码</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://wuchong.me/" title="伍翀Jark" target="_blank">伍翀Jark</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.jasongj.com/" title="郭俊Jason" target="_blank">郭俊Jason</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/chenssy" title="Chenssy" target="_blank">Chenssy</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://techlog.cn/" title="龙谭斋" target="_blank">龙谭斋</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://imququ.com/" title="Jerry Qu" target="_blank">Jerry Qu</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/morewindows/article/details/17488865" title="MoreWindows" target="_blank">MoreWindows</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.philipphauer.de/" title="Philipp Hauer" target="_blank">Philipp Hauer</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#创建用户"><span class="nav-number">1.</span> <span class="nav-text">创建用户</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#系统参数修改"><span class="nav-number">2.</span> <span class="nav-text">系统参数修改</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解压"><span class="nav-number">3.</span> <span class="nav-text">解压</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置ES"><span class="nav-number">4.</span> <span class="nav-text">配置ES</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#检查集群状态"><span class="nav-number">5.</span> <span class="nav-text">检查集群状态</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#开机启动ElasticSearch"><span class="nav-number">6.</span> <span class="nav-text">开机启动ElasticSearch</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#常见错误"><span class="nav-number">7.</span> <span class="nav-text">常见错误</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jay Chang</span>
+  <span>
+	<a class="theme-link" target="_blank" href="http://zjca.miit.gov.cn/">
+		浙ICP备19027095号
+	</a>
+  </span>	
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://jay-changs-blog.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://jaychang.cn/2020/03/07/ElasticSearch7-x集群安装部署/';
+          this.page.identifier = '2020/03/07/ElasticSearch7-x集群安装部署/';
+          this.page.title = 'ElasticSearch7.x集群安装部署';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://jay-changs-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
