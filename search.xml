@@ -217,7 +217,7 @@
 <h2 id="worker节点执行初始化"><a href="#worker节点执行初始化" class="headerlink" title="worker节点执行初始化"></a>worker节点执行初始化</h2><p>针对所有的 worker 节点执行</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 只在 worker 节点执行</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 替换 x.x.x.x 为 master 节点的内网 IP</span></span><br><span class="line">export MASTER_IP=x.x.x.x</span><br><span class="line"><span class="meta">#</span><span class="bash"> 替换 apiserver.demo 为初始化 master 节点时所使用的 APISERVER_NAME</span></span><br><span class="line">export APISERVER_NAME=apiserver.demo</span><br><span class="line">echo "$&#123;MASTER_IP&#125;    $&#123;APISERVER_NAME&#125;" &gt;&gt; /etc/hosts</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 替换为 master 节点上 kubeadm token create 命令的输出</span></span><br><span class="line">kubeadm join apiserver.demo:6443 --token mpfjma.4vjjg8flqihor4vt     --discovery-token-ca-cert-hash sha256:6f7a8e40a810323672de5eee6f4d19aa2dbdb38411845a1bf5dd63485c43d303</span><br></pre></td></tr></table></figure>
 <h2 id="常见错误原因"><a href="#常见错误原因" class="headerlink" title="常见错误原因"></a>常见错误原因</h2><p>经常在群里提问为什么 join 不成功的情况大致有这几种：</p>
-<h4 id="worker-节点不能访问-apiserver"><a href="#worker-节点不能访问-apiserver" class="headerlink" title="worker 节点不能访问 apiserver"></a><strong>worker 节点不能访问 apiserver</strong></h4><p>在worker节点执行以下语句可验证worker节点是否能访问 apiserver</p>
+<h3 id="worker-节点不能访问-apiserver"><a href="#worker-节点不能访问-apiserver" class="headerlink" title="worker 节点不能访问 apiserver"></a><strong>worker 节点不能访问 apiserver</strong></h3><p>在worker节点执行以下语句可验证worker节点是否能访问 apiserver</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -ik https://apiserver.demo:6443</span><br></pre></td></tr></table></figure>
 <p>如果不能，请在 master 节点上验证</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -ik https://localhost:6443</span><br></pre></td></tr></table></figure>
@@ -233,9 +233,9 @@
 </li>
 </ul>
 </blockquote>
-<h4 id="worker-节点默认网卡"><a href="#worker-节点默认网卡" class="headerlink" title="worker 节点默认网卡"></a>worker 节点默认网卡</h4><p>   Kubelet使用的 IP 地址与 master 节点可互通（无需 NAT 映射），且没有防火墙、安全组隔离</p>
+<h3 id="worker-节点默认网卡"><a href="#worker-节点默认网卡" class="headerlink" title="worker 节点默认网卡"></a>worker 节点默认网卡</h3><p>   Kubelet使用的 IP 地址与 master 节点可互通（无需 NAT 映射），且没有防火墙、安全组隔离</p>
 <p>如果你使用 vmware 或 virtualbox 创建虚拟机用于 K8S 学习，可以尝试 NAT 模式的网络，而不是桥接模式的网络</p>
-<h3 id="移除worker节点并重试"><a href="#移除worker节点并重试" class="headerlink" title="移除worker节点并重试"></a>移除worker节点并重试</h3><blockquote>
+<h2 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h2><h3 id="移除worker节点并重试"><a href="#移除worker节点并重试" class="headerlink" title="移除worker节点并重试"></a>移除worker节点并重试</h3><blockquote>
 <p>WARNING</p>
 <p>正常情况下，您无需移除 worker 节点，如果添加到集群出错，您可以移除 worker 节点，再重新尝试添加  </p>
 </blockquote>
