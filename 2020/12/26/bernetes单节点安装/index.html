@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-j.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-j.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-j.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo_j.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,Spring,Spring Cloud,中间件,RocketMQ,高并发,分布式,分布式事务,流式计算,Storm,机器学习,深度学习,Python,大数据,Spark,Hadoop,HDFS" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jay Chang's Blog" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="配置要求对于 Kubernetes 初学者，在搭建K8S集群时，推荐在阿里云或腾讯云采购如下配置：（您也可以使用自己的虚拟机、私有云等您最容易获得的 Linux 环境）  至少2台 2核4G 的服务器 Cent OS 7.6 / 7.7 / 7.8  安装后软件版本 Kubernetes v1.19.x  calico 3.13.1  nginx-ingress 1.5.5    Docker 1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CentOS7安装kubernetes单master节点(v1.19.x)">
+<meta property="og:url" content="http://jaychang.cn/2020/12/26/bernetes单节点安装/index.html">
+<meta property="og:site_name" content="Jay Chang&#39;s Blog">
+<meta property="og:description" content="配置要求对于 Kubernetes 初学者，在搭建K8S集群时，推荐在阿里云或腾讯云采购如下配置：（您也可以使用自己的虚拟机、私有云等您最容易获得的 Linux 环境）  至少2台 2核4G 的服务器 Cent OS 7.6 / 7.7 / 7.8  安装后软件版本 Kubernetes v1.19.x  calico 3.13.1  nginx-ingress 1.5.5    Docker 1">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2021-02-25T05:48:34.075Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CentOS7安装kubernetes单master节点(v1.19.x)">
+<meta name="twitter:description" content="配置要求对于 Kubernetes 初学者，在搭建K8S集群时，推荐在阿里云或腾讯云采购如下配置：（您也可以使用自己的虚拟机、私有云等您最容易获得的 Linux 环境）  至少2台 2核4G 的服务器 Cent OS 7.6 / 7.7 / 7.8  安装后软件版本 Kubernetes v1.19.x  calico 3.13.1  nginx-ingress 1.5.5    Docker 1">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://jaychang.cn/2020/12/26/bernetes单节点安装/"/>
+
+
+
+
+
+  <title>CentOS7安装kubernetes单master节点(v1.19.x) | Jay Chang's Blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?d383fa81ebb62476e09fe22470595b8d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	
+	<a href="https://github.com/jaychang9"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+	
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jay Chang's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">我的技术博客</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jaychang.cn/2020/12/26/bernetes单节点安装/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jay Chang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/default_avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jay Chang's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">CentOS7安装kubernetes单master节点(v1.19.x)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-12-26T11:01:24+08:00">
+                2020-12-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/12/26/bernetes单节点安装/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2020/12/26/bernetes单节点安装/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  5,208
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="配置要求"><a href="#配置要求" class="headerlink" title="配置要求"></a>配置要求</h1><p>对于 Kubernetes 初学者，在搭建K8S集群时，推荐在阿里云或腾讯云采购如下配置：（您也可以使用自己的虚拟机、私有云等您最容易获得的 Linux 环境）</p>
+<ul>
+<li>至少2台 2核4G 的服务器</li>
+<li>Cent OS 7.6 / 7.7 / 7.8</li>
+</ul>
+<h2 id="安装后软件版本"><a href="#安装后软件版本" class="headerlink" title="安装后软件版本"></a>安装后软件版本</h2><ul>
+<li><p>Kubernetes v1.19.x</p>
+<ul>
+<li><p>calico 3.13.1</p>
+</li>
+<li><p>nginx-ingress 1.5.5</p>
+</li>
+</ul>
+</li>
+<li>Docker 19.03.14</li>
+</ul>
+<blockquote>
+<p><strong>关于二进制安装</strong></p>
+<p>kubeadm 是 Kubernetes 官方支持的安装方式，“二进制” 不是。本文档采用 kubernetes.io 官方推荐的 kubeadm 工具安装 kubernetes 集群。</p>
+</blockquote>
+<h1 id="检查CentOS-hostname"><a href="#检查CentOS-hostname" class="headerlink" title="检查CentOS / hostname"></a>检查CentOS / hostname</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># 在 master 节点和 worker 节点都要执行</span><br><span class="line">cat /etc/redhat-release</span><br><span class="line"></span><br><span class="line"># 此处 hostname 的输出将会是该机器在 Kubernetes 集群中的节点名字</span><br><span class="line"># 不能使用 localhost 作为节点的名字</span><br><span class="line">hostname</span><br><span class="line"></span><br><span class="line"># 请使用 lscpu 命令，核对 CPU 信息</span><br><span class="line"># Architecture: x86_64    本安装文档不支持 arm 架构</span><br><span class="line"># CPU(s):       2         CPU 内核数量不能低于 2</span><br><span class="line">lscpu</span><br></pre></td></tr></table></figure>
+<p><strong>操作系统兼容性</strong></p>
+<table>
+<thead>
+<tr>
+<th>CentOS版本</th>
+<th>本文档是否兼容</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7.8</td>
+<td>是</td>
+<td>已验证</td>
+</tr>
+<tr>
+<td>7.7</td>
+<td>是</td>
+<td>已验证</td>
+</tr>
+<tr>
+<td>7.6</td>
+<td>是</td>
+<td>已验证</td>
+</tr>
+<tr>
+<td>7.5</td>
+<td>否</td>
+<td>已证实会出现 kubelet 无法启动的问题</td>
+</tr>
+<tr>
+<td>7.4</td>
+<td>否</td>
+<td>已证实会出现 kubelet 无法启动的问题</td>
+</tr>
+<tr>
+<td>7.3</td>
+<td>否</td>
+<td>已证实会出现 kubelet 无法启动的问题</td>
+</tr>
+<tr>
+<td>7.2</td>
+<td>否</td>
+<td>已证实会出现 kubelet 无法启动的问题</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>修改 hostname</p>
+<p>如果您需要修改 hostname，可执行如下指令：</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 修改 hostname</span><br><span class="line">hostnamectl set-hostname your-new-host-name</span><br><span class="line"><span class="meta">#</span> 查看修改结果</span><br><span class="line">hostnamectl status</span><br><span class="line"><span class="meta">#</span> 设置 hostname 解析</span><br><span class="line">echo "127.0.0.1   $(hostname)" &gt;&gt; /etc/hosts</span><br></pre></td></tr></table></figure>
+<h1 id="检查网络"><a href="#检查网络" class="headerlink" title="检查网络"></a>检查网络</h1><p>在所有节点执行命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@demo-master-a-1 ~]$ ip route show</span><br><span class="line">default via 172.21.0.1 dev eth0 </span><br><span class="line">169.254.0.0/16 dev eth0 scope link metric 1002 </span><br><span class="line">172.21.0.0/20 dev eth0 proto kernel scope link src 172.21.0.12 </span><br><span class="line"></span><br><span class="line">[root@demo-master-a-1 ~]$ ip address</span><br><span class="line">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000</span><br><span class="line">    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00</span><br><span class="line">    inet 127.0.0.1/8 scope host lo</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP group default qlen 1000</span><br><span class="line">    link/ether 00:16:3e:12:a4:1b brd ff:ff:ff:ff:ff:ff</span><br><span class="line">    inet 172.17.216.80/20 brd 172.17.223.255 scope global dynamic eth0</span><br><span class="line">       valid_lft 305741654sec preferred_lft 305741654sec</span><br></pre></td></tr></table></figure>
+<h1 id="安装docker及kubelet"><a href="#安装docker及kubelet" class="headerlink" title="安装docker及kubelet"></a>安装docker及kubelet</h1><p>使用 root 身份在所有节点执行如下代码，以安装软件：</p>
+<ul>
+<li>docker</li>
+<li>nfs-utils</li>
+<li>kubectl / kubeadm / kubelet</li>
+</ul>
+<h2 id="快速安装"><a href="#快速安装" class="headerlink" title="快速安装"></a>快速安装</h2><p><strong>请将脚本最后的 1.19.6 替换成您需要的版本号</strong>， 脚本中间的 v1.19.x 不要替换</p>
+<p>docker hub 镜像请根据自己网络的情况任选一个</p>
+<ul>
+<li>第四行为腾讯云 docker hub 镜像</li>
+<li>第六行为DaoCloud docker hub 镜像</li>
+<li>第八行为华为云 docker hub 镜像</li>
+<li>第十行为阿里云 docker hub 镜像</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 在 master 节点和 worker 节点都要执行</span><br><span class="line"><span class="meta">#</span> 最后一个参数 1.19.5 用于指定 kubenetes 版本，支持所有 1.19.x 版本的安装</span><br><span class="line"><span class="meta">#</span> 腾讯云 docker hub 镜像</span><br><span class="line"><span class="meta">#</span> export REGISTRY_MIRROR="https://mirror.ccs.tencentyun.com"</span><br><span class="line"><span class="meta">#</span> DaoCloud 镜像</span><br><span class="line"><span class="meta">#</span> export REGISTRY_MIRROR="http://f1361db2.m.daocloud.io"</span><br><span class="line"><span class="meta">#</span> 华为云镜像</span><br><span class="line"><span class="meta">#</span> export REGISTRY_MIRROR="https://05f073ad3c0010ea0f4bc00b7105ec20.mirror.swr.myhuaweicloud.com"</span><br><span class="line"><span class="meta">#</span> 阿里云 docker hub 镜像</span><br><span class="line">export REGISTRY_MIRROR=https://registry.cn-hangzhou.aliyuncs.com</span><br><span class="line">curl -sSL https://kuboard.cn/install-script/v1.19.x/install_kubelet.sh | sh -s 1.19.6</span><br></pre></td></tr></table></figure>
+<h2 id="手动安装"><a href="#手动安装" class="headerlink" title="手动安装"></a>手动安装</h2><blockquote>
+<p>手动执行以下代码，结果与快速安装相同。<strong>请将脚本第79行（已高亮）的 ${1} 替换成您需要的版本号，例如 1.19.6</strong></p>
+</blockquote>
+<p>docker hub 镜像请根据自己网络的情况任选一个</p>
+<ul>
+<li>第四行为腾讯云 docker hub 镜像</li>
+<li>第六行为DaoCloud docker hub 镜像</li>
+<li>第八行为阿里云 docker hub 镜像</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 在 master 节点和 worker 节点都要执行</span><br><span class="line"><span class="meta">#</span> 最后一个参数 1.19.5 用于指定 kubenetes 版本，支持所有 1.19.x 版本的安装</span><br><span class="line"><span class="meta">#</span> 腾讯云 docker hub 镜像</span><br><span class="line"><span class="meta">#</span> export REGISTRY_MIRROR="https://mirror.ccs.tencentyun.com"</span><br><span class="line"><span class="meta">#</span> DaoCloud 镜像</span><br><span class="line"><span class="meta">#</span> export REGISTRY_MIRROR="http://f1361db2.m.daocloud.io"</span><br><span class="line"><span class="meta">#</span> 阿里云 docker hub 镜像</span><br><span class="line">export REGISTRY_MIRROR=https://registry.cn-hangzhou.aliyuncs.com</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>可以指定安装docker-ce的版本，用<strong>yum list docker-ce –showduplicates|sort -r</strong> 查看所有版本</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/bash</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 在 master 节点和 worker 节点都要执行</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 安装 docker</span><br><span class="line"><span class="meta">#</span> 参考文档如下</span><br><span class="line"><span class="meta">#</span> https://docs.docker.com/install/linux/docker-ce/centos/ </span><br><span class="line"><span class="meta">#</span> https://docs.docker.com/install/linux/linux-postinstall/</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 卸载旧版本</span><br><span class="line">yum remove -y docker \</span><br><span class="line">docker-client \</span><br><span class="line">docker-client-latest \</span><br><span class="line">docker-ce-cli \</span><br><span class="line">docker-common \</span><br><span class="line">docker-latest \</span><br><span class="line">docker-latest-logrotate \</span><br><span class="line">docker-logrotate \</span><br><span class="line">docker-selinux \</span><br><span class="line">docker-engine-selinux \</span><br><span class="line">docker-engine</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 设置 yum repository</span><br><span class="line">yum install -y yum-utils \</span><br><span class="line">device-mapper-persistent-data \</span><br><span class="line">lvm2</span><br><span class="line">yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 安装并启动 docker</span><br><span class="line">yum install -y docker-ce-19.03.14 docker-ce-cli-19.03.14</span><br><span class="line"></span><br><span class="line">mkdir /etc/docker || true</span><br><span class="line"></span><br><span class="line">cat &gt; /etc/docker/daemon.json &lt;&lt;EOF</span><br><span class="line">&#123;</span><br><span class="line">  "registry-mirrors": ["$&#123;REGISTRY_MIRROR&#125;"],</span><br><span class="line">  "exec-opts": ["native.cgroupdriver=systemd"],</span><br><span class="line">  "log-driver": "json-file",</span><br><span class="line">  "log-opts": &#123;</span><br><span class="line">    "max-size": "100m"</span><br><span class="line">  &#125;,</span><br><span class="line">  "storage-driver": "overlay2",</span><br><span class="line">  "storage-opts": [</span><br><span class="line">    "overlay2.override_kernel_check=true"</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">mkdir -p /etc/systemd/system/docker.service.d</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> Restart Docker</span><br><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl enable docker</span><br><span class="line">systemctl restart docker</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 安装 nfs-utils</span><br><span class="line"><span class="meta">#</span> 必须先安装 nfs-utils 才能挂载 nfs 网络存储</span><br><span class="line">yum install -y nfs-utils</span><br><span class="line">yum install -y wget</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 关闭 防火墙</span><br><span class="line">systemctl stop firewalld</span><br><span class="line">systemctl disable firewalld</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 关闭 SeLinux</span><br><span class="line">setenforce 0</span><br><span class="line">sed -i "s/SELINUX=enforcing/SELINUX=disabled/g" /etc/selinux/config</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 关闭 swap</span><br><span class="line">swapoff -a</span><br><span class="line">yes | cp /etc/fstab /etc/fstab_bak</span><br><span class="line">cat /etc/fstab_bak |grep -v swap &gt; /etc/fstab</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 修改 /etc/sysctl.conf</span><br><span class="line"><span class="meta">#</span> 如果有配置，则修改</span><br><span class="line">sed -i "s#^net.ipv4.ip_forward.*#net.ipv4.ip_forward=1#g"  /etc/sysctl.conf</span><br><span class="line">sed -i "s#^net.bridge.bridge-nf-call-ip6tables.*#net.bridge.bridge-nf-call-ip6tables=1#g"  /etc/sysctl.conf</span><br><span class="line">sed -i "s#^net.bridge.bridge-nf-call-iptables.*#net.bridge.bridge-nf-call-iptables=1#g"  /etc/sysctl.conf</span><br><span class="line">sed -i "s#^net.ipv6.conf.all.disable_ipv6.*#net.ipv6.conf.all.disable_ipv6=1#g"  /etc/sysctl.conf</span><br><span class="line">sed -i "s#^net.ipv6.conf.default.disable_ipv6.*#net.ipv6.conf.default.disable_ipv6=1#g"  /etc/sysctl.conf</span><br><span class="line">sed -i "s#^net.ipv6.conf.lo.disable_ipv6.*#net.ipv6.conf.lo.disable_ipv6=1#g"  /etc/sysctl.conf</span><br><span class="line">sed -i "s#^net.ipv6.conf.all.forwarding.*#net.ipv6.conf.all.forwarding=1#g"  /etc/sysctl.conf</span><br><span class="line"><span class="meta">#</span> 可能没有，追加</span><br><span class="line">echo "net.ipv4.ip_forward = 1" &gt;&gt; /etc/sysctl.conf</span><br><span class="line">echo "net.bridge.bridge-nf-call-ip6tables = 1" &gt;&gt; /etc/sysctl.conf</span><br><span class="line">echo "net.bridge.bridge-nf-call-iptables = 1" &gt;&gt; /etc/sysctl.conf</span><br><span class="line">echo "net.ipv6.conf.all.disable_ipv6 = 1" &gt;&gt; /etc/sysctl.conf</span><br><span class="line">echo "net.ipv6.conf.default.disable_ipv6 = 1" &gt;&gt; /etc/sysctl.conf</span><br><span class="line">echo "net.ipv6.conf.lo.disable_ipv6 = 1" &gt;&gt; /etc/sysctl.conf</span><br><span class="line">echo "net.ipv6.conf.all.forwarding = 1"  &gt;&gt; /etc/sysctl.conf</span><br><span class="line"><span class="meta">#</span> 执行命令以应用</span><br><span class="line">sysctl -p</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 配置K8S的yum源</span><br><span class="line">cat &lt;&lt;EOF &gt; /etc/yum.repos.d/kubernetes.repo</span><br><span class="line">[kubernetes]</span><br><span class="line">name=Kubernetes</span><br><span class="line">baseurl=http://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64</span><br><span class="line">enabled=1</span><br><span class="line">gpgcheck=0</span><br><span class="line">repo_gpgcheck=0</span><br><span class="line">gpgkey=http://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg</span><br><span class="line">       http://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 卸载旧版本</span><br><span class="line">yum remove -y kubelet kubeadm kubectl</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 安装kubelet、kubeadm、kubectl</span><br><span class="line"><span class="meta">#</span> 将 $&#123;1&#125; 替换为 kubernetes 版本号，例如 1.19.6</span><br><span class="line">yum install -y kubelet-$&#123;1&#125; kubeadm-$&#123;1&#125; kubectl-$&#123;1&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 重启 docker，并启动 kubelet</span><br><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl restart docker</span><br><span class="line">systemctl enable kubelet &amp;&amp; systemctl start kubelet</span><br><span class="line"></span><br><span class="line">docker version</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>WARNING</p>
+<p>如果此时执行 systemctl status kubelet 命令，将得到 kubelet 启动失败的错误提示，请忽略此错误，因为必须完成后续步骤中 kubeadm init 的操作，kubelet 才能正常启动</p>
+</blockquote>
+<h1 id="初始化master节点"><a href="#初始化master节点" class="headerlink" title="初始化master节点"></a>初始化master节点</h1><blockquote>
+<p>关于初始化时用到的环境变量</p>
+</blockquote>
+<ul>
+<li>APISERVER_NAME 不能是 master 的 hostname</li>
+<li>APISERVER_NAME 必须全为小写字母、数字、小数点，不能包含减号</li>
+<li>POD_SUBNET 所使用的网段不能与 master节点/worker节点 所在的网段重叠。该字段的取值为一个 CIDR 值，如果您对 CIDR 这个概念还不熟悉，请仍然执行 export POD_SUBNET=10.100.0.1/16 命令，不做修改</li>
+</ul>
+<h2 id="快速初始化"><a href="#快速初始化" class="headerlink" title="快速初始化"></a>快速初始化</h2><p><strong>请将脚本最后的 1.19.6 替换成您需要的版本号</strong>， 脚本中间的 v1.19.x 不要替换</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 只在 master 节点执行</span><br><span class="line"><span class="meta">#</span> 替换 x.x.x.x 为 master 节点实际 IP（请使用内网 IP）</span><br><span class="line"><span class="meta">#</span> export 命令只在当前 shell 会话中有效，开启新的 shell 窗口后，如果要继续安装过程，请重新执行此处的 export 命令</span><br><span class="line">export MASTER_IP=x.x.x.x</span><br><span class="line"><span class="meta">#</span> 替换 apiserver.demo 为 您想要的 dnsName</span><br><span class="line">export APISERVER_NAME=apiserver.demo</span><br><span class="line"><span class="meta">#</span> Kubernetes 容器组所在的网段，该网段安装完成后，由 kubernetes 创建，事先并不存在于您的物理网络中</span><br><span class="line">export POD_SUBNET=10.100.0.1/16</span><br><span class="line">echo "$&#123;MASTER_IP&#125;    $&#123;APISERVER_NAME&#125;" &gt;&gt; /etc/hosts</span><br><span class="line">curl -sSL https://kuboard.cn/install-script/v1.19.x/init_master.sh | sh -s 1.19.6</span><br></pre></td></tr></table></figure>
+<h2 id="手动初始化"><a href="#手动初始化" class="headerlink" title="手动初始化"></a>手动初始化</h2><blockquote>
+<p>手动执行以下代码，结果与快速初始化相同。<strong>请将脚本第21行（已高亮）的 ${1} 替换成您需要的版本号，例如 1.19.6</strong></p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 只在 master 节点执行</span><br><span class="line"><span class="meta">#</span> 替换 x.x.x.x 为 master 节点的内网IP</span><br><span class="line"><span class="meta">#</span> export 命令只在当前 shell 会话中有效，开启新的 shell 窗口后，如果要继续安装过程，请重新执行此处的 export 命令</span><br><span class="line">export MASTER_IP=x.x.x.x</span><br><span class="line"><span class="meta">#</span> 替换 apiserver.demo 为 您想要的 dnsName</span><br><span class="line">export APISERVER_NAME=apiserver.demo</span><br><span class="line"><span class="meta">#</span> Kubernetes 容器组所在的网段，该网段安装完成后，由 kubernetes 创建，事先并不存在于您的物理网络中</span><br><span class="line">export POD_SUBNET=10.100.0.1/16</span><br><span class="line">echo "$&#123;MASTER_IP&#125;    $&#123;APISERVER_NAME&#125;" &gt;&gt; /etc/hosts</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/bash</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 只在 master 节点执行</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 脚本出错时终止执行</span><br><span class="line">set -e</span><br><span class="line"></span><br><span class="line">if [ $&#123;#POD_SUBNET&#125; -eq 0 ] || [ $&#123;#APISERVER_NAME&#125; -eq 0 ]; then</span><br><span class="line">  echo -e "\033[31;1m请确保您已经设置了环境变量 POD_SUBNET 和 APISERVER_NAME \033[0m"</span><br><span class="line">  echo 当前POD_SUBNET=$POD_SUBNET</span><br><span class="line">  echo 当前APISERVER_NAME=$APISERVER_NAME</span><br><span class="line">  exit 1</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 查看完整配置选项 https://godoc.org/k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm/v1beta2</span><br><span class="line">rm -f ./kubeadm-config.yaml</span><br><span class="line">cat &lt;&lt;EOF &gt; ./kubeadm-config.yaml</span><br><span class="line">apiVersion: kubeadm.k8s.io/v1beta2</span><br><span class="line">kind: ClusterConfiguration</span><br><span class="line">kubernetesVersion: v$&#123;1&#125;</span><br><span class="line">imageRepository: registry.aliyuncs.com/k8sxio</span><br><span class="line">controlPlaneEndpoint: "$&#123;APISERVER_NAME&#125;:6443"</span><br><span class="line">networking:</span><br><span class="line">  serviceSubnet: "10.96.0.0/16"</span><br><span class="line">  podSubnet: "$&#123;POD_SUBNET&#125;"</span><br><span class="line">  dnsDomain: "cluster.local"</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> kubeadm init</span><br><span class="line"><span class="meta">#</span> 根据您服务器网速的情况，您需要等候 3 - 10 分钟</span><br><span class="line">kubeadm config images pull --config=kubeadm-config.yaml</span><br><span class="line">kubeadm init --config=kubeadm-config.yaml --upload-certs</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 配置 kubectl</span><br><span class="line">rm -rf /root/.kube/</span><br><span class="line">mkdir /root/.kube/</span><br><span class="line">cp -i /etc/kubernetes/admin.conf /root/.kube/config</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 安装 calico 网络插件</span><br><span class="line"><span class="meta">#</span> 参考文档 https://docs.projectcalico.org/v3.13/getting-started/kubernetes/self-managed-onprem/onpremises</span><br><span class="line">echo "安装calico-3.13.1"</span><br><span class="line">rm -f calico-3.13.1.yaml</span><br><span class="line">wget https://kuboard.cn/install-script/calico/calico-3.13.1.yaml</span><br><span class="line">kubectl apply -f calico-3.13.1.yaml</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>感谢 <a href="https://github.com/zhangguanzhang/google_containers" target="_blank" rel="noopener">https://github.com/zhangguanzhang/google_containers</a> (opens new window)提供最新的 google_containers 国内镜像</p>
+</blockquote>
+<h2 id="初始化如果出错请看"><a href="#初始化如果出错请看" class="headerlink" title="初始化如果出错请看"></a>初始化如果出错请看</h2><ul>
+<li><p>请确保您的环境符合 <a href="https://kuboard.cn/install/install-k8s.html#安装docker及kubelet" target="_blank" rel="noopener">安装docker及kubelet</a> 中所有勾选框的要求</p>
+</li>
+<li><p>请确保您使用 root 用户执行初始化命令</p>
+</li>
+<li><p>不能下载 kubernetes 的 docker 镜像</p>
+<ul>
+<li><p>安装文档中，默认使用阿里云的 docker 镜像仓库，然而，有时候，该镜像会罢工</p>
+</li>
+<li><p>如碰到不能下载 docker 镜像的情况，请尝试手工初始化，并修改手工初始化脚本里的第22行（文档中已高亮）为：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">imageRepository: gcr.azk8s.cn/google-containers</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>检查环境变量，执行如下命令</p>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo MASTER_IP=$&#123;MASTER_IP&#125; &amp;&amp; echo APISERVER_NAME=$&#123;APISERVER_NAME&#125; &amp;&amp; echo POD_SUBNET=$&#123;POD_SUBNET&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>请验证如下几点：<ul>
+<li>环境变量 <strong><em>MASTER_IP</em></strong> 的值应该为 master 节点的 <strong>内网IP</strong>，如果不是，请重新 export</li>
+<li><strong>APISERVER_NAME</strong> 不能是 master 的 hostname</li>
+<li><strong>APISERVER_NAME</strong> 必须全为小写字母、数字、小数点，不能包含减号</li>
+<li><strong>POD_SUBNET</strong> 所使用的网段不能与 <strong><em>master节点/worker节点</em></strong> 所在的网段重叠。该字段的取值为一个 <a href="https://kuboard.cn/glossary/cidr.html" target="_blank" rel="noopener">CIDR</a> 值，如果您对 CIDR 这个概念还不熟悉，请仍然执行 export POD_SUBNET=10.100.0.1/16 命令，不做修改</li>
+</ul>
+</li>
+<li>重新初始化 master 节点前，请先执行 <code>kubeadm reset -f</code> 操作</li>
+</ul>
+<ul>
+<li><p>ImagePullBackoff / Pending</p>
+</li>
+<li><p>如果 kubectl get pod -n kube-system -o wide 的输出结果中出现 ImagePullBackoff 或者长时间处于 Pending 的情况，请参考 查看镜像抓取进度</p>
+</li>
+<li><p>ContainerCreating</p>
+</li>
+<li><p>如果 kubectl get pod -n kube-system -o wide 的输出结果中某个 Pod 长期处于 ContainerCreating、PodInitializing 或 Init:0/3 的状态，可以尝试：</p>
+<ul>
+<li>查看该 Pod 的状态，例如：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl describe pod kube-flannel-ds-amd64-8l25c -n kube-system</span><br></pre></td></tr></table></figure>
+<p>如果输出结果中，最后一行显示的是 Pulling image，请耐心等待，或者参考 查看镜像抓取进度</p>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Normal  Pulling    44s   kubelet, k8s-worker-02  Pulling image "quay.io/coreos/flannel:v0.12.0-amd64"</span><br></pre></td></tr></table></figure>
+<ul>
+<li>将该 Pod 删除，系统会自动重建一个新的 Pod，例如：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl delete pod kube-flannel-ds-amd64-8l25c -n kube-system</span><br></pre></td></tr></table></figure>
+<h2 id="检查master初始化结果"><a href="#检查master初始化结果" class="headerlink" title="检查master初始化结果"></a>检查master初始化结果</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> 只在 master 节点执行</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 执行如下命令，等待 3-10 分钟，直到所有的容器组处于 Running 状态</span><br><span class="line">watch kubectl get pod -n kube-system -o wide</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> 查看 master 节点初始化结果</span><br><span class="line">kubectl get nodes -o wide</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>如果出错请看</p>
+</blockquote>
+<ul>
+<li><p>ImagePullBackoff / Pending</p>
+<ul>
+<li>如果 kubectl get pod -n kube-system -o wide的输出结果中出现 ImagePullBackoff 或者长时间处于 Pending 的情况，请参考 <a href="https://kuboard.cn/learning/faq/image-pull-backoff.html" target="_blank" rel="noopener">查看镜像抓取进度</a></li>
+</ul>
+</li>
+<li><p>ContainerCreating</p>
+<ul>
+<li><p>如果kubectl get pod -n kube-system -o wide的输出结果中某个 Pod 长期处于 ContainerCreating、PodInitializing 或 Init:0/3 的状态，可以尝试：</p>
+<ul>
+<li><p>查看该 Pod 的状态，例如：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl describe pod kube-flannel-ds-amd64-8l25c -n kube-system</span><br></pre></td></tr></table></figure>
+<p>如果输出结果中，最后一行显示的是 Pulling image，请耐心等待，或者参考查看镜像抓取进度</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">      Normal  Pulling    44s   kubelet, k8s-worker-02  Pulling image <span class="string">"quay.io/coreos/flannel:v0.12.0-amd64"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将该 Pod 删除，系统会自动重建一个新的 Pod，例如：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl delete pod kube-flannel-ds-amd64-8l25c -n kube-system</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="初始化worker节点"><a href="#初始化worker节点" class="headerlink" title="初始化worker节点"></a>初始化worker节点</h1><h2 id="获得join参数"><a href="#获得join参数" class="headerlink" title="获得join参数"></a>获得join参数</h2><p>在master节点上执行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 只在 master 节点执行</span></span><br><span class="line">kubeadm token create --print-join-command</span><br></pre></td></tr></table></figure>
+<p>可获取kubeadm join 命令及参数，如下所示</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> kubeadm token create 命令的输出</span></span><br><span class="line">kubeadm join apiserver.demo:6443 --token mpfjma.4vjjg8flqihor4vt     --discovery-token-ca-cert-hash sha256:6f7a8e40a810323672de5eee6f4d19aa2dbdb38411845a1bf5dd63485c43d303</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>有效时间</p>
+</blockquote>
+<p>该 token 的有效时间为 2 个小时，2小时内，您可以使用此 token 初始化任意数量的 worker 节点。</p>
+<h2 id="worker节点执行初始化"><a href="#worker节点执行初始化" class="headerlink" title="worker节点执行初始化"></a>worker节点执行初始化</h2><p>针对所有的 worker 节点执行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 只在 worker 节点执行</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 替换 x.x.x.x 为 master 节点的内网 IP</span></span><br><span class="line">export MASTER_IP=x.x.x.x</span><br><span class="line"><span class="meta">#</span><span class="bash"> 替换 apiserver.demo 为初始化 master 节点时所使用的 APISERVER_NAME</span></span><br><span class="line">export APISERVER_NAME=apiserver.demo</span><br><span class="line">echo "$&#123;MASTER_IP&#125;    $&#123;APISERVER_NAME&#125;" &gt;&gt; /etc/hosts</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 替换为 master 节点上 kubeadm token create 命令的输出</span></span><br><span class="line">kubeadm join apiserver.demo:6443 --token mpfjma.4vjjg8flqihor4vt     --discovery-token-ca-cert-hash sha256:6f7a8e40a810323672de5eee6f4d19aa2dbdb38411845a1bf5dd63485c43d303</span><br></pre></td></tr></table></figure>
+<h2 id="常见错误原因"><a href="#常见错误原因" class="headerlink" title="常见错误原因"></a>常见错误原因</h2><p>经常在群里提问为什么 join 不成功的情况大致有这几种：</p>
+<h4 id="worker-节点不能访问-apiserver"><a href="#worker-节点不能访问-apiserver" class="headerlink" title="worker 节点不能访问 apiserver"></a><strong>worker 节点不能访问 apiserver</strong></h4><p>在worker节点执行以下语句可验证worker节点是否能访问 apiserver</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -ik https://apiserver.demo:6443</span><br></pre></td></tr></table></figure>
+<p>如果不能，请在 master 节点上验证</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -ik https://localhost:6443</span><br></pre></td></tr></table></figure>
+<p>  正常输出结果如下所示：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 403 Forbidden</span><br><span class="line">Cache-Control: no-cache, private</span><br><span class="line">Content-Type: application/json</span><br><span class="line">X-Content-Type-Options: nosniff</span><br><span class="line">Date: Fri, 15 Nov 2019 04:34:40 GMT</span><br><span class="line">Content-Length: 233</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  "kind": "Status",</span><br><span class="line">  "apiVersion": "v1",</span><br><span class="line">  "metadata": &#123;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p> 可能原因</p>
+<ul>
+<li>如果 master 节点能够访问 apiserver、而 worker 节点不能，则请检查自己的网络设置<ul>
+<li>/etc/hosts 是否正确设置？</li>
+<li>是否有安全组或防火墙的限制？</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<h4 id="worker-节点默认网卡"><a href="#worker-节点默认网卡" class="headerlink" title="worker 节点默认网卡"></a>worker 节点默认网卡</h4><p>   Kubelet使用的 IP 地址与 master 节点可互通（无需 NAT 映射），且没有防火墙、安全组隔离</p>
+<p>如果你使用 vmware 或 virtualbox 创建虚拟机用于 K8S 学习，可以尝试 NAT 模式的网络，而不是桥接模式的网络</p>
+<h3 id="移除worker节点并重试"><a href="#移除worker节点并重试" class="headerlink" title="移除worker节点并重试"></a>移除worker节点并重试</h3><blockquote>
+<p>WARNING</p>
+<p>正常情况下，您无需移除 worker 节点，如果添加到集群出错，您可以移除 worker 节点，再重新尝试添加  </p>
+</blockquote>
+<p>在准备移除的 worker 节点上执行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 只在 worker 节点执行</span></span><br><span class="line">kubeadm reset -f</span><br></pre></td></tr></table></figure>
+<p>在 master 节点 demo-master-a-1 上执行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 只在 master 节点执行</span></span><br><span class="line">kubectl get nodes -o wide</span><br></pre></td></tr></table></figure>
+<p>如果列表中没有您要移除的节点，则忽略下一个步骤</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 只在 master 节点执行</span><br><span class="line">kubectl delete node demo-worker-x-x</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>TIP</p>
+<ul>
+<li>将 demo-worker-x-x 替换为要移除的 worker 节点的名字</li>
+<li>worker 节点的名字可以通过在节点 demo-master-a-1 上执行 kubectl get nodes 命令获得</li>
+</ul>
+</blockquote>
+<h2 id="检查初始化结果"><a href="#检查初始化结果" class="headerlink" title="检查初始化结果"></a>检查初始化结果</h2><p>在master节点上执行<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 只在 master 节点执行</span></span><br><span class="line">kubectl get nodes -o wide</span><br></pre></td></tr></table></figure></p>
+<p>输出结果如下所示：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@demo-master-a-1 ~]# kubectl get nodes</span><br><span class="line">NAME     STATUS   ROLES    AGE     VERSION</span><br><span class="line">demo-master-a-1   Ready    master   5m3s    v1.19.x</span><br><span class="line">demo-worker-a-1   Ready    &lt;none&gt;   2m26s   v1.19.x</span><br><span class="line">demo-worker-a-2   Ready    &lt;none&gt;   3m56s   v1.19.x</span><br></pre></td></tr></table></figure></p>
+<h1 id="安装Ingress-Controller"><a href="#安装Ingress-Controller" class="headerlink" title="安装Ingress Controller"></a>安装Ingress Controller</h1><h2 id="快速初始化-1"><a href="#快速初始化-1" class="headerlink" title="快速初始化"></a>快速初始化</h2><p><strong>在master节点上执行</strong><br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 只在 master 节点执行</span></span><br><span class="line">kubectl apply -f https://kuboard.cn/install-script/v1.19.x/nginx-ingress.yaml</span><br></pre></td></tr></table></figure></p>
+<p><strong>nginx-ingress.yaml内容</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br></pre></td><td class="code"><pre><span class="line"># 如果打算用于生产环境，请参考 https://github.com/nginxinc/kubernetes-ingress/blob/v1.5.5/docs/installation.md 并根据您自己的情况做进一步定制</span><br><span class="line"></span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Namespace</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx-ingress</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: ServiceAccount</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx-ingress </span><br><span class="line">  namespace: nginx-ingress</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Secret</span><br><span class="line">metadata:</span><br><span class="line">  name: default-server-secret</span><br><span class="line">  namespace: nginx-ingress</span><br><span class="line">type: Opaque</span><br><span class="line">data:</span><br><span class="line">  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN2akNDQWFZQ0NRREFPRjl0THNhWFhEQU5CZ2txaGtpRzl3MEJBUXNGQURBaE1SOHdIUVlEVlFRRERCWk8KUjBsT1dFbHVaM0psYzNORGIyNTBjbTlzYkdWeU1CNFhEVEU0TURreE1qRTRNRE16TlZvWERUSXpNRGt4TVRFNApNRE16TlZvd0lURWZNQjBHQTFVRUF3d1dUa2RKVGxoSmJtZHlaWE56UTI5dWRISnZiR3hsY2pDQ0FTSXdEUVlKCktvWklodmNOQVFFQkJRQURnZ0VQQURDQ0FRb0NnZ0VCQUwvN2hIUEtFWGRMdjNyaUM3QlBrMTNpWkt5eTlyQ08KR2xZUXYyK2EzUDF0azIrS3YwVGF5aGRCbDRrcnNUcTZzZm8vWUk1Y2Vhbkw4WGM3U1pyQkVRYm9EN2REbWs1Qgo4eDZLS2xHWU5IWlg0Rm5UZ0VPaStlM2ptTFFxRlBSY1kzVnNPazFFeUZBL0JnWlJVbkNHZUtGeERSN0tQdGhyCmtqSXVuektURXUyaDU4Tlp0S21ScUJHdDEwcTNRYzhZT3ExM2FnbmovUWRjc0ZYYTJnMjB1K1lYZDdoZ3krZksKWk4vVUkxQUQ0YzZyM1lma1ZWUmVHd1lxQVp1WXN2V0RKbW1GNWRwdEMzN011cDBPRUxVTExSakZJOTZXNXIwSAo1TmdPc25NWFJNV1hYVlpiNWRxT3R0SmRtS3FhZ25TZ1JQQVpQN2MwQjFQU2FqYzZjNGZRVXpNQ0F3RUFBVEFOCkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQWpLb2tRdGRPcEsrTzhibWVPc3lySmdJSXJycVFVY2ZOUitjb0hZVUoKdGhrYnhITFMzR3VBTWI5dm15VExPY2xxeC9aYzJPblEwMEJCLzlTb0swcitFZ1U2UlVrRWtWcitTTFA3NTdUWgozZWI4dmdPdEduMS9ienM3bzNBaS9kclkrcUI5Q2k1S3lPc3FHTG1US2xFaUtOYkcyR1ZyTWxjS0ZYQU80YTY3Cklnc1hzYktNbTQwV1U3cG9mcGltU1ZmaXFSdkV5YmN3N0NYODF6cFErUyt1eHRYK2VBZ3V0NHh3VlI5d2IyVXYKelhuZk9HbWhWNThDd1dIQnNKa0kxNXhaa2VUWXdSN0diaEFMSkZUUkk3dkhvQXprTWIzbjAxQjQyWjNrN3RXNQpJUDFmTlpIOFUvOWxiUHNoT21FRFZkdjF5ZytVRVJxbStGSis2R0oxeFJGcGZnPT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=</span><br><span class="line">  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBdi91RWM4b1JkMHUvZXVJTHNFK1RYZUprckxMMnNJNGFWaEMvYjVyYy9XMlRiNHEvClJOcktGMEdYaVN1eE9ycXgrajlnamx4NXFjdnhkenRKbXNFUkJ1Z1B0ME9hVGtIekhvb3FVWmcwZGxmZ1dkT0EKUTZMNTdlT1l0Q29VOUZ4amRXdzZUVVRJVUQ4R0JsRlNjSVo0b1hFTkhzbysyR3VTTWk2Zk1wTVM3YUhudzFtMApxWkdvRWEzWFNyZEJ6eGc2clhkcUNlUDlCMXl3VmRyYURiUzc1aGQzdUdETDU4cGszOVFqVUFQaHpxdmRoK1JWClZGNGJCaW9CbTVpeTlZTW1hWVhsMm0wTGZzeTZuUTRRdFFzdEdNVWozcGJtdlFmazJBNnljeGRFeFpkZFZsdmwKMm82MjBsMllxcHFDZEtCRThCay90elFIVTlKcU56cHpoOUJUTXdJREFRQUJBb0lCQVFDZklHbXowOHhRVmorNwpLZnZJUXQwQ0YzR2MxNld6eDhVNml4MHg4Mm15d1kxUUNlL3BzWE9LZlRxT1h1SENyUlp5TnUvZ2IvUUQ4bUFOCmxOMjRZTWl0TWRJODg5TEZoTkp3QU5OODJDeTczckM5bzVvUDlkazAvYzRIbjAzSkVYNzZ5QjgzQm9rR1FvYksKMjhMNk0rdHUzUmFqNjd6Vmc2d2szaEhrU0pXSzBwV1YrSjdrUkRWYmhDYUZhNk5nMUZNRWxhTlozVDhhUUtyQgpDUDNDeEFTdjYxWTk5TEI4KzNXWVFIK3NYaTVGM01pYVNBZ1BkQUk3WEh1dXFET1lvMU5PL0JoSGt1aVg2QnRtCnorNTZud2pZMy8yUytSRmNBc3JMTnIwMDJZZi9oY0IraVlDNzVWYmcydVd6WTY3TWdOTGQ5VW9RU3BDRkYrVm4KM0cyUnhybnhBb0dCQU40U3M0ZVlPU2huMVpQQjdhTUZsY0k2RHR2S2ErTGZTTXFyY2pOZjJlSEpZNnhubmxKdgpGenpGL2RiVWVTbWxSekR0WkdlcXZXaHFISy9iTjIyeWJhOU1WMDlRQ0JFTk5jNmtWajJTVHpUWkJVbEx4QzYrCk93Z0wyZHhKendWelU0VC84ajdHalRUN05BZVpFS2FvRHFyRG5BYWkyaW5oZU1JVWZHRXFGKzJyQW9HQkFOMVAKK0tZL0lsS3RWRzRKSklQNzBjUis3RmpyeXJpY05iWCtQVzUvOXFHaWxnY2grZ3l4b25BWlBpd2NpeDN3QVpGdwpaZC96ZFB2aTBkWEppc1BSZjRMazg5b2pCUmpiRmRmc2l5UmJYbyt3TFU4NUhRU2NGMnN5aUFPaTVBRHdVU0FkCm45YWFweUNweEFkREtERHdObit3ZFhtaTZ0OHRpSFRkK3RoVDhkaVpBb0dCQUt6Wis1bG9OOTBtYlF4VVh5YUwKMjFSUm9tMGJjcndsTmVCaWNFSmlzaEhYa2xpSVVxZ3hSZklNM2hhUVRUcklKZENFaHFsV01aV0xPb2I2NTNyZgo3aFlMSXM1ZUtka3o0aFRVdnpldm9TMHVXcm9CV2xOVHlGanIrSWhKZnZUc0hpOGdsU3FkbXgySkJhZUFVWUNXCndNdlQ4NmNLclNyNkQrZG8wS05FZzFsL0FvR0FlMkFVdHVFbFNqLzBmRzgrV3hHc1RFV1JqclRNUzRSUjhRWXQKeXdjdFA4aDZxTGxKUTRCWGxQU05rMXZLTmtOUkxIb2pZT2pCQTViYjhibXNVU1BlV09NNENoaFJ4QnlHbmR2eAphYkJDRkFwY0IvbEg4d1R0alVZYlN5T294ZGt5OEp0ek90ajJhS0FiZHd6NlArWDZDODhjZmxYVFo5MWpYL3RMCjF3TmRKS2tDZ1lCbyt0UzB5TzJ2SWFmK2UwSkN5TGhzVDQ5cTN3Zis2QWVqWGx2WDJ1VnRYejN5QTZnbXo5aCsKcDNlK2JMRUxwb3B0WFhNdUFRR0xhUkcrYlNNcjR5dERYbE5ZSndUeThXczNKY3dlSTdqZVp2b0ZpbmNvVlVIMwphdmxoTUVCRGYxSjltSDB5cDBwWUNaS2ROdHNvZEZtQktzVEtQMjJhTmtsVVhCS3gyZzR6cFE9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">kind: ConfigMap</span><br><span class="line">apiVersion: v1</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx-config</span><br><span class="line">  namespace: nginx-ingress</span><br><span class="line">data:</span><br><span class="line">  server-names-hash-bucket-size: &quot;1024&quot;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">kind: ClusterRole</span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx-ingress</span><br><span class="line">rules:</span><br><span class="line">- apiGroups:</span><br><span class="line">  - &quot;&quot;</span><br><span class="line">  resources:</span><br><span class="line">  - services</span><br><span class="line">  - endpoints</span><br><span class="line">  verbs:</span><br><span class="line">  - get</span><br><span class="line">  - list</span><br><span class="line">  - watch</span><br><span class="line">- apiGroups:</span><br><span class="line">  - &quot;&quot;</span><br><span class="line">  resources:</span><br><span class="line">  - secrets</span><br><span class="line">  verbs:</span><br><span class="line">  - get</span><br><span class="line">  - list</span><br><span class="line">  - watch</span><br><span class="line">- apiGroups:</span><br><span class="line">  - &quot;&quot;</span><br><span class="line">  resources:</span><br><span class="line">  - configmaps</span><br><span class="line">  verbs:</span><br><span class="line">  - get</span><br><span class="line">  - list</span><br><span class="line">  - watch</span><br><span class="line">  - update</span><br><span class="line">  - create</span><br><span class="line">- apiGroups:</span><br><span class="line">  - &quot;&quot;</span><br><span class="line">  resources:</span><br><span class="line">  - pods</span><br><span class="line">  verbs:</span><br><span class="line">  - list</span><br><span class="line">- apiGroups:</span><br><span class="line">  - &quot;&quot;</span><br><span class="line">  resources:</span><br><span class="line">  - events</span><br><span class="line">  verbs:</span><br><span class="line">  - create</span><br><span class="line">  - patch</span><br><span class="line">- apiGroups:</span><br><span class="line">  - extensions</span><br><span class="line">  resources:</span><br><span class="line">  - ingresses</span><br><span class="line">  verbs:</span><br><span class="line">  - list</span><br><span class="line">  - watch</span><br><span class="line">  - get</span><br><span class="line">- apiGroups:</span><br><span class="line">  - &quot;extensions&quot;</span><br><span class="line">  resources:</span><br><span class="line">  - ingresses/status</span><br><span class="line">  verbs:</span><br><span class="line">  - update</span><br><span class="line">- apiGroups:</span><br><span class="line">  - k8s.nginx.org</span><br><span class="line">  resources:</span><br><span class="line">  - virtualservers</span><br><span class="line">  - virtualserverroutes</span><br><span class="line">  verbs:</span><br><span class="line">  - list</span><br><span class="line">  - watch</span><br><span class="line">  - get</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">kind: ClusterRoleBinding</span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx-ingress</span><br><span class="line">subjects:</span><br><span class="line">- kind: ServiceAccount</span><br><span class="line">  name: nginx-ingress</span><br><span class="line">  namespace: nginx-ingress</span><br><span class="line">roleRef:</span><br><span class="line">  kind: ClusterRole</span><br><span class="line">  name: nginx-ingress</span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">apiVersion: apps/v1</span><br><span class="line">kind: DaemonSet</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx-ingress</span><br><span class="line">  namespace: nginx-ingress</span><br><span class="line">  annotations:</span><br><span class="line">    prometheus.io/scrape: &quot;true&quot;</span><br><span class="line">    prometheus.io/port: &quot;9113&quot;</span><br><span class="line">spec:</span><br><span class="line">  selector:</span><br><span class="line">    matchLabels:</span><br><span class="line">      app: nginx-ingress</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        app: nginx-ingress</span><br><span class="line">    spec:</span><br><span class="line">      serviceAccountName: nginx-ingress</span><br><span class="line">      containers:</span><br><span class="line">      - image: nginx/nginx-ingress:1.5.5</span><br><span class="line">        name: nginx-ingress</span><br><span class="line">        ports:</span><br><span class="line">        - name: http</span><br><span class="line">          containerPort: 80</span><br><span class="line">          hostPort: 80</span><br><span class="line">        - name: https</span><br><span class="line">          containerPort: 443</span><br><span class="line">          hostPort: 443</span><br><span class="line">        - name: prometheus</span><br><span class="line">          containerPort: 9113</span><br><span class="line">        env:</span><br><span class="line">        - name: POD_NAMESPACE</span><br><span class="line">          valueFrom:</span><br><span class="line">            fieldRef:</span><br><span class="line">              fieldPath: metadata.namespace</span><br><span class="line">        - name: POD_NAME</span><br><span class="line">          valueFrom:</span><br><span class="line">            fieldRef:</span><br><span class="line">              fieldPath: metadata.name</span><br><span class="line">        args:</span><br><span class="line">          - -nginx-configmaps=$(POD_NAMESPACE)/nginx-config</span><br><span class="line">          - -default-server-tls-secret=$(POD_NAMESPACE)/default-server-secret</span><br><span class="line">         #- -v=3 # Enables extensive logging. Useful for troubleshooting.</span><br><span class="line">         #- -report-ingress-status</span><br><span class="line">         #- -external-service=nginx-ingress</span><br><span class="line">         #- -enable-leader-election</span><br><span class="line">          - -enable-prometheus-metrics</span><br><span class="line">         #- -enable-custom-resources</span><br></pre></td></tr></table></figure></p>
+<p><strong>卸载ingress congroller</strong></p>
+<p>在master节点上执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#只在 master 节点执行</span><br><span class="line">kubectl delete -f https://kuboard.cn/install-script/v1.19.x/nginx-ingress.yaml</span><br></pre></td></tr></table></figure>
+<p><strong>配置域名解析</strong></p>
+<p>将域名 *.demo.yourdomain.com 解析到 demo-worker-a-2 的 IP 地址 z.z.z.z （也可以是 demo-worker-a-1 的地址 y.y.y.y）</p>
+<p><strong>验证配置</strong></p>
+<p>在浏览器访问 a.demo.yourdomain.com，将得到 404 NotFound 错误页面</p>
+<blockquote>
+<p>提示</p>
+</blockquote>
+<p>许多初学者在安装 Ingress Controller 时会碰到问题，请不要灰心，可暂时跳过 安装 Ingress Controller 这个部分，等您学完 www.kuboard.cn 上 Kubernetes 入门 以及 通过互联网访问您的应用程序 这两部分内容后，再来回顾 Ingress Controller 的安装。</p>
+<p>也可以参考 Install Nginx Ingress</p>
+<h1 id="问题及注意"><a href="#问题及注意" class="headerlink" title="问题及注意"></a>问题及注意</h1><h2 id="重启Kubenetes集群后遇到的问题"><a href="#重启Kubenetes集群后遇到的问题" class="headerlink" title="重启Kubenetes集群后遇到的问题"></a>重启Kubenetes集群后遇到的问题</h2><p>Kubernetes集群的设计目标是setup-and-run-forever，然而许多学习者使用自己笔记本上的虚拟机安装K8S集群用于学习，这就必然会出现反复重启集群所在虚拟机的情况。本文针对重启后会出现一些的一些令人困惑的问题做了解释。</p>
+<ul>
+<li><p>Worker节点不能启动<br>Master 节点的 IP 地址变化，导致 worker 节点不能启动。请重装集群，并确保所有节点都有固定内网 IP 地址。</p>
+</li>
+<li><p>许多Pod一直Crash或不能正常访问</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pods --all-namespaces</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>重启后会发现许多 Pod 不在 Running 状态，此时，请使用如下命令删除这些状态不正常的 Pod。通常，您的 Pod 如果是使用 Deployment、StatefulSet 等控制器创建的，kubernetes 将创建新的 Pod 作为替代，重新启动的 Pod 通常能够正常工作。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl delete pod &lt;pod-name&gt; -n &lt;pod-namespece&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="安装过程中的问题"><a href="#安装过程中的问题" class="headerlink" title="安装过程中的问题"></a>安装过程中的问题</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sysctl -p</span><br><span class="line">net.ipv4.ip_forward = 1</span><br><span class="line">sysctl: cannot stat /proc/sys/net/bridge/bridge-nf-call-ip6tables: No such file or directory</span><br><span class="line">sysctl: cannot stat /proc/sys/net/bridge/bridge-nf-call-iptables: No such file or directory</span><br><span class="line">net.ipv6.conf.all.disable_ipv6 = 1</span><br><span class="line">net.ipv6.conf.default.disable_ipv6 = 1</span><br><span class="line">net.ipv6.conf.lo.disable_ipv6 = 1</span><br><span class="line">net.ipv6.conf.all.forwarding = 1</span><br></pre></td></tr></table></figure>
+<p>解决办法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">modprobe br_netfilter</span><br></pre></td></tr></table></figure></p>
+<p>查看版本<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl version</span><br></pre></td></tr></table></figure></p>
+<h1 id="QA"><a href="#QA" class="headerlink" title="QA"></a>QA</h1><p>怎么查看可安装的docker版本<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum list docker-ce --showduplicates|sort -r</span><br></pre></td></tr></table></figure></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://kuboard.cn/install/install-k8s.html#%E6%A3%80%E6%9F%A5-centos-hostname" target="_blank" rel="noopener">https://kuboard.cn/install/install-k8s.html#%E6%A3%80%E6%9F%A5-centos-hostname</a><br><a href="https://kubernetes.io/zh/docs/setup/production-environment/tools/kubeadm/troubleshooting-kubeadm/" target="_blank" rel="noopener">https://kubernetes.io/zh/docs/setup/production-environment/tools/kubeadm/troubleshooting-kubeadm/</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/03/15/afka安装及入门/" rel="next" title="Kafka安装及入门">
+                <i class="fa fa-chevron-left"></i> Kafka安装及入门
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+<span class="jiathis_txt">分享到：</span>
+<a class="jiathis_button_weixin">微信</a>
+<a class="jiathis_button_tsina">新浪微博</a>
+<a class="jiathis_button_twitter">Twitter</a>
+<a class="jiathis_button_fb">Facebook</a>
+<a class="jiathis_button_copy">复制网址</a>
+<a class="jiathis_button_email">邮件</a>
+<a class="jiathis_button_fav">收藏夹</a>
+<a class="jiathis_button_share">一键分享</a>
+
+<a href="http://www.jiathis.com/share?uid=2140465" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+var jiathis_config={
+  data_track_clickback:true,
+  summary:"",
+  shortUrl:false,
+  hideMore:false
+}
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=2154652" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/default_avatar.png"
+                alt="Jay Chang" />
+            
+              <p class="site-author-name" itemprop="name">Jay Chang</p>
+              <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/jaychang9" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://twitter.com/jaychang1987" target="_blank" title="Twitter">
+                      
+                        <i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.facebook.com/jaychang1987" target="_blank" title="Facebook">
+                      
+                        <i class="fa fa-fw fa-facebook"></i>Facebook</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://plus.google.com/jaychang1987" target="_blank" title="Google">
+                      
+                        <i class="fa fa-fw fa-google"></i>Google</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:jaychang1987@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tech.meituan.com/" title="美团点评" target="_blank">美团点评</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tech.youzan.com/" title="有赞技术" target="_blank">有赞技术</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://tech.lede.com/" title="网易乐得" target="_blank">网易乐得</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://lovestblog.cn/" title="你假笨" target="_blank">你假笨</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.jianshu.com/u/90ab66c248e6" title="占小狼" target="_blank">占小狼</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/quhongwei_zhanqiu" title="斩秋" target="_blank">斩秋</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.iocoder.cn/" title="芋道源码" target="_blank">芋道源码</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://wuchong.me/" title="伍翀Jark" target="_blank">伍翀Jark</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.jasongj.com/" title="郭俊Jason" target="_blank">郭俊Jason</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/chenssy" title="Chenssy" target="_blank">Chenssy</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://techlog.cn/" title="龙谭斋" target="_blank">龙谭斋</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://imququ.com/" title="Jerry Qu" target="_blank">Jerry Qu</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/morewindows/article/details/17488865" title="MoreWindows" target="_blank">MoreWindows</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.philipphauer.de/" title="Philipp Hauer" target="_blank">Philipp Hauer</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#配置要求"><span class="nav-number">1.</span> <span class="nav-text">配置要求</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装后软件版本"><span class="nav-number">1.1.</span> <span class="nav-text">安装后软件版本</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#检查CentOS-hostname"><span class="nav-number">2.</span> <span class="nav-text">检查CentOS / hostname</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#检查网络"><span class="nav-number">3.</span> <span class="nav-text">检查网络</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装docker及kubelet"><span class="nav-number">4.</span> <span class="nav-text">安装docker及kubelet</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#快速安装"><span class="nav-number">4.1.</span> <span class="nav-text">快速安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#手动安装"><span class="nav-number">4.2.</span> <span class="nav-text">手动安装</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#初始化master节点"><span class="nav-number">5.</span> <span class="nav-text">初始化master节点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#快速初始化"><span class="nav-number">5.1.</span> <span class="nav-text">快速初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#手动初始化"><span class="nav-number">5.2.</span> <span class="nav-text">手动初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#初始化如果出错请看"><span class="nav-number">5.3.</span> <span class="nav-text">初始化如果出错请看</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#检查master初始化结果"><span class="nav-number">5.4.</span> <span class="nav-text">检查master初始化结果</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#初始化worker节点"><span class="nav-number">6.</span> <span class="nav-text">初始化worker节点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#获得join参数"><span class="nav-number">6.1.</span> <span class="nav-text">获得join参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#worker节点执行初始化"><span class="nav-number">6.2.</span> <span class="nav-text">worker节点执行初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见错误原因"><span class="nav-number">6.3.</span> <span class="nav-text">常见错误原因</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#worker-节点不能访问-apiserver"><span class="nav-number">6.3.0.1.</span> <span class="nav-text">worker 节点不能访问 apiserver</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#worker-节点默认网卡"><span class="nav-number">6.3.0.2.</span> <span class="nav-text">worker 节点默认网卡</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#移除worker节点并重试"><span class="nav-number">6.3.1.</span> <span class="nav-text">移除worker节点并重试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#检查初始化结果"><span class="nav-number">6.4.</span> <span class="nav-text">检查初始化结果</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装Ingress-Controller"><span class="nav-number">7.</span> <span class="nav-text">安装Ingress Controller</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#快速初始化-1"><span class="nav-number">7.1.</span> <span class="nav-text">快速初始化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#问题及注意"><span class="nav-number">8.</span> <span class="nav-text">问题及注意</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#重启Kubenetes集群后遇到的问题"><span class="nav-number">8.1.</span> <span class="nav-text">重启Kubenetes集群后遇到的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装过程中的问题"><span class="nav-number">8.2.</span> <span class="nav-text">安装过程中的问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#QA"><span class="nav-number">9.</span> <span class="nav-text">QA</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">10.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jay Chang</span>
+  <span>
+	<a class="theme-link" target="_blank" href="http://zjca.miit.gov.cn/">
+		浙ICP备19027095号
+	</a>
+  </span>	
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://jay-changs-blog.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://jaychang.cn/2020/12/26/bernetes单节点安装/';
+          this.page.identifier = '2020/12/26/bernetes单节点安装/';
+          this.page.title = 'CentOS7安装kubernetes单master节点(v1.19.x)';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://jay-changs-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
