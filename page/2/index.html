@@ -310,6 +310,340 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jaychang.cn/2019/05/15/Ubuntu 18.04 Docker Swarm集群搭建/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jay Chang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/default_avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jay Chang's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/15/Ubuntu 18.04 Docker Swarm集群搭建/" itemprop="url">Ubuntu18.04 Swarm集群搭建</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-15T22:56:00+08:00">
+                2019-05-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Docker-Kubernetes/" itemprop="url" rel="index">
+                    <span itemprop="name">Docker&Kubernetes</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/05/15/Ubuntu 18.04 Docker Swarm集群搭建/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/05/15/Ubuntu 18.04 Docker Swarm集群搭建/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,828
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Swarm简介"><a href="#Swarm简介" class="headerlink" title="Swarm简介"></a>Swarm简介</h1><p>Swarm 是 Docker 官方提供的一款集群管理工具，用来管理 Docker 集群，它将若干台 Docker 主机抽象为一个整体，并且通过一个入口统一管理这些 Docker 主机上的各种 Docker 资源。</p>
+<p>Swarm 只是一个调度器（Scheduler）加路由器 (Router)，Swarm 自己不运行容器，它只是接受 Docker 客户端发送过来的请求，调度适合的节点来运行容器，这意味着，即使 Swarm 由于某些原因挂掉了，集群中的节点也会照常运行，当 Swarm 重新恢复运行之后，它会收集重建集群信息。</p>
+<p>Docker Engine 从 V1.12.0 版本开始，原生集成了 Docker Swarm，所以只要在每台机器上安装 Docker，就可以直接使用 Docker Swarm。</p>
+<p>Swarm 和 Kubernetes 比较类似，但是更加轻，具有的功能也较 Kubernetes 更少一些。</p>
+<p>Swarm会提供网络管理、负载均衡、基于DNS容器发现、集群状态管理、扩容缩容等功能，在DevOps流程层面，可以组合成发布、回滚应用、查看服务的状态、日志、终端，更改发布配置（例如环境变量、默认副本数等）等功能。这个层面Portainer这个开源项目，提供了更好用集群管理的UI界面和类似Kubernetes Apiserver设计的Docker集群API接口服务。</p>
+<p><img src="\images\pasted-18.png" alt="upload successful"></p>
+<p>Docker Swarm的资源抽象比较简单，在没有容器编排的情况下，我们主要使用Services，这个和Kubernetes上的Services有些不一样，可以理解为Services和Deployment的合体，用来管理和定义容器的调度和扩容等，也可以直接做端口映射，在容器集群里任意IP都可以访问。</p>
+<h1 id="集群规划"><a href="#集群规划" class="headerlink" title="集群规划"></a>集群规划</h1><p>因为Manager节点只负责调度集群的Task，配置要求不高，可用3台低配置机器作为Manager节点，根据Raft算法，3台可以容许1台机器出问题，5台可以允许2台机器出问题，大家可以按需求部署。Worker节点的作用是运行业务容器。同时，在Manager和Worker节点上，会以容器方式部署机器监控和日志收集，上面还需要运行网络和存储插件。</p>
+<table>
+<thead>
+<tr>
+<th>IP地址</th>
+<th>Swarm节点类型</th>
+<th>主机名</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>192.168.56.111</td>
+<td>manager</td>
+<td>m01</td>
+</tr>
+<tr>
+<td>192.168.56.112</td>
+<td>manager</td>
+<td>m02</td>
+</tr>
+<tr>
+<td>192.168.56.113</td>
+<td>manager</td>
+<td>m03</td>
+</tr>
+<tr>
+<td>192.168.56.114</td>
+<td>worker</td>
+<td>n01</td>
+</tr>
+<tr>
+<td>192.168.56.115</td>
+<td>worker</td>
+<td>n02</td>
+</tr>
+</tbody>
+</table>
+<h2 id="集群节点配置"><a href="#集群节点配置" class="headerlink" title="集群节点配置"></a>集群节点配置</h2><p>笔者是用VirtualBox虚拟5台机器,作为运行Docker的宿主机。本节以下内容均是在m01上操作的。其他节点配置不再赘述，参考此m01节点的配置即可。</p>
+<h3 id="网络配置"><a href="#网络配置" class="headerlink" title="网络配置"></a>网络配置</h3><p>每台宿主机需要启用仅主机(Host-Only)网络及网络地址转换(NAT)两张网卡</p>
+<p>以m01为例,/etc/netplan/01-netcfg.yaml网络配置如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">network:</span><br><span class="line">  version: 2</span><br><span class="line">  renderer: networkd</span><br><span class="line">  ethernets:</span><br><span class="line">    enp0s3:</span><br><span class="line">      dhcp4: no</span><br><span class="line">      dhcp6: no</span><br><span class="line">      addresses: [192.168.56.111/24]</span><br><span class="line">    enp0s8:</span><br><span class="line">      dhcp4: yes</span><br><span class="line">      dhcp6: no</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>注意这里enp0s3就是仅主机(Host-Only)网络这个网卡，此网卡用于ssh连接我们的虚拟机，由于这里是virtualbox虚拟机无需配置网关，enp0s8就是网络地址转换(NAT)这个网卡，此网卡用于访问外网。</p>
+</blockquote>
+<h3 id="主机名及hosts"><a href="#主机名及hosts" class="headerlink" title="主机名及hosts"></a>主机名及hosts</h3><p>设置主机名 sudo vi /etc/hostname<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">m01</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>如果遇到重启机器后主机名被重置，可以再用<strong><em>sudo hostnamectl set-hostname xxx</em></strong> 设置</p>
+</blockquote>
+<p> 通过sudo vi /etc/host以添加以下内容</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">192.168.56.111 m01</span><br><span class="line">192.168.56.112 m02</span><br><span class="line">192.168.56.113 m03</span><br><span class="line">192.168.56.114 n01</span><br><span class="line">192.168.56.115 n02</span><br></pre></td></tr></table></figure>
+<h3 id="设置国内软件源"><a href="#设置国内软件源" class="headerlink" title="设置国内软件源"></a>设置国内软件源</h3><p> 备份sources.list,sudo cp /etc/apt/sources.list /etc/apt/sources.list.default</p>
+<p>批量修改sources.list<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo sed -i &quot;s#us.archive.ubuntu.com/#mirrors.aliyun.com/#g&quot; /etc/apt/sources.list</span><br><span class="line"></span><br><span class="line">sudo sed -i &quot;s#security.ubuntu.com/#mirrors.aliyun.com/#g&quot; /etc/apt/sources.list</span><br></pre></td></tr></table></figure></p>
+<h3 id="安装Docker"><a href="#安装Docker" class="headerlink" title="安装Docker"></a>安装Docker</h3><h4 id="安装GPG证书"><a href="#安装GPG证书" class="headerlink" title="安装GPG证书"></a>安装GPG证书</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -fsSL http://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | sudo apt-key add -</span><br></pre></td></tr></table></figure>
+<h4 id="写入软件源信息"><a href="#写入软件源信息" class="headerlink" title="写入软件源信息"></a>写入软件源信息</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo add-apt-repository &quot;deb [arch=amd64] https://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable&quot;</span><br></pre></td></tr></table></figure>
+<h4 id="更新并安装Docker-CE"><a href="#更新并安装Docker-CE" class="headerlink" title="更新并安装Docker-CE"></a>更新并安装Docker-CE</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get -y update</span><br><span class="line">sudo apt-get -y install docker-ce</span><br></pre></td></tr></table></figure>
+<p>若想要安装指定版本Docker，参照如下操作：</p>
+<ul>
+<li>Step 1: 查找Docker-CE的版本:</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">sudo apt-cache madison docker-ce</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Step 2: 安装指定版本的Docker-CE</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get -y install docker-ce=[VERSION]</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意上面命令中的[VERSION]需要替换成你想要安装的docker版本，<br>比如这里我将[VERSION]替换为5:18.09.4~3-0~ubuntu-bionic，所以最终的安装命令是<strong>sudo apt-get -y install docker-ce=5:18.09.6~3-0~ubuntu-bionic</strong></p>
+<p>其他可选的Docker软件源还有<a href="https://mirror.tuna.tsinghua.edu.cn/help/docker-ce/" title="清华大学Docker软件源" target="_blank" rel="noopener">清华大学Docker软件源</a></p>
+</blockquote>
+<h4 id="配置Docker镜像加速"><a href="#配置Docker镜像加速" class="headerlink" title="配置Docker镜像加速"></a>配置Docker镜像加速</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo vi /etc/docker/daemon.json</span><br><span class="line">&#123;</span><br><span class="line">  &quot;registry-mirrors&quot;: [&quot;https://docker.mirrors.ustc.edu.cn&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意 insecure-registries是配置非https的镜像中心，比如我们自己搭建的一个docker私有镜像中心，是用http的话，就可以用insecure-registries指定。</p>
+</blockquote>
+<h4 id="修改docker-service配置"><a href="#修改docker-service配置" class="headerlink" title="修改docker.service配置"></a>修改docker.service配置</h4><p>如果碰到Unable to proxy the request via the Docker socket,这个错误，建议可以在任意worker节点，docker服务配置，<br><img src="\images\pasted-20.png" alt="upload successful"></p>
+<p>这里只要改集群中一个节点就可以了(如果是用portainer agent方式添加的endpoint)主要是要改ExecStart,暴露2375,笔者改的是n01节点上的/lib/systemd/system/docker.service</p>
+<p>sudo vi /lib/systemd/system/docker.service</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=Docker Application Container Engine</span><br><span class="line">Documentation=https://docs.docker.com</span><br><span class="line">BindsTo=containerd.service</span><br><span class="line">After=network-online.target firewalld.service containerd.service</span><br><span class="line">Wants=network-online.target</span><br><span class="line">Requires=docker.socket</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=notify</span><br><span class="line"># the default is not to use systemd for cgroups because the delegate issues still</span><br><span class="line"># exists and systemd currently does not support the cgroup feature set required</span><br><span class="line"># for containers run by docker</span><br><span class="line">ExecStart=/usr/bin/dockerd -H fd:// -H 0.0.0.0:2375 --containerd=/run/containerd/containerd.sock</span><br><span class="line">ExecReload=/bin/kill -s HUP $MAINPID</span><br><span class="line">TimeoutSec=0</span><br><span class="line">RestartSec=2</span><br><span class="line">Restart=always</span><br><span class="line"></span><br><span class="line"># Note that StartLimit* options were moved from &quot;Service&quot; to &quot;Unit&quot; in systemd 229.</span><br><span class="line"># Both the old, and new location are accepted by systemd 229 and up, so using the old location</span><br><span class="line"># to make them work for either version of systemd.</span><br><span class="line">StartLimitBurst=3</span><br><span class="line"></span><br><span class="line"># Note that StartLimitInterval was renamed to StartLimitIntervalSec in systemd 230.</span><br><span class="line"># Both the old, and new name are accepted by systemd 230 and up, so using the old name to make</span><br><span class="line"># this option work for either version of systemd.</span><br><span class="line">StartLimitInterval=60s</span><br><span class="line"></span><br><span class="line"># Having non-zero Limit*s causes performance problems due to accounting overhead</span><br><span class="line"># in the kernel. We recommend using cgroups to do container-local accounting.</span><br><span class="line">LimitNOFILE=infinity</span><br><span class="line">LimitNPROC=infinity</span><br><span class="line">LimitCORE=infinity</span><br><span class="line"></span><br><span class="line"># Comment TasksMax if your systemd version does not supports it.</span><br><span class="line"># Only systemd 226 and above support this option.</span><br><span class="line">TasksMax=infinity</span><br><span class="line"></span><br><span class="line"># set delegate yes so that systemd does not reset the cgroups of docker containers</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">内容过多省略...</span><br></pre></td></tr></table></figure>
+<p>还可以改成<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># for containers run by docker</span><br><span class="line">ExecStart=/usr/bin/dockerd -H unix:// -H 0.0.0.0:2375 --containerd=/run/containerd/containerd.sock</span><br></pre></td></tr></table></figure></p>
+<p>或</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># for containers run by docker</span><br><span class="line">ExecStart=/usr/bin/dockerd -H unix:///var/run/docker.sock -H 0.0.0.0:2375 --containerd=/run/containerd/containerd.sock</span><br></pre></td></tr></table></figure>
+<p>sudo systemctl daemon-reload<br>sudo systemctl restart docker</p>
+<h4 id="重启docker服务"><a href="#重启docker服务" class="headerlink" title="重启docker服务"></a>重启docker服务</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl restart docker</span><br></pre></td></tr></table></figure>
+<h1 id="开始搭建Swarm集群"><a href="#开始搭建Swarm集群" class="headerlink" title="开始搭建Swarm集群"></a>开始搭建Swarm集群</h1><p>上述都是在做准备工作，接下来就正式开始搭建Swarm集群。</p>
+<h2 id="初始化Swarm集群"><a href="#初始化Swarm集群" class="headerlink" title="初始化Swarm集群"></a>初始化Swarm集群</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker swarm init --advertise-addr 192.168.56.111</span><br></pre></td></tr></table></figure>
+<p><img src="/images/pasted-0.png" alt="初始化swarm集群"></p>
+<blockquote>
+<p>注意：上图显示的token仅作参考，具体需看实际情况，也请记下来</p>
+<p>如果遗失可以通过下面两个命令，分别找回manager、worker的join token</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo docker swarm join-token manager</span><br><span class="line"></span><br><span class="line">sudo docker swarm join-token worker</span><br></pre></td></tr></table></figure>
+<h2 id="集群添加manager节点"><a href="#集群添加manager节点" class="headerlink" title="集群添加manager节点"></a>集群添加manager节点</h2><h3 id="获取manager的join-token"><a href="#获取manager的join-token" class="headerlink" title="获取manager的join token"></a>获取manager的join token</h3><p>根据上一节给出的提示，在192.168.56.111(m01)上执行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker swarm join-token manager</span><br></pre></td></tr></table></figure></p>
+<p><img src="\images\pasted-1.png" alt="集群添加manager节点"></p>
+<p>根据提示，若要将节点作为manager节点加入swarm集群，需执行如下命令:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker swarm join --token SWMTKN-1-65q3om1lmrjrsvnbqug0qccf00ertneorskvmv86g05qzicc8w-1kuf57afgawuuz24h7gx4hycb 192.168.56.111:2377</span><br></pre></td></tr></table></figure></p>
+<h3 id="添加manager节点到集群"><a href="#添加manager节点到集群" class="headerlink" title="添加manager节点到集群"></a>添加manager节点到集群</h3><p>根据我们的规划，我们要将m02、m03作为manager节点加入到swarm集群，所以我们在m02,m03上执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker swarm join --token SWMTKN-1-65q3om1lmrjrsvnbqug0qccf00ertneorskvmv86g05qzicc8w-1kuf57afgawuuz24h7gx4hycb 192.168.56.111:2377</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：请根据实际情况进行修改，不要一模一样复制！</p>
+</blockquote>
+<p><img src="\images\pasted-2.png" alt="upload successful"></p>
+<p><img src="\images\pasted-3.png" alt="upload successful"></p>
+<h2 id="添加worker节点到集群"><a href="#添加worker节点到集群" class="headerlink" title="添加worker节点到集群"></a>添加worker节点到集群</h2><p>分别在n01,n02上执行如下命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker swarm join --token SWMTKN-1-65q3om1lmrjrsvnbqug0qccf00ertneorskvmv86g05qzicc8w-978befgfbbuqzqzv2zbvcg8fk 192.168.56.111:2377</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：请根据实际情况进行修改，不要一模一样复制！</p>
+</blockquote>
+<p><img src="\images\pasted-4.png" alt="upload successful"></p>
+<p><img src="\images\pasted-5.png" alt="upload successful"></p>
+<h2 id="查看节点状态"><a href="#查看节点状态" class="headerlink" title="查看节点状态"></a>查看节点状态</h2><p>在任意manager节点上执行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker node ls</span><br></pre></td></tr></table></figure></p>
+<p><img src="\images\pasted-7.png" alt="upload successful"></p>
+<p>从上图可以看到集群中有3个manager节点，2个worker</p>
+<h1 id="Swarm集群管理UI"><a href="#Swarm集群管理UI" class="headerlink" title="Swarm集群管理UI"></a>Swarm集群管理UI</h1><p>建议每次都在固定的节点上运行,所以这里指定了node.hostname == m01<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker service create --name portainer --publish 9000:9000 --replicas=1 --constraint &apos;node.hostname == m01&apos; --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock --mount type=volume,src=portainer_data,dst=/data portainer/portainer</span><br></pre></td></tr></table></figure></p>
+<p><img src="\images\pasted-9.png" alt="upload successful"></p>
+<h2 id="Add-Endpoints"><a href="#Add-Endpoints" class="headerlink" title="Add Endpoints"></a>Add Endpoints</h2><p>添加一个Local Endpoint，由于portainer是运行在m01上的，所以就是添加m01</p>
+<p><img src="\images\pasted-10.png" alt="upload successful"></p>
+<p><img src="\images\pasted-11.png" alt="upload successful"></p>
+<h2 id="部署Portainer-Agent"><a href="#部署Portainer-Agent" class="headerlink" title="部署Portainer Agent"></a>部署Portainer Agent</h2><p>打开App Template，点击Poirtainer Agent<br><img src="\images\pasted-12.png" alt="upload successful"></p>
+<p>给stack取个名字，然后单击deploy</p>
+<p><img src="\images\pasted-14.png" alt="upload successful"></p>
+<p>部署完成后，每个节点会起一个</p>
+<p><img src="\images\pasted-15.png" alt="upload successful"></p>
+<blockquote>
+<p>部署Portainer Agent的另外一个途径是在任意manager节点上，执行<br>以下命令</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -L https://downloads.portainer.io/agent-stack.yml -o agent-stack.yml &amp;&amp; docker stack deploy --compose-file=agent-stack.yml portainer-agent</span><br></pre></td></tr></table></figure>
+<h2 id="添加其他Endpoint"><a href="#添加其他Endpoint" class="headerlink" title="添加其他Endpoint"></a>添加其他Endpoint</h2><p>这里以添加m02为例，Endpoint的名称我们就填m02这个主机名好了，然后就是要填写Endpoint URL，就填m02节点的IP地址以及Portainer Agent的端口号，即192.168.56.112:9001</p>
+<p><img src="\images\pasted-16.png" alt="upload successful"></p>
+<p>所有Endpoint添加完毕</p>
+<p><img src="\images\pasted-17.png" alt="upload successful"></p>
+<blockquote>
+<p>这里的m01也可以删掉后，用Agent来添加</p>
+</blockquote>
+<h2 id="镜像中心设置"><a href="#镜像中心设置" class="headerlink" title="镜像中心设置"></a>镜像中心设置</h2><p>当镜像中心是需要身份认证的，那么可以在registries里添加一个镜像中心，输入镜像中心的用户名，密码即可，这样集群中的所有节点都能从该镜像中心拉取镜像了。由于篇幅，这里不再赘述跟截图了，读者可以自行尝试。</p>
+<h1 id="测试集群"><a href="#测试集群" class="headerlink" title="测试集群"></a>测试集群</h1><ul>
+<li>部署一个nginx service</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker service create --name mynginx --replicas 3 -p 8088:80 nginx:alpine</span><br></pre></td></tr></table></figure>
+<p><img src="\images\pasted-19.png" alt="upload successful"></p>
+<blockquote>
+<p>我们发现通过任意节点的8088端口都能访问，那是因为Ingress的特性使得请求可以转发到任何一台Worker或者Manager节点上，然后通过内置的routing mesh的Load Balancer通过LVS转发请求到Service的其中一个副本，一个值得注意的点是，就算这台Node上没有运行这个Service的容器。Load Balancer也会找到其他机器上存在的副本，这个主要是通过内置的DNS加LVS转发实现。</p>
+</blockquote>
+<ul>
+<li>扩容、缩容</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker service scale mynginx=2</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker service scale mynginx=3</span><br></pre></td></tr></table></figure>
+<h1 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h1><h2 id="删除节点"><a href="#删除节点" class="headerlink" title="删除节点"></a>删除节点</h2><h3 id="删除manager节点"><a href="#删除manager节点" class="headerlink" title="删除manager节点"></a>删除manager节点</h3><p>manager节点不能直接删除，需要先降级到worker节点再删除。</p>
+<p>比如，这里我误把n02作为manager加入到集群，我想把n02改成worker节点。</p>
+<p><img src="\images\pasted-6.png" alt="upload successful"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo docker node demote cu8f</span><br><span class="line">sudo docker node rm cu8f</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>cu8f为节点ID的前缀</p>
+</blockquote>
+<h3 id="删除worker节点"><a href="#删除worker节点" class="headerlink" title="删除worker节点"></a>删除worker节点</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker node rm [ID或HOSTNAME]</span><br></pre></td></tr></table></figure>
+<h3 id="工作节点离开集群"><a href="#工作节点离开集群" class="headerlink" title="工作节点离开集群"></a>工作节点离开集群</h3><p>在工作节点上执行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker swarm leave</span><br></pre></td></tr></table></figure></p>
+<p>工作节点离开集群后，节点状态就会变为Down,这样此节点就可以加入到另外一个swarm集群了。（原先的swarm集群manager节点上记得用sudo docker node rm xxx删除此节点）</p>
+<h2 id="创建overlay网络"><a href="#创建overlay网络" class="headerlink" title="创建overlay网络"></a>创建overlay网络</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network create --subnet=192.168.10.0/24 --attachable -d overlay my-net</span><br></pre></td></tr></table></figure>
+<h2 id="QA"><a href="#QA" class="headerlink" title="QA"></a>QA</h2><h3 id="如何删除docker"><a href="#如何删除docker" class="headerlink" title="如何删除docker"></a>如何删除docker</h3><p>通过sudo apt-get purge docker-ce,然后将/var/lib/docker目录删掉</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="http://dockone.io/article/8808" target="_blank" rel="noopener">http://dockone.io/article/8808</a> 房多多容器化和容器云实践<br><a href="https://www.cnblogs.com/bigberg/p/8656963.html" target="_blank" rel="noopener">https://www.cnblogs.com/bigberg/p/8656963.html</a> Docker Macvlan<br><a href="https://cizixs.com/2017/02/14/network-virtualization-macvlan/" target="_blank" rel="noopener">https://cizixs.com/2017/02/14/network-virtualization-macvlan/</a> linux 网络虚拟化： macvlan<br><a href="https://opsx.alibaba.com/guide?lang=zh-CN&amp;document=69a2341e-801e-11e8-8b5a-00163e04cdbb" target="_blank" rel="noopener">https://opsx.alibaba.com/guide?lang=zh-CN&amp;document=69a2341e-801e-11e8-8b5a-00163e04cdbb</a> ubuntu 18.04 (bionic) 配置 opsx 安装源</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://jaychang.cn/2018/05/24/CentOS6-x内核升级-安装docker17-06-2-ce/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1588,7 +1922,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-count">18</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
