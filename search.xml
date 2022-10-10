@@ -4,7 +4,7 @@
     
     <entry>
       <title><![CDATA[Ubuntu 20.04上配置BIND作为私有网络DNS服务器]]></title>
-      <url>/2022/10/10/ntitled/</url>
+      <url>/2022/10/10/ubuntu20.04-bind9/</url>
       <content type="html"><![CDATA[<h1 id="准备及说明"><a href="#准备及说明" class="headerlink" title="准备及说明"></a>准备及说明</h1><p>假设某公司有多个数据中心，数据中心1以内部使用idc1.meeleet.com,数据中心2使用idc2.meeleet.com,数据中心3使用idc3.meeleet.com。我们这里以数据中心3内部需要搭建私网DNS服务器为例来讲，idc3.meeleet.com(具体实施过程中，按读者实际情况进行修改)</p>
 <ul>
 <li>DNS服务器</li>
