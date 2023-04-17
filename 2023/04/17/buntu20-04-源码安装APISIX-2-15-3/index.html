@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-j.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-j.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-j.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo_j.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,Spring,Spring Cloud,中间件,RocketMQ,高并发,分布式,分布式事务,流式计算,Storm,机器学习,深度学习,Python,大数据,Spark,Hadoop,HDFS" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jay Chang's Blog" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="[TOC] OpenResty源码安装安装前准备您必须将这些库 perl 5.6.1+, libpcre, libssl安装在您的电脑之中。 对于 Linux来说, 您需要确认使用 ldconfig 命令，让其在您的系统环境路径中能找到它们。 以下安装的内容就是取自https://raw.githubusercontent.com/apache/apisix/master/utils/linux-">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ubuntu20.04 源码安装APISIX-2.15.3">
+<meta property="og:url" content="http://jaychang.cn/2023/04/17/buntu20-04-源码安装APISIX-2-15-3/index.html">
+<meta property="og:site_name" content="Jay Chang&#39;s Blog">
+<meta property="og:description" content="[TOC] OpenResty源码安装安装前准备您必须将这些库 perl 5.6.1+, libpcre, libssl安装在您的电脑之中。 对于 Linux来说, 您需要确认使用 ldconfig 命令，让其在您的系统环境路径中能找到它们。 以下安装的内容就是取自https://raw.githubusercontent.com/apache/apisix/master/utils/linux-">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2023-04-17T13:25:43.854Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ubuntu20.04 源码安装APISIX-2.15.3">
+<meta name="twitter:description" content="[TOC] OpenResty源码安装安装前准备您必须将这些库 perl 5.6.1+, libpcre, libssl安装在您的电脑之中。 对于 Linux来说, 您需要确认使用 ldconfig 命令，让其在您的系统环境路径中能找到它们。 以下安装的内容就是取自https://raw.githubusercontent.com/apache/apisix/master/utils/linux-">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://jaychang.cn/2023/04/17/buntu20-04-源码安装APISIX-2-15-3/"/>
+
+
+
+
+
+  <title>Ubuntu20.04 源码安装APISIX-2.15.3 | Jay Chang's Blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?d383fa81ebb62476e09fe22470595b8d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	
+	<a href="https://github.com/jaychang9"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+	
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jay Chang's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">我的技术博客</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jaychang.cn/2023/04/17/buntu20-04-源码安装APISIX-2-15-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jay Chang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/default_avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jay Chang's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Ubuntu20.04 源码安装APISIX-2.15.3</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2023-04-17T21:25:39+08:00">
+                2023-04-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2023/04/17/buntu20-04-源码安装APISIX-2-15-3/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2023/04/17/buntu20-04-源码安装APISIX-2-15-3/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  4,315
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>[TOC]</p>
+<h1 id="OpenResty源码安装"><a href="#OpenResty源码安装" class="headerlink" title="OpenResty源码安装"></a>OpenResty源码安装</h1><h2 id="安装前准备"><a href="#安装前准备" class="headerlink" title="安装前准备"></a>安装前准备</h2><p>您必须将这些库 perl 5.6.1+, libpcre, libssl安装在您的电脑之中。 对于 Linux来说, 您需要确认使用 ldconfig 命令，让其在您的系统环境路径中能找到它们。</p>
+<p>以下安装的内容就是取自<a href="https://raw.githubusercontent.com/apache/apisix/master/utils/linux-install-luarocks.sh(master可以替换为具体版本号" target="_blank" rel="noopener">https://raw.githubusercontent.com/apache/apisix/master/utils/linux-install-luarocks.sh(master可以替换为具体版本号</a>)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install make gcc g++ build-essential curl unzip</span><br><span class="line">sudo apt-get install -y libssl-dev perl zlib1g-dev libpcre3 libpcre3-dev libldap2-dev libpq-dev</span><br></pre></td></tr></table></figure></p>
+<h2 id="编译安装OpenResty"><a href="#编译安装OpenResty" class="headerlink" title="编译安装OpenResty"></a>编译安装OpenResty</h2><p>下载，解压openresty-$VERSION.tar.gz<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /opt/src &amp;&amp; cd /opt/src</span><br><span class="line">curl -O https://openresty.org/download/openresty-1.21.4.1.tar.gz</span><br><span class="line">tar xzvf openresty-1.21.4.1.tar.gz -C /opt/src</span><br><span class="line">cd /opt/src/openresty-1.21.4.1</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr/local/openresty \</span><br><span class="line">    --with-poll_module \</span><br><span class="line">    --with-pcre-jit \</span><br><span class="line">    --without-http_rds_json_module \</span><br><span class="line">    --without-http_rds_csv_module \</span><br><span class="line">    --without-lua_rds_parser \</span><br><span class="line">    --with-stream \</span><br><span class="line">    --with-stream_ssl_module \</span><br><span class="line">    --with-stream_ssl_preread_module \</span><br><span class="line">    --with-http_v2_module \</span><br><span class="line">    --without-mail_pop3_module \</span><br><span class="line">    --without-mail_imap_module \</span><br><span class="line">    --without-mail_smtp_module \</span><br><span class="line">    --with-http_stub_status_module \</span><br><span class="line">    --with-http_realip_module \</span><br><span class="line">    --with-http_addition_module \</span><br><span class="line">    --with-http_auth_request_module \</span><br><span class="line">    --with-http_secure_link_module \</span><br><span class="line">    --with-http_random_index_module \</span><br><span class="line">    --with-http_gzip_static_module \</span><br><span class="line">    --with-http_sub_module \</span><br><span class="line">    --with-http_dav_module \</span><br><span class="line">    --with-http_flv_module \</span><br><span class="line">    --with-http_mp4_module \</span><br><span class="line">    --with-http_gunzip_module \</span><br><span class="line">    --with-threads \</span><br><span class="line">    --with-compat \</span><br><span class="line">    -j`nproc`</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make -j`nproc` &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+<h2 id="安装OpenResty的相关组件"><a href="#安装OpenResty的相关组件" class="headerlink" title="安装OpenResty的相关组件"></a>安装OpenResty的相关组件</h2><p>openresty-openssl111-dev openresty-pcre-dev openresty-zlib-dev</p>
+<p>我们应该通过添加 GPG 公钥来安装一些需要的组件。这些可以在之后删除</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get -y install --no-install-recommends wget gnupg ca-certificates</span><br></pre></td></tr></table></figure>
+<p>然后导入openresty的 GPG 密钥<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget -O - https://openresty.org/package/pubkey.gpg | sudo apt-key add -</span><br></pre></td></tr></table></figure></p>
+<p>接着添加 openresty 的官方 APT 库</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo "deb https://openresty.org/package/ubuntu $(lsb_release -sc) main" &gt; openresty.list</span><br><span class="line">sudo cp openresty.list /etc/apt/sources.list.d/</span><br></pre></td></tr></table></figure>
+<p>请注意，这是针对 x86_64 或 amd64 系统的</p>
+<p>对于 Aarch64 或 ARM64 系统，你应该使用这个 URL 来代替</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo "deb https://openresty.org/package/arm64/ubuntu $(lsb_release -sc) main"</span><br></pre></td></tr></table></figure>
+<p>现在更新 APT 索引<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br></pre></td></tr></table></figure></p>
+<p>安装 Openrety 相关组件<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get -y install openresty-openssl111-dev openresty-pcre-dev openresty-zlib-dev</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>安装完会生成/usr/local/openresty目录，且/usr/local/openresty/openssl111,/usr/local/openresty/pcre,/usr/local/openresty/zlib这子目录会在该目录下。</p>
+</blockquote>
+<h2 id="安装luarocks"><a href="#安装luarocks" class="headerlink" title="安装luarocks"></a>安装luarocks</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">wget https://luarocks.org/releases/luarocks-3.8.0.tar.gz</span><br><span class="line">tar -xzvf luarocks-3.8.0.tar.gz</span><br><span class="line">cd luarocks-3.8.0</span><br><span class="line"></span><br><span class="line">./configure --prefix=/usr/local/openresty/luajit \</span><br><span class="line">--with-lua=/usr/local/openresty/luajit/ \</span><br><span class="line">--lua-suffix=jit \</span><br><span class="line">--with-lua-include=/usr/local/openresty/luajit/include/luajit-2.1</span><br><span class="line"></span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+<p>结果如下<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">root@s91:/opt/src/apisix-3.2.0/utils/luarocks-3.8.0# ./configure --prefix=/usr/local/openresty/luajit \</span><br><span class="line"><span class="meta">&gt;</span> --with-lua=/usr/local/openresty/luajit/ \</span><br><span class="line"><span class="meta">&gt;</span> --lua-suffix=jit \</span><br><span class="line"><span class="meta">&gt;</span> --with-lua-include=/usr/local/openresty/luajit/include/luajit-2.1</span><br><span class="line">--lua-suffix is no longer necessary.</span><br><span class="line">The suffix is automatically detected.</span><br><span class="line"></span><br><span class="line">Configuring LuaRocks version 3.8.0...</span><br><span class="line"></span><br><span class="line">Lua version detected: 5.1</span><br><span class="line">Lua interpreter found: /usr/local/openresty/luajit/bin/luajit</span><br><span class="line">lua.h found: /usr/local/openresty/luajit/include/luajit-2.1/lua.h</span><br><span class="line">unzip found in PATH: /usr/bin</span><br><span class="line"></span><br><span class="line">Done configuring.</span><br><span class="line"></span><br><span class="line">LuaRocks will be installed at......: /usr/local/openresty/luajit</span><br><span class="line">LuaRocks will install rocks at.....: /usr/local/openresty/luajit</span><br><span class="line">LuaRocks configuration directory...: /usr/local/openresty/luajit/etc/luarocks</span><br><span class="line">Using Lua from.....................: /usr/local/openresty/luajit</span><br><span class="line">Lua include directory..............: /usr/local/openresty/luajit/include/luajit-2.1</span><br><span class="line"></span><br><span class="line">* Type make and make install:</span><br><span class="line">  to install to /usr/local/openresty/luajit as usual.</span><br><span class="line">* Type make bootstrap:</span><br><span class="line">  to install LuaRocks into /usr/local/openresty/luajit as a rock.</span><br></pre></td></tr></table></figure></p>
+<p>设置环境变量<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/profile</span><br></pre></td></tr></table></figure></p>
+<p>/etc/profile文件最后添加如下代码<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export OPENRESTY_HOME=/usr/local/openresty</span><br><span class="line">export PATH=$PATH:$OPENRESTY_HOME/bin:$OPENRESTY_HOME/luajit/bin</span><br></pre></td></tr></table></figure></p>
+<p>使得环境变量生效<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure></p>
+<h2 id="重构Openresty"><a href="#重构Openresty" class="headerlink" title="重构Openresty"></a>重构Openresty</h2><p>主要是为了加一些apisix所需的模块</p>
+<pre><code>To enable etcd client certificate you need to build APISIX-Base, see
+https://apisix.apache.org/docs/apisix/FAQ#how-do-i-build-the-apisix-base-environment
+</code></pre><p><a href="https://raw.githubusercontent.com/api7/apisix-build-tools/apisix/2.5.13/build-apisix-base.sh" target="_blank" rel="noopener">apisix提供的openresty构建脚本</a><br>我将版本改为2.5.13，即version=${version:-0.0.0}改为了version=2.5.13。<br>由于git clone经常出问题(github不稳定，翻墙会好一些)，我改了下脚本，可以先将需要的包都下载下来(所需的源码包百度网盘下载)[<a href="https://pan.baidu.com/s/1X8U4_pIL86QH3wJuhrv6LQ?pwd=k8sl" target="_blank" rel="noopener">https://pan.baidu.com/s/1X8U4_pIL86QH3wJuhrv6LQ?pwd=k8sl</a>]</p>
+<p>可以提前将下载好的安装包放到构建脚本同目录下，构建脚本内容如下,我处理了下：1.有些解压出来不带v，但是文件名带v 2.解压出来是大写的。这两种情况<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/usr/bin/env bash</span><br><span class="line">set -euo pipefail</span><br><span class="line">set -x</span><br><span class="line"></span><br><span class="line">version=$&#123;version:-2.15.3&#125;</span><br><span class="line"></span><br><span class="line">if ([ $# -gt 0 ] &amp;&amp; [ "$1" == "latest" ]) || [ "$version" == "latest" ]; then</span><br><span class="line">    ngx_multi_upstream_module_ver="master"</span><br><span class="line">    mod_dubbo_ver="master"</span><br><span class="line">    apisix_nginx_module_ver="main"</span><br><span class="line">    wasm_nginx_module_ver="main"</span><br><span class="line">    lua_var_nginx_module_ver="master"</span><br><span class="line">    grpc_client_nginx_module_ver="main"</span><br><span class="line">    amesh_ver="main"</span><br><span class="line">    debug_args="--with-debug"</span><br><span class="line">    OR_PREFIX=$&#123;OR_PREFIX:="/usr/local/openresty-debug"&#125;</span><br><span class="line">else</span><br><span class="line">    ngx_multi_upstream_module_ver="1.1.1"</span><br><span class="line">    mod_dubbo_ver="1.0.2"</span><br><span class="line">    apisix_nginx_module_ver="1.12.0"</span><br><span class="line">    wasm_nginx_module_ver="0.6.4"</span><br><span class="line">    lua_var_nginx_module_ver="v0.5.3"</span><br><span class="line">    grpc_client_nginx_module_ver="v0.4.2"</span><br><span class="line">    amesh_ver="main"</span><br><span class="line">    debug_args=$&#123;debug_args:-&#125;</span><br><span class="line">    OR_PREFIX=$&#123;OR_PREFIX:="/usr/local/openresty"&#125;</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">prev_workdir="$PWD"</span><br><span class="line">repo=$(basename "$prev_workdir")</span><br><span class="line">workdir=$(mktemp -d)</span><br><span class="line">cd "$workdir" || exit 1</span><br><span class="line"></span><br><span class="line">or_ver="1.21.4.1"</span><br><span class="line">wget --no-check-certificate https://openresty.org/download/openresty-$&#123;or_ver&#125;.tar.gz</span><br><span class="line">tar -zxvpf openresty-$&#123;or_ver&#125;.tar.gz &gt; /dev/null</span><br><span class="line"></span><br><span class="line">if [ "$repo" == ngx_multi_upstream_module ]; then</span><br><span class="line">    cp -r "$prev_workdir" ./ngx_multi_upstream_module-$&#123;ngx_multi_upstream_module_ver&#125;</span><br><span class="line">else</span><br><span class="line">    unzip $&#123;prev_workdir&#125;/ngx_multi_upstream_module-$&#123;ngx_multi_upstream_module_ver&#125;.zip</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">if [ "$repo" == mod_dubbo ]; then</span><br><span class="line">    cp -r "$prev_workdir" ./mod_dubbo-$&#123;mod_dubbo_ver&#125;</span><br><span class="line">else</span><br><span class="line">     unzip $&#123;prev_workdir&#125;/mod_dubbo-$&#123;mod_dubbo_ver&#125;.zip</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">if [ "$repo" == apisix-nginx-module ]; then</span><br><span class="line">    cp -r "$prev_workdir" ./apisix-nginx-module-$&#123;apisix_nginx_module_ver&#125;</span><br><span class="line">else</span><br><span class="line">    unzip $&#123;prev_workdir&#125;/apisix-nginx-module-$&#123;apisix_nginx_module_ver&#125;.zip	</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">if [ "$repo" == wasm-nginx-module ]; then</span><br><span class="line">    cp -r "$prev_workdir" ./wasm-nginx-module-$&#123;wasm_nginx_module_ver&#125;</span><br><span class="line">else</span><br><span class="line">    unzip $&#123;prev_workdir&#125;/wasm-nginx-module-$&#123;wasm_nginx_module_ver&#125;.zip</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">if [ "$repo" == lua-var-nginx-module ]; then</span><br><span class="line">    cp -r "$prev_workdir" ./lua-var-nginx-module-$&#123;lua_var_nginx_module_ver&#125;</span><br><span class="line">else</span><br><span class="line">    unzip $&#123;prev_workdir&#125;/lua-var-nginx-module-$&#123;lua_var_nginx_module_ver#*v&#125;.zip</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">if [ "$repo" == grpc-client-nginx-module ]; then</span><br><span class="line">    cp -r "$prev_workdir" ./grpc-client-nginx-module-$&#123;grpc_client_nginx_module_ver&#125;</span><br><span class="line">else</span><br><span class="line">    unzip $&#123;prev_workdir&#125;/grpc-client-nginx-module-$&#123;grpc_client_nginx_module_ver#*v&#125;.zip</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">if [ "$repo" == amesh ]; then</span><br><span class="line">    cp -r "$prev_workdir" ./amesh-$&#123;amesh_ver&#125;</span><br><span class="line">else</span><br><span class="line">    unzip $&#123;prev_workdir&#125;/Amesh-$&#123;amesh_ver&#125;.zip	</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">cd ngx_multi_upstream_module-$&#123;ngx_multi_upstream_module_ver&#125; || exit 1</span><br><span class="line">./patch.sh ../openresty-$&#123;or_ver&#125;</span><br><span class="line">cd ..</span><br><span class="line"></span><br><span class="line">cd apisix-nginx-module-$&#123;apisix_nginx_module_ver&#125;/patch || exit 1</span><br><span class="line">./patch.sh ../../openresty-$&#123;or_ver&#125;</span><br><span class="line">cd ../..</span><br><span class="line"></span><br><span class="line">cd wasm-nginx-module-$&#123;wasm_nginx_module_ver&#125; || exit 1</span><br><span class="line">./install-wasmtime.sh</span><br><span class="line">cd ..</span><br><span class="line"></span><br><span class="line">cc_opt=$&#123;cc_opt:-&#125;</span><br><span class="line">ld_opt=$&#123;ld_opt:-&#125;</span><br><span class="line">luajit_xcflags=$&#123;luajit_xcflags:="-DLUAJIT_NUMMODE=2 -DLUAJIT_ENABLE_LUA52COMPAT"&#125;</span><br><span class="line">no_pool_patch=$&#123;no_pool_patch:-&#125;</span><br><span class="line"><span class="meta">#</span> TODO: remove old NGX_HTTP_GRPC_CLI_ENGINE_PATH once we have released a new</span><br><span class="line"><span class="meta">#</span> version of grpc-client-nginx-module</span><br><span class="line">grpc_engine_path="-DNGX_GRPC_CLI_ENGINE_PATH=$OR_PREFIX/libgrpc_engine.so -DNGX_HTTP_GRPC_CLI_ENGINE_PATH=$OR_PREFIX/libgrpc_engine.so"</span><br><span class="line"></span><br><span class="line">cd openresty-$&#123;or_ver&#125; || exit 1</span><br><span class="line"><span class="meta">#</span> FIXME: remove this once 1.21.4.2 is released</span><br><span class="line">rm -rf bundle/LuaJIT-2.1-20220411</span><br><span class="line">lj_ver=2.1-20230119</span><br><span class="line">wget "https://github.com/openresty/luajit2/archive/v$lj_ver.tar.gz" -O "LuaJIT-$lj_ver.tar.gz"</span><br><span class="line">tar -xzf LuaJIT-$lj_ver.tar.gz</span><br><span class="line">mv luajit2-* bundle/LuaJIT-2.1-20220411</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> $&#123;lua_var_nginx_module_ver#*v&#125;是为了去掉v</span><br><span class="line"></span><br><span class="line">./configure --prefix="$OR_PREFIX" \</span><br><span class="line">    --with-cc-opt="-DAPISIX_BASE_VER=$version $grpc_engine_path $cc_opt" \</span><br><span class="line">    --with-ld-opt="-Wl,-rpath,$OR_PREFIX/wasmtime-c-api/lib $ld_opt" \</span><br><span class="line">    $debug_args \</span><br><span class="line">    --add-module=../mod_dubbo-$&#123;mod_dubbo_ver&#125; \</span><br><span class="line">    --add-module=../ngx_multi_upstream_module-$&#123;ngx_multi_upstream_module_ver&#125; \</span><br><span class="line">    --add-module=../apisix-nginx-module-$&#123;apisix_nginx_module_ver&#125; \</span><br><span class="line">    --add-module=../apisix-nginx-module-$&#123;apisix_nginx_module_ver&#125;/src/stream \</span><br><span class="line">    --add-module=../apisix-nginx-module-$&#123;apisix_nginx_module_ver&#125;/src/meta \</span><br><span class="line">    --add-module=../wasm-nginx-module-$&#123;wasm_nginx_module_ver&#125; \</span><br><span class="line">    --add-module=../lua-var-nginx-module-$&#123;lua_var_nginx_module_ver#*v&#125; \</span><br><span class="line">    --add-module=../grpc-client-nginx-module-$&#123;grpc_client_nginx_module_ver#*v&#125; \</span><br><span class="line">    --with-poll_module \</span><br><span class="line">    --with-pcre-jit \</span><br><span class="line">    --without-http_rds_json_module \</span><br><span class="line">    --without-http_rds_csv_module \</span><br><span class="line">    --without-lua_rds_parser \</span><br><span class="line">    --with-stream \</span><br><span class="line">    --with-stream_ssl_module \</span><br><span class="line">    --with-stream_ssl_preread_module \</span><br><span class="line">    --with-http_v2_module \</span><br><span class="line">    --without-mail_pop3_module \</span><br><span class="line">    --without-mail_imap_module \</span><br><span class="line">    --without-mail_smtp_module \</span><br><span class="line">    --with-http_stub_status_module \</span><br><span class="line">    --with-http_realip_module \</span><br><span class="line">    --with-http_addition_module \</span><br><span class="line">    --with-http_auth_request_module \</span><br><span class="line">    --with-http_secure_link_module \</span><br><span class="line">    --with-http_random_index_module \</span><br><span class="line">    --with-http_gzip_static_module \</span><br><span class="line">    --with-http_sub_module \</span><br><span class="line">    --with-http_dav_module \</span><br><span class="line">    --with-http_flv_module \</span><br><span class="line">    --with-http_mp4_module \</span><br><span class="line">    --with-http_gunzip_module \</span><br><span class="line">    --with-threads \</span><br><span class="line">    --with-compat \</span><br><span class="line">    --with-luajit-xcflags="$luajit_xcflags" \</span><br><span class="line">    $no_pool_patch \</span><br><span class="line">    -j`nproc`</span><br><span class="line"></span><br><span class="line">make -j`nproc`</span><br><span class="line">sudo make install</span><br><span class="line">cd ..</span><br><span class="line"></span><br><span class="line">cd apisix-nginx-module-$&#123;apisix_nginx_module_ver&#125; || exit 1</span><br><span class="line">sudo OPENRESTY_PREFIX="$OR_PREFIX" make install</span><br><span class="line">cd ..</span><br><span class="line"></span><br><span class="line">cd wasm-nginx-module-$&#123;wasm_nginx_module_ver&#125; || exit 1</span><br><span class="line">sudo OPENRESTY_PREFIX="$OR_PREFIX" make install</span><br><span class="line">cd ..</span><br><span class="line"></span><br><span class="line">cd grpc-client-nginx-module-$&#123;grpc_client_nginx_module_ver#*v&#125; || exit 1</span><br><span class="line">sudo sed -i s#https://go.dev/dl/#https://golang.google.cn/dl/#g install-util.sh</span><br><span class="line">sudo /usr/local/go/bin/go env -w GO111MODULE=on</span><br><span class="line">sudo /usr/local/go/bin/go env -w GOPROXY=https://goproxy.cn,direct</span><br><span class="line">sudo OPENRESTY_PREFIX="$OR_PREFIX" make install</span><br><span class="line">cd ..</span><br><span class="line"></span><br><span class="line">cd Amesh-$&#123;amesh_ver&#125; || exit 1</span><br><span class="line">sudo OPENRESTY_PREFIX="$OR_PREFIX" sh -c 'PATH="$&#123;PATH&#125;:/usr/local/go/bin" make install'</span><br><span class="line">cd ..</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> package etcdctl</span><br><span class="line">ETCD_ARCH="amd64"</span><br><span class="line">ETCD_VERSION=$&#123;ETCD_VERSION:-'3.5.4'&#125;</span><br><span class="line">ARCH=$&#123;ARCH:-$(uname -m | tr '[:upper:]' '[:lower:]')&#125;</span><br><span class="line"></span><br><span class="line">if [[ $ARCH == "arm64" ]] || [[ $ARCH == "aarch64" ]]; then</span><br><span class="line">    ETCD_ARCH="arm64"</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">wget -q https://github.com/etcd-io/etcd/releases/download/v$&#123;ETCD_VERSION&#125;/etcd-v$&#123;ETCD_VERSION&#125;-linux-$&#123;ETCD_ARCH&#125;.tar.gz</span><br><span class="line">tar xf etcd-v$&#123;ETCD_VERSION&#125;-linux-$&#123;ETCD_ARCH&#125;.tar.gz</span><br><span class="line"><span class="meta">#</span> ship etcdctl under the same bin dir of openresty so we can package it easily</span><br><span class="line">sudo cp etcd-v$&#123;ETCD_VERSION&#125;-linux-$&#123;ETCD_ARCH&#125;/etcdctl "$OR_PREFIX"/bin/</span><br><span class="line">rm -rf etcd-v$&#123;ETCD_VERSION&#125;-linux-$&#123;ETCD_ARCH&#125;</span><br></pre></td></tr></table></figure></p>
+<p>设置环境变量<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/profile</span><br></pre></td></tr></table></figure></p>
+<p>添加以下内容<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cat &gt;&gt; /etc/profile &lt;&lt; EOF</span><br><span class="line">export $OPENRESTY_HOME=/usr/local/openresty</span><br><span class="line">export PATH=$PATH:$OPENRESTY_HOME/bin</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure></p>
+<p>然后执行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">souce /etc/profile</span><br></pre></td></tr></table></figure></p>
+<h1 id="APISIX安装"><a href="#APISIX安装" class="headerlink" title="APISIX安装"></a>APISIX安装</h1><p>进入APISIX源码目录</p>
+<p>设置APISIX版本，并创建目录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">APISIX_VERSION=2.15.3</span><br><span class="line">mkdir apisix-$&#123;APISIX_VERSION&#125;</span><br></pre></td></tr></table></figure>
+<p>下载源码包<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -O https://downloads.apache.org/apisix/$&#123;APISIX_VERSION&#125;/apache-apisix-$&#123;APISIX_VERSION&#125;-src.tgz</span><br></pre></td></tr></table></figure></p>
+<p>解压源码包<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /opt/src/apisix-$&#123;APISIX_VERSION&#125; &amp;&amp; tar xzvf apache-apisix-$&#123;APISIX_VERSION&#125;-src.tgz -C /opt/src/apisix-$&#123;APISIX_VERSION&#125;</span><br></pre></td></tr></table></figure></p>
+<p>修改luarocks源,添加以下配置<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p ~/.luarocks</span><br><span class="line">cat &gt;&gt; ~/.luarocks/config-5.1.lua &lt;&lt; EOF</span><br><span class="line">rocks_servers = &#123;</span><br><span class="line">   &#123;</span><br><span class="line">      "https://luarocks.cn",</span><br><span class="line">      "https://luarocks.org",</span><br><span class="line">      "https://raw.githubusercontent.com/rocks-moonscript-org/moonrocks-mirror/master/",</span><br><span class="line">      "https://luafr.org/luarocks/",</span><br><span class="line">      "http://luarocks.logiceditor.com/rocks"</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">variables = &#123;</span><br><span class="line">   OPENSSL_INCDIR = "/usr/local/openresty/openssl111/include",</span><br><span class="line">   OPENSSL_LIBDIR = "/usr/local/openresty/openssl111/lib"</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure></p>
+<p>构建<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> Switch to the apisix-$&#123;APISIX_VERSION&#125; directory</span><br><span class="line">cd apisix-$&#123;APISIX_VERSION&#125;</span><br><span class="line"><span class="meta">#</span> Create dependencies</span><br><span class="line">make deps</span><br></pre></td></tr></table></figure></p>
+<p>或指定源地址<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make deps ENV_LUAROCKS_SERVER=https://luarocks.cn</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>构建的话由于网络问题，可能需要多试几次</p>
+</blockquote>
+<p>最后安装<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> Install apisix command</span><br><span class="line">make install</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sudo tee -a /etc/security/limits.conf &lt;&lt; EOF</span><br><span class="line"><span class="meta">#</span> </span><br><span class="line">* soft nofile 65536</span><br><span class="line">* hard nofile 65536</span><br><span class="line">* soft nproc 65536</span><br><span class="line">* hard nproc 65536</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+<p>设置luarocks<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">OPENSSL_PREFIX=/usr/local/openresty/openssl111</span><br><span class="line">luarocks config variables.OPENSSL_LIBDIR $&#123;OPENSSL_PREFIX&#125;/lib</span><br><span class="line">luarocks config variables.OPENSSL_INCDIR $&#123;OPENSSL_PREFIX&#125;/include</span><br></pre></td></tr></table></figure></p>
+<p>拷贝源码构建目录下的apisix目录以及deps目录到 /usr/local/apisix<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp -r /opt/src/apisix-$&#123;APISIX_VERSION&#125;/apisix/ /opt/src/apisix-$&#123;APISIX_VERSION&#125;/deps/ /usr/local/apisix/</span><br></pre></td></tr></table></figure></p>
+<p>测试apisix<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/apisix test</span><br><span class="line">/usr/bin/apisix init</span><br></pre></td></tr></table></figure></p>
+<h1 id="APISIX连接etcd"><a href="#APISIX连接etcd" class="headerlink" title="APISIX连接etcd"></a>APISIX连接etcd</h1><h2 id="无证书方式"><a href="#无证书方式" class="headerlink" title="无证书方式"></a>无证书方式</h2><p>分别在三个节点上起etcd服务<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">/opt/etcd3/etcd \</span><br><span class="line">--name s1 \</span><br><span class="line">--data-dir /tmp/etcd-data \</span><br><span class="line">--listen-client-urls http://0.0.0.0:2379 \</span><br><span class="line">--advertise-client-urls http://0.0.0.0:2379 \</span><br><span class="line">--listen-peer-urls http://0.0.0.0:2380 \</span><br><span class="line">--initial-advertise-peer-urls http://0.0.0.0:2380 \</span><br><span class="line">--initial-cluster s1=http://0.0.0.0:2380 \</span><br><span class="line">--initial-cluster-token tkn \</span><br><span class="line">--initial-cluster-state new \</span><br><span class="line">--log-level info \</span><br><span class="line">--logger zap \</span><br><span class="line">--log-outputs stderr</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">/opt/etcd3/etcd \</span><br><span class="line">--name s2 \</span><br><span class="line">--data-dir /tmp/etcd-data \</span><br><span class="line">--listen-client-urls http://0.0.0.0:2379 \</span><br><span class="line">--advertise-client-urls http://0.0.0.0:2379 \</span><br><span class="line">--listen-peer-urls http://0.0.0.0:2380 \</span><br><span class="line">--initial-advertise-peer-urls http://0.0.0.0:2380 \</span><br><span class="line">--initial-cluster s1=http://0.0.0.0:2380 \</span><br><span class="line">--initial-cluster-token tkn \</span><br><span class="line">--initial-cluster-state new \</span><br><span class="line">--log-level info \</span><br><span class="line">--logger zap \</span><br><span class="line">--log-outputs stderr</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">/opt/etcd3/etcd \</span><br><span class="line">--name s3 \</span><br><span class="line">--data-dir /tmp/etcd-data \</span><br><span class="line">--listen-client-urls http://0.0.0.0:2379 \</span><br><span class="line">--advertise-client-urls http://0.0.0.0:2379 \</span><br><span class="line">--listen-peer-urls http://0.0.0.0:2380 \</span><br><span class="line">--initial-advertise-peer-urls http://0.0.0.0:2380 \</span><br><span class="line">--initial-cluster s1=http://0.0.0.0:2380 \</span><br><span class="line">--initial-cluster-token tkn \</span><br><span class="line">--initial-cluster-state new \</span><br><span class="line">--log-level info \</span><br><span class="line">--logger zap \</span><br><span class="line">--log-outputs stderr</span><br></pre></td></tr></table></figure>
+<p>如果是使用http的话，就配置下host就行了<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 其他配置省略...</span></span><br><span class="line"></span><br><span class="line"><span class="attr">etcd:</span></span><br><span class="line"><span class="attr">  host:</span>                           </span><br><span class="line"><span class="bullet">    -</span> <span class="string">"http://10.1.80.91:2379"</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">"http://10.1.80.92:2379"</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">"http://10.1.80.93:2379"</span></span><br><span class="line">    </span><br><span class="line"><span class="comment"># 其他配置省略...</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="有证书方式"><a href="#有证书方式" class="headerlink" title="有证书方式"></a>有证书方式</h2><p>如果是使用https的话，需要配置下etcd证书</p>
+<p>创建放etcd证书的目录，并将证书拷贝过去，由于我是将etcd和apisix安装在一台上了，请根据具体情况来操作<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir -p /usr/local/apisix/ssl</span><br><span class="line">sudo cp /opt/etcd3/ssl/&#123;etcd-ca.pem,etcd-server-key.pem,etcd-server.pem&#125; /usr/local/apisix/ssl</span><br><span class="line">sudo chmod a+r /usr/local/apisix/ssl/etcd-server-key.pem</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>chmod 666 /usr/local/apisix/ssl/etcd-server-key.pem 为什么加写权限，见常见问题</p>
+</blockquote>
+<p>修改APISIX配置文件，可以先备份下，然后用config-default.yaml这个模板<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cp /usr/local/apisix/conf/config.yaml /usr/local/apisix/conf/config.yaml.bak</span><br><span class="line">cp /usr/local/apisix/conf/config-default.yaml /usr/local/apisix/conf/config.yaml</span><br><span class="line">vi /usr/local/apisix/conf/config.yaml</span><br></pre></td></tr></table></figure></p>
+<p>修改内容如下<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 其余省略...</span></span><br><span class="line"><span class="attr">ssl:</span></span><br><span class="line"><span class="attr">  enable:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">  listen:</span>                       <span class="comment"># APISIX listening port in https.</span></span><br><span class="line"><span class="attr">    - port:</span> <span class="number">9443</span></span><br><span class="line"><span class="attr">      enable_http2:</span> <span class="literal">true</span></span><br><span class="line">  <span class="comment">#   - ip: 127.0.0.3           # Specific IP, If not set, the default value is `0.0.0.0`.</span></span><br><span class="line">  <span class="comment">#     port: 9445</span></span><br><span class="line">  <span class="comment">#     enable_http2: true</span></span><br><span class="line"><span class="attr">  ssl_trusted_certificate:</span> <span class="string">/usr/local/apisix/ssl/etcd-ca.pem</span> <span class="comment"># Specifies a file path with trusted CA certificates in the PEM format  </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 其余省略...</span></span><br><span class="line"><span class="attr">etcd:</span></span><br><span class="line"><span class="attr">  host:</span>                           <span class="comment"># it's possible to define multiple etcd hosts addresses of the same etcd cluster.</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">"https://10.1.80.91:2379"</span>   <span class="comment"># multiple etcd address, if your etcd cluster enables TLS, please use https scheme,</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">"https://10.1.80.92:2379"</span>   <span class="comment"># multiple etcd address, if your etcd cluster enables TLS, please use https scheme,</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">"https://10.1.80.93:2379"</span>   <span class="comment"># multiple etcd address, if your etcd cluster enables TLS, please use https scheme,</span></span><br><span class="line">                                  <span class="comment"># e.g. https://127.0.0.1:2379.</span></span><br><span class="line"><span class="attr">  prefix:</span> <span class="string">/apisix</span>                 <span class="comment"># configuration prefix in etcd</span></span><br><span class="line"><span class="attr">  use_grpc:</span> <span class="literal">false</span>                 <span class="comment"># enable the experimental configuration sync via gRPC</span></span><br><span class="line"><span class="attr">  timeout:</span> <span class="number">30</span>                     <span class="comment"># 30 seconds. Use a much higher timeout (like an hour) if the `use_grpc` is true.</span></span><br><span class="line">  <span class="comment">#resync_delay: 5                # when sync failed and a rest is needed, resync after the configured seconds plus 50% random jitter</span></span><br><span class="line">  <span class="comment">#health_check_timeout: 10       # etcd retry the unhealthy nodes after the configured seconds</span></span><br><span class="line"><span class="attr">  startup_retry:</span> <span class="number">2</span>                <span class="comment"># the number of retry to etcd during the startup, default to 2</span></span><br><span class="line">  <span class="comment">#user: root                     # root username for etcd</span></span><br><span class="line">  <span class="comment">#password: 5tHkHhYkjr6cQY       # root password for etcd</span></span><br><span class="line"><span class="attr">  tls:</span></span><br><span class="line">    <span class="comment"># To enable etcd client certificate you need to build APISIX-Base, see</span></span><br><span class="line">    <span class="comment"># https://apisix.apache.org/docs/apisix/FAQ#how-do-i-build-the-apisix-base-environment</span></span><br><span class="line"><span class="attr">    cert:</span> <span class="string">/usr/local/apisix/ssl/etcd-server.pem</span>          <span class="comment"># path of certificate used by the etcd client</span></span><br><span class="line"><span class="attr">    key:</span> <span class="string">/usr/local/apisix/ssl/etcd-server-key.pem</span>       <span class="comment"># path of key used by the etcd client</span></span><br><span class="line"></span><br><span class="line"><span class="attr">    verify:</span> <span class="literal">true</span>                  <span class="comment"># whether to verify the etcd endpoint certificate when setup a TLS connection to etcd,</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="初始化启动APISIX"><a href="#初始化启动APISIX" class="headerlink" title="初始化启动APISIX"></a>初始化启动APISIX</h1><p>启动apisix<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/apisix test</span><br><span class="line">/usr/bin/apisix init</span><br><span class="line">/usr/bin/apisix start</span><br></pre></td></tr></table></figure></p>
+<p>如果以这种方式启动了，当使用systemd服务方式启动时，别忘了关掉之前的apisix进程</p>
+<p>为APISIX添加systemd服务<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">sudo tee -a /usr/lib/systemd/system/apisix.service &lt;&lt; EOF  </span><br><span class="line"><span class="meta">#</span> apisix systemd service</span><br><span class="line"><span class="meta">#</span> https://github.com/api7/apisix-build-tools/blob/master/usr/lib/systemd/system/apisix.service</span><br><span class="line">[Unit]</span><br><span class="line">Description=apisix</span><br><span class="line"><span class="meta">#</span>Conflicts=apisix.service</span><br><span class="line">After=network-online.target</span><br><span class="line">Wants=network-online.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=forking</span><br><span class="line">Restart=on-failure</span><br><span class="line">WorkingDirectory=/usr/local/apisix</span><br><span class="line">ExecStart=/usr/bin/apisix start</span><br><span class="line">ExecStop=/usr/bin/apisix stop</span><br><span class="line">ExecReload=/usr/bin/apisix reload</span><br><span class="line">LimitNOFILE=65536</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure></p>
+<p>启用apisix服务<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl enable apisix</span><br></pre></td></tr></table></figure></p>
+<h1 id="常见错误"><a href="#常见错误" class="headerlink" title="常见错误"></a>常见错误</h1><h2 id="Could-not-find-header-file-for-OPENSSL"><a href="#Could-not-find-header-file-for-OPENSSL" class="headerlink" title="Could not find header file for OPENSSL"></a>Could not find header file for OPENSSL</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Installing https://luarocks.org/luasec-0.9-1.src.rock</span><br><span class="line"></span><br><span class="line">Error: Failed installing dependency: https://luarocks.org/luasec-0.9-1.src.rock - Could not find header file for OPENSSL</span><br><span class="line">  No file openssl/ssl.h in /usr/local/openresty/openssl/include</span><br><span class="line">You may have to install OPENSSL in your system and/or pass OPENSSL_DIR or OPENSSL_INCDIR to the luarocks command.</span><br><span class="line">Example: luarocks install luasec OPENSSL_DIR=/usr/local</span><br><span class="line">make: *** [Makefile:152: deps] Error 1</span><br><span class="line">root@exp:/tmp/src/apisix-2.15# ll /usr/local/openresty/op^C</span><br><span class="line">root@exp:/tmp/src/apisix-2.15# apt install libssl-dev</span><br><span class="line">Reading package lists... Done</span><br><span class="line">Building dependency tree</span><br><span class="line">Reading state information... Done</span><br><span class="line">libssl-dev is already the newest version (1.1.1f-1ubuntu2.16).</span><br><span class="line">0 upgraded, 0 newly installed, 0 to remove and 9 not upgraded.</span><br></pre></td></tr></table></figure>
+<p>需要安装openresty-openssl111-dev</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install -y openresty-openssl111-dev</span><br></pre></td></tr></table></figure>
+<h2 id="gzip-module-requires-the-zlib-library"><a href="#gzip-module-requires-the-zlib-library" class="headerlink" title="gzip module requires the zlib library"></a>gzip module requires the zlib library</h2><p>在进行./configure编译Nginx提示gzip module requires the zlib library<br>执行sudo apt install zlib1g-dev可解决</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install zlib1g-dev</span><br></pre></td></tr></table></figure>
+<h2 id="ngx-postgres-addon-was-unable-to-detect-version-of-the-libpq-library"><a href="#ngx-postgres-addon-was-unable-to-detect-version-of-the-libpq-library" class="headerlink" title="ngx_postgres addon was unable to detect version of the libpq library"></a>ngx_postgres addon was unable to detect version of the libpq library</h2><p>在进行./configure编译Nginx提示ngx_postgres addon was unable to detect version of the libpq library<br>执行sudo apt-get install libpq-dev可解决</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install libpq-dev</span><br></pre></td></tr></table></figure>
+<p>安装apixsix make deps时报如下错误，说明没有安装libldap2-dev<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Error: Failed installing dependency: https://luarocks.cn/lualdap-1.2.6-1.src.rock - Could not find header file for LDAP</span><br><span class="line">  No file ldap.h in /usr/local/include</span><br><span class="line">  No file ldap.h in /usr/include</span><br><span class="line">  No file ldap.h in /include</span><br></pre></td></tr></table></figure></p>
+<h2 id="APISIX相关文件缺失"><a href="#APISIX相关文件缺失" class="headerlink" title="APISIX相关文件缺失"></a>APISIX相关文件缺失</h2><p>遇如下错误，只需将源码apisix-$VERSION/apisix目录拷贝到 /usr/local/apisix安装目录下 cp -r /opt/src/apisix-3.2.0/apisix/ /usr/local/apisix/<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">root@s91:/usr/local/apisix# apisix init</span><br><span class="line">/usr/local/openresty//luajit/bin/luajit /usr/local/apisix/apisix/cli/apisix.lua init</span><br><span class="line">/usr/local/openresty//luajit/bin/luajit: cannot open /usr/local/apisix/apisix/cli/apisix.lua: No such file or directory</span><br><span class="line">root@s91:/usr/local/apisix# apisix test</span><br><span class="line">/usr/local/openresty//luajit/bin/luajit /usr/local/apisix/apisix/cli/apisix.lua test</span><br><span class="line">/usr/local/openresty//luajit/bin/luajit: cannot open /usr/local/apisix/apisix/cli/apisix.lua: No such file or directory</span><br></pre></td></tr></table></figure></p>
+<h2 id="缺少主机名的解析"><a href="#缺少主机名的解析" class="headerlink" title="缺少主机名的解析"></a>缺少主机名的解析</h2><p>遇到如下错误，只需要在/etc/hosts里加一条记录 127.0.0.1 s92.idc3.meeleet.com 即可<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo: unable to resolve host s92.idc3.meeleet.com: Temporary failure in name resolution</span><br></pre></td></tr></table></figure></p>
+<h2 id="默认luarocks源下载慢，很容易下载失败的问题"><a href="#默认luarocks源下载慢，很容易下载失败的问题" class="headerlink" title="默认luarocks源下载慢，很容易下载失败的问题"></a>默认luarocks源下载慢，很容易下载失败的问题</h2><p>APISIX make deps构建，如果出现以下错误,需要配置下luarcoks国内源优先,因为默认的源luarocks.org比较慢，使用<a href="https://luarocks.cn的源，成功率会高很多，但是可能还有偶尔失败，多试几次就可以了" target="_blank" rel="noopener">https://luarocks.cn的源，成功率会高很多，但是可能还有偶尔失败，多试几次就可以了</a><br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Installing https://luarocks.org/lua-resty-radixtree-2.8.2-0.src.rock</span><br><span class="line">Missing dependencies for lua-resty-radixtree 2.8.2-0:</span><br><span class="line">   lua-resty-expr 1.3.0 (not installed)</span><br><span class="line"></span><br><span class="line">lua-resty-radixtree 2.8.2-0 depends on lua-resty-ipmatcher (0.6.1-0 installed)</span><br><span class="line">lua-resty-radixtree 2.8.2-0 depends on lua-resty-expr 1.3.0 (not installed)</span><br><span class="line">Installing https://luarocks.org/lua-resty-expr-1.3.0-0.rockspec</span><br><span class="line">Cloning into 'lua-resty-expr'...</span><br><span class="line">fatal: unable to access 'https://github.com/api7/lua-resty-expr/': GnuTLS recv error (-110): The TLS connection was non-properly terminated.</span><br><span class="line"></span><br><span class="line">Error: Failed installing dependency: https://luarocks.org/lua-resty-radixtree-2.8.2-0.src.rock - Failed installing dependency: https://luarocks.org/lua-resty-expr-1.3.0-0.rockspec - Failed cloning git repository.</span><br><span class="line">make: *** [Makefile:152: deps] Error 1</span><br></pre></td></tr></table></figure></p>
+<h2 id="etcd-server-key-pem-Permission-denied"><a href="#etcd-server-key-pem-Permission-denied" class="headerlink" title="etcd-server-key.pem:Permission denied"></a>etcd-server-key.pem:Permission denied</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">2023/04/17 04:28:11 [warn] 110028#110028: *44161 [lua] v3.lua:716: request_chunk(): https://10.1.80.93:2379: /usr/local/apisix/ssl/etcd-server-key.pem: Permission denied. Retrying, context: ngx.timer</span><br><span class="line">2023/04/17 04:28:11 [warn] 110028#110028: *44161 [lua] v3.lua:716: request_chunk(): https://10.1.80.91:2379: /usr/local/apisix/ssl/etcd-server-key.pem: Permission denied. Retrying, context: ngx.timer</span><br><span class="line">2023/04/17 04:28:11 [warn] 110028#110028: *44161 [lua] v3.lua:716: request_chunk(): https://10.1.80.92:2379: /usr/local/apisix/ssl/etcd-server-key.pem: Permission denied. Retrying, context: ngx.timer</span><br></pre></td></tr></table></figure>
+<p>需要给证书文件所有用户以读权限<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo chmod a+r /usr/local/apisix/ssl/etcd-server-key.pem</span><br></pre></td></tr></table></figure></p>
+<h1 id="FAQ"><a href="#FAQ" class="headerlink" title="FAQ"></a>FAQ</h1><h2 id="需要安装Lua吗？"><a href="#需要安装Lua吗？" class="headerlink" title="需要安装Lua吗？"></a>需要安装Lua吗？</h2><p>不需要，因为这里OpenResty用的LuaJIT来运行</p>
+<h2 id="怎么卸载APISIX"><a href="#怎么卸载APISIX" class="headerlink" title="怎么卸载APISIX"></a>怎么卸载APISIX</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> To uninstall the APISIX runtime, run:</span><br><span class="line">make uninstall</span><br><span class="line">make undeps</span><br></pre></td></tr></table></figure>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://openresty.org/cn/linux-packages.html" target="_blank" rel="noopener">OpenResty® Linux 包</a></p>
+<p><a href="https://www.digitalocean.com/community/tutorials/how-to-use-the-openresty-web-framework-for-nginx-on-ubuntu-16-04" target="_blank" rel="noopener">How to Use the OpenResty Web Framework for Nginx on Ubuntu 16.04
+</a></p>
+<p><a href="https://apisix.apache.org/zh/docs/apisix/install-dependencies/" target="_blank" rel="noopener">APISIX安装依赖</a></p>
+<p><a href="https://blog.51cto.com/rongfengliang/5289951" target="_blank" rel="noopener">luarocks 简单使用&amp;openresty 离线集成说明 原创</a></p>
+<p><a href="https://www.cnblogs.com/wangguishe/p/16165880.html" target="_blank" rel="noopener">ubuntu 20.04安装 Apache APISIX</a></p>
+<p><a href="https://github.com/apache/apisix/issues/7098" target="_blank" rel="noopener">help request: please check the version of OpenResty and lua, OpenResty 1.19 + LuaJIT or OpenResty before 1.19 + Lua 5.1 is required for Apache APISIX</a></p>
+<p><a href="https://cmjava.ltd:8090/archives/apisix%E9%85%8D%E7%BD%AE%E9%9C%80%E8%A6%81%E8%AF%81%E4%B9%A6%E7%9A%84etcd%E9%9B%86%E7%BE%A4" target="_blank" rel="noopener">apisix配置需要证书的etcd集群
+</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/04/17/安装部署3节点Etcd高可用集群-3节点同一套证书-【APISIX用的etcd集群】/" rel="next" title="安装部署3节点Etcd高可用集群(3节点同一套证书)【APISIX用的etcd集群】">
+                <i class="fa fa-chevron-left"></i> 安装部署3节点Etcd高可用集群(3节点同一套证书)【APISIX用的etcd集群】
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/04/17/buntu20-04-源码安装APISIX-2-15-x-Dashboard/" rel="prev" title="Ubuntu20.04 源码安装APISIX-2.15.x Dashboard">
+                Ubuntu20.04 源码安装APISIX-2.15.x Dashboard <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+<span class="jiathis_txt">分享到：</span>
+<a class="jiathis_button_weixin">微信</a>
+<a class="jiathis_button_tsina">新浪微博</a>
+<a class="jiathis_button_twitter">Twitter</a>
+<a class="jiathis_button_fb">Facebook</a>
+<a class="jiathis_button_copy">复制网址</a>
+<a class="jiathis_button_email">邮件</a>
+<a class="jiathis_button_fav">收藏夹</a>
+<a class="jiathis_button_share">一键分享</a>
+
+<a href="http://www.jiathis.com/share?uid=2140465" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+var jiathis_config={
+  data_track_clickback:true,
+  summary:"",
+  shortUrl:false,
+  hideMore:false
+}
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=2154652" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/default_avatar.png"
+                alt="Jay Chang" />
+            
+              <p class="site-author-name" itemprop="name">Jay Chang</p>
+              <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/jaychang9" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://twitter.com/jaychang1987" target="_blank" title="Twitter">
+                      
+                        <i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.facebook.com/jaychang1987" target="_blank" title="Facebook">
+                      
+                        <i class="fa fa-fw fa-facebook"></i>Facebook</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://plus.google.com/jaychang1987" target="_blank" title="Google">
+                      
+                        <i class="fa fa-fw fa-google"></i>Google</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:jaychang1987@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tech.meituan.com/" title="美团点评" target="_blank">美团点评</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://tech.youzan.com/" title="有赞技术" target="_blank">有赞技术</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://tech.lede.com/" title="网易乐得" target="_blank">网易乐得</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://lovestblog.cn/" title="你假笨" target="_blank">你假笨</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.jianshu.com/u/90ab66c248e6" title="占小狼" target="_blank">占小狼</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/quhongwei_zhanqiu" title="斩秋" target="_blank">斩秋</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.iocoder.cn/" title="芋道源码" target="_blank">芋道源码</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://wuchong.me/" title="伍翀Jark" target="_blank">伍翀Jark</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.jasongj.com/" title="郭俊Jason" target="_blank">郭俊Jason</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/chenssy" title="Chenssy" target="_blank">Chenssy</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://techlog.cn/" title="龙谭斋" target="_blank">龙谭斋</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://imququ.com/" title="Jerry Qu" target="_blank">Jerry Qu</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://blog.csdn.net/morewindows/article/details/17488865" title="MoreWindows" target="_blank">MoreWindows</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.philipphauer.de/" title="Philipp Hauer" target="_blank">Philipp Hauer</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#OpenResty源码安装"><span class="nav-number">1.</span> <span class="nav-text">OpenResty源码安装</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装前准备"><span class="nav-number">1.1.</span> <span class="nav-text">安装前准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译安装OpenResty"><span class="nav-number">1.2.</span> <span class="nav-text">编译安装OpenResty</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装OpenResty的相关组件"><span class="nav-number">1.3.</span> <span class="nav-text">安装OpenResty的相关组件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装luarocks"><span class="nav-number">1.4.</span> <span class="nav-text">安装luarocks</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重构Openresty"><span class="nav-number">1.5.</span> <span class="nav-text">重构Openresty</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#APISIX安装"><span class="nav-number">2.</span> <span class="nav-text">APISIX安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#APISIX连接etcd"><span class="nav-number">3.</span> <span class="nav-text">APISIX连接etcd</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#无证书方式"><span class="nav-number">3.1.</span> <span class="nav-text">无证书方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#有证书方式"><span class="nav-number">3.2.</span> <span class="nav-text">有证书方式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#初始化启动APISIX"><span class="nav-number">4.</span> <span class="nav-text">初始化启动APISIX</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#常见错误"><span class="nav-number">5.</span> <span class="nav-text">常见错误</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Could-not-find-header-file-for-OPENSSL"><span class="nav-number">5.1.</span> <span class="nav-text">Could not find header file for OPENSSL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gzip-module-requires-the-zlib-library"><span class="nav-number">5.2.</span> <span class="nav-text">gzip module requires the zlib library</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ngx-postgres-addon-was-unable-to-detect-version-of-the-libpq-library"><span class="nav-number">5.3.</span> <span class="nav-text">ngx_postgres addon was unable to detect version of the libpq library</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#APISIX相关文件缺失"><span class="nav-number">5.4.</span> <span class="nav-text">APISIX相关文件缺失</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺少主机名的解析"><span class="nav-number">5.5.</span> <span class="nav-text">缺少主机名的解析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#默认luarocks源下载慢，很容易下载失败的问题"><span class="nav-number">5.6.</span> <span class="nav-text">默认luarocks源下载慢，很容易下载失败的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#etcd-server-key-pem-Permission-denied"><span class="nav-number">5.7.</span> <span class="nav-text">etcd-server-key.pem:Permission denied</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#FAQ"><span class="nav-number">6.</span> <span class="nav-text">FAQ</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#需要安装Lua吗？"><span class="nav-number">6.1.</span> <span class="nav-text">需要安装Lua吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#怎么卸载APISIX"><span class="nav-number">6.2.</span> <span class="nav-text">怎么卸载APISIX</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jay Chang</span>
+  <span>
+	<a class="theme-link" target="_blank" href="http://zjca.miit.gov.cn/">
+		浙ICP备19027095号
+	</a>
+  </span>	
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://jay-changs-blog.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://jaychang.cn/2023/04/17/buntu20-04-源码安装APISIX-2-15-3/';
+          this.page.identifier = '2023/04/17/buntu20-04-源码安装APISIX-2-15-3/';
+          this.page.title = 'Ubuntu20.04 源码安装APISIX-2.15.3';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://jay-changs-blog.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

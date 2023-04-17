@@ -310,6 +310,767 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jaychang.cn/2019/07/27/buntu18-04安装MySQL5-7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jay Chang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/default_avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jay Chang's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/07/27/buntu18-04安装MySQL5-7/" itemprop="url">Ubuntu Linux下安装MySQL5.7</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-27T22:40:34+08:00">
+                2019-07-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/07/27/buntu18-04安装MySQL5-7/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/07/27/buntu18-04安装MySQL5-7/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1,540
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>MySQL通用Linux二进制安装包用于在Linux系统上安装MySQL。可以根据我们的需求，定制安装MySQL,比如可以设置数据存储目录，日志存储目录等。</p>
+<h1 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h1><p>如果系统之前安装过mysql，版本可能是比较旧的，需要在安装之前确认下。可以使用如apt,yum包管理工具，将mysql卸载。并注意/etc/my.cnf，mysql数据存放目录，将数据备份好，然后再删除这些文件或目录。</p>
+<p>mysql需要依赖libaio库，在安装mysql前确认已经安装好libaio库</p>
+<ul>
+<li><p>centos:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum search libaio  # search for info</span><br><span class="line">yum install libaio # install library</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>ubuntu:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt-cache search libaio # search for info</span><br><span class="line">apt-get install libaio1 # install library</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="下载MySQL二进制安装包"><a href="#下载MySQL二进制安装包" class="headerlink" title="下载MySQL二进制安装包"></a>下载MySQL二进制安装包</h1><p>下载64位mysql5.7.27 linux通用二进制安装包<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget --no-check-certificate https://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-5.7.27-linux-glibc2.12-x86_64.tar.gz</span><br></pre></td></tr></table></figure></p>
+<p>二进制安装包清单</p>
+<table>
+<thead>
+<tr>
+<th>目录</th>
+<th>目录中的文件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bin</td>
+<td>mysqld服务端程序,mysql客户端程序，等其他工具程序</td>
+</tr>
+<tr>
+<td>docs</td>
+<td>mysql文档</td>
+</tr>
+<tr>
+<td>man</td>
+<td>man手册</td>
+</tr>
+<tr>
+<td>include</td>
+<td>header头文件</td>
+</tr>
+<tr>
+<td>share</td>
+<td>用于数据库安装的错误消息、字典和SQ</td>
+</tr>
+<tr>
+<td>support-files</td>
+<td>各种支持文件</td>
+</tr>
+</tbody>
+</table>
+<h1 id="创建用户组、用户"><a href="#创建用户组、用户" class="headerlink" title="创建用户组、用户"></a>创建用户组、用户</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">groupadd mysql</span><br><span class="line">useradd -r -g mysql -s /bin/false mysql</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>此用户仅仅用于mysql服务，而不用于系统登录，所以使用useradd -r和-s /bin/false命令选项来创建没有登录权限的用户。</p>
+</blockquote>
+<h1 id="解压MySQL安装包"><a href="#解压MySQL安装包" class="headerlink" title="解压MySQL安装包"></a>解压MySQL安装包</h1><p>解压mysql安装包到/user/local目录下，并设置软连接，使得mysql的basedir为/usr/local/mysql<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tar zxvf /path/to/mysql-5.7.27-linux-glibc2.12-x86_64.tar.gz -C /usr/local</span><br><span class="line">cd /usr/local</span><br><span class="line">ln -s mysql-5.7.26-linux-glibc2.12-x86_64 mysql</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>/path/to改为mysql安装包所在目录</p>
+</blockquote>
+<p>将bin目录添加到PATH环境变量中</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">export PATH=$PATH:/usr/local/mysql/bin</span><br><span class="line">echo "export PATH=$PATH:/usr/local/mysql/bin" &gt;&gt; ~/.bashrc</span><br><span class="line">echo "export PATH=$PATH:/usr/local/mysql/bin" &gt;&gt; /etc/profile</span><br><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure>
+<h1 id="mysql目录、文件规划"><a href="#mysql目录、文件规划" class="headerlink" title="mysql目录、文件规划"></a>mysql目录、文件规划</h1><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>目录或文件</th>
+<th>软链</th>
+<th>实际目录</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据目录datadir</td>
+<td>/data/mysql/data</td>
+<td>否</td>
+<td></td>
+</tr>
+<tr>
+<td>参数配置my.cnf</td>
+<td>/usr/local/mysql/etc/my.cnf</td>
+<td>否</td>
+<td></td>
+</tr>
+<tr>
+<td>日志log目录</td>
+<td>/usr/local/mysql/log</td>
+<td>是</td>
+<td>/data/mysql/log</td>
+</tr>
+<tr>
+<td>错误日志log-error</td>
+<td>/usr/local/mysql/log/mysql_error.log</td>
+<td>否</td>
+<td></td>
+</tr>
+<tr>
+<td>慢查询日志slow_query_log_file</td>
+<td>/usr/local/mysql/log/mysql_slow_query.log</td>
+<td>否</td>
+<td></td>
+</tr>
+<tr>
+<td>二进制日志log-bin</td>
+<td>/usr/local/mysql/binlogs/mysql-bin</td>
+<td>是</td>
+<td>/data/mysql/binlogs/mysql-bin</td>
+</tr>
+<tr>
+<td>套接字socket文件</td>
+<td>/usr/local/mysql/run/mysql.sock</td>
+<td>否</td>
+<td></td>
+</tr>
+<tr>
+<td>pid文件(进程id)</td>
+<td>/usr/local/mysql/run/mysql.pid</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>默认情况下socket文件， pid文件是存在datadir的，建议还是分开一个目录，取名run目录好一点</p>
+</blockquote>
+<h1 id="创建所需目录并设置权限"><a href="#创建所需目录并设置权限" class="headerlink" title="创建所需目录并设置权限"></a>创建所需目录并设置权限</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /usr/local/mysql/&#123;etc,run&#125;</span><br><span class="line">mkdir -p /data/mysql/&#123;data,binlogs,log&#125;</span><br><span class="line">chown -R mysql.mysql /data/mysql</span><br><span class="line">chown -R mysql.mysql /usr/local/mysql/&#123;etc,run&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="配置my-cnf"><a href="#配置my-cnf" class="headerlink" title="配置my.cnf"></a>配置my.cnf</h2><p>文件放在/usr/local/mysql/etc/my.cnf，放此目录，会自动加载该配置文件的<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">[client]</span><br><span class="line">port = 3306</span><br><span class="line">socket = /usr/local/mysql/run/mysql.sock</span><br><span class="line"></span><br><span class="line">[mysqld]</span><br><span class="line"></span><br><span class="line">##########################</span><br><span class="line">#GENERAL</span><br><span class="line">##########################</span><br><span class="line">user = mysql</span><br><span class="line">port = 3306</span><br><span class="line">server_id = 1</span><br><span class="line">skip-name-resolve</span><br><span class="line">bind-address= 0.0.0.0</span><br><span class="line">default_storage_engine = InnoDB</span><br><span class="line">socket = /usr/local/mysql/run/mysql.sock</span><br><span class="line">pid-file = /usr/local/mysql/run/mysqld.pid</span><br><span class="line">max_allowed_packet=32M</span><br><span class="line">max_connections = 1024</span><br><span class="line">open_files_limit = 65535</span><br><span class="line">#default-time-zone=&apos;+08:00&apos;</span><br><span class="line">explicit_defaults_for_timestamp=true</span><br><span class="line"></span><br><span class="line">##########################</span><br><span class="line"># character set</span><br><span class="line">##########################</span><br><span class="line">character_set_server = utf8mb4</span><br><span class="line">collation-server = utf8mb4_general_ci</span><br><span class="line">init_connect=&apos;SET NAMES utf8mb4&apos;</span><br><span class="line"></span><br><span class="line">##########################</span><br><span class="line"># DATA STORAGE </span><br><span class="line">##########################</span><br><span class="line">basedir= /usr/local/mysql</span><br><span class="line">datadir = /data/mysql/data</span><br><span class="line"></span><br><span class="line">##########################</span><br><span class="line"># INNODB</span><br><span class="line">##########################</span><br><span class="line">innodb_file_per_table = 1</span><br><span class="line">innodb_buffer_pool_size = 512M</span><br><span class="line">innodb_log_buffer_size = 16M</span><br><span class="line">innodb_log_file_size = 128M</span><br><span class="line">innodb_tmpdir= /data/mysql/tmp</span><br><span class="line"></span><br><span class="line">##########################</span><br><span class="line"># MyISAM</span><br><span class="line">##########################</span><br><span class="line">key_buffer_size = 64M</span><br><span class="line"></span><br><span class="line">##########################</span><br><span class="line"># Logging</span><br><span class="line">##########################</span><br><span class="line"># mysql log timezone use system timezone</span><br><span class="line">log_timestamps=SYSTEM</span><br><span class="line">log_error = /data/mysql/log/mysql_error.log</span><br><span class="line"></span><br><span class="line">##########################</span><br><span class="line"># log bin</span><br><span class="line">##########################</span><br><span class="line">log-bin = /data/mysql/binlogs/mysql-bin</span><br><span class="line">sync-binlog = 1</span><br><span class="line">binlog_format = row</span><br><span class="line">binlog_row_image = FULL</span><br><span class="line">expire_logs_days = 15</span><br><span class="line">master_info_repository = TABLE</span><br><span class="line">relay_log_info_repository = TABLE</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">##########################</span><br><span class="line"># log relay</span><br><span class="line">##########################</span><br><span class="line">relay-log = /data/mysql/binlogs/relay-bin</span><br><span class="line">relay_log_recovery = on</span><br><span class="line">max_relay_log_size = 1G</span><br><span class="line">log_slave_updates = 1</span><br><span class="line"></span><br><span class="line">##########################</span><br><span class="line"># gtid</span><br><span class="line">##########################</span><br><span class="line">gtid_mode = on</span><br><span class="line">enforce_gtid_consistency = on</span><br><span class="line">replicate_ignore_db=mysql</span><br><span class="line">replicate_ignore_db=information_schema</span><br><span class="line">replicate_ignore_db=performation_schema</span><br><span class="line">replicate_ignore_db=sys</span><br><span class="line"></span><br><span class="line">##########################</span><br><span class="line"># General logs (only enable for debugging – it use too much I/O)</span><br><span class="line">##########################</span><br><span class="line">#general-log = on</span><br><span class="line">#general-log-file = /data/mysql/log/general-query.log</span><br><span class="line"></span><br><span class="line">##########################</span><br><span class="line"># Slow query logs (optional)</span><br><span class="line">##########################</span><br><span class="line">slow_query_log = on</span><br><span class="line">long_query_time= 3</span><br><span class="line">slow_query_log_file = /data/mysql/log/slow-query.log</span><br></pre></td></tr></table></figure></p>
+<h2 id="初始化mysql-server"><a href="#初始化mysql-server" class="headerlink" title="初始化mysql server"></a>初始化mysql server</h2><p>查看初始化参数<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqld --verbose --help |more</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>初始化数据库<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cd /user/local/mysql</span><br><span class="line">mkdir mysql-files</span><br><span class="line">chown mysql:mysql mysql-files</span><br><span class="line">chmod 750 mysql-files</span><br><span class="line">bin/mysqld --initialize --user=mysql --basedir=/usr/local/mysql --datadir=/data/mysql/data</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>在日志文件理会提示一个临时密码，记录这个密码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep 'temporary password' /data/mysql/log/mysql_error.log</span><br></pre></td></tr></table></figure>
+<p><img src="\images\pasted-34.png" alt="upload successful"></p>
+<ul>
+<li>生成ssl</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql_ssl_rsa_setup --basedir=/usr/local/mysql --datadir=/data/mysql/data</span><br></pre></td></tr></table></figure>
+<h2 id="启动mysql服务"><a href="#启动mysql服务" class="headerlink" title="启动mysql服务"></a>启动mysql服务</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqld_safe --user=mysql --basedir=/usr/local/mysql --datadir=/data/mysql/data --defaults-file=/usr/local/mysql/etc/my.cnf &amp;</span><br></pre></td></tr></table></figure>
+<p>或</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqld_safe --user=mysql --basedir=/usr/local/mysql --datadir=/data/mysql/data &amp;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>可以不用指定–defaults-file，会加载到$MYSQL_HOME/etc/my.cnf这个配置文件</p>
+</blockquote>
+<h2 id="修改密码"><a href="#修改密码" class="headerlink" title="修改密码"></a>修改密码</h2><p>mysql -uroot -p<br>输入上一步查到的临时密码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set password=password('123456');</span><br><span class="line">grant all privileges on *.* to root@'%' identified by '123456' with grant option;</span><br><span class="line">flush privileges;</span><br></pre></td></tr></table></figure>
+<h1 id="mysql作为系统服务"><a href="#mysql作为系统服务" class="headerlink" title="mysql作为系统服务"></a>mysql作为系统服务</h1><h2 id="非systemctrl管理（不推荐）"><a href="#非systemctrl管理（不推荐）" class="headerlink" title="非systemctrl管理（不推荐）"></a>非systemctrl管理（不推荐）</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">Next <span class="built_in">command</span> is optional</span></span><br><span class="line">cp support-files/mysql.server /etc/init.d/mysqld</span><br></pre></td></tr></table></figure>
+<p>修改/etc/init.d/mysqld的basedir,datadir等配置<br>chomod 755 /etc/init.d/mysqld</p>
+<p>下面介绍使用 systemctrl来管理mysql服务</p>
+<h2 id="systemctl管理（强烈推荐）"><a href="#systemctl管理（强烈推荐）" class="headerlink" title="systemctl管理（强烈推荐）"></a>systemctl管理（强烈推荐）</h2><p>创建 /etc/systemd/system/mysqld.service<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=MySQL Server</span><br><span class="line">Documentation=man:mysqld(5.7)</span><br><span class="line">Documentation=https://dev.mysql.com/doc/refman/5.7/en/using-systemd.html</span><br><span class="line">After=network.target</span><br><span class="line">After=syslog.target</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">User=mysql</span><br><span class="line">Group=mysql</span><br><span class="line">#PIDFile=/usr/local/mysql/run/mysqld.pid</span><br><span class="line">#ExecStart=</span><br><span class="line">ExecStart=/usr/local/mysql/bin/mysqld_safe --defaults-file=/usr/local/mysql/etc/my.cnf</span><br><span class="line">LimitNOFILE=65535</span><br></pre></td></tr></table></figure></p>
+<p>设置开机启动<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl enable mysqld</span><br></pre></td></tr></table></figure></p>
+<p>启动、停止、查看日志<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">systemctrl start mysqld</span><br><span class="line">systemctrl stop mysqld</span><br><span class="line">journalctl -u mysqld</span><br></pre></td></tr></table></figure></p>
+<h1 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h1><p>单机多实例的安装配置见<a href="https://www.jb51.net/article/103843.htm，需要注意版本差异" target="_blank" rel="noopener">https://www.jb51.net/article/103843.htm，需要注意版本差异</a></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://lalitvc.wordpress.com/2019/03/04/mysql-5-7-binary-install-on-linux/" target="_blank" rel="noopener">https://lalitvc.wordpress.com/2019/03/04/mysql-5-7-binary-install-on-linux/</a><br><a href="https://dev.mysql.com/doc/refman/5.7/en/binary-installation.html" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/5.7/en/binary-installation.html</a><br><a href="https://dev.mysql.com/doc/refman/5.7/en/postinstallation.html" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/5.7/en/postinstallation.html</a><br><a href="https://dev.mysql.com/doc/refman/5.7/en/using-systemd.html#systemd-mysql-configuration" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/5.7/en/using-systemd.html#systemd-mysql-configuration</a><br><a href="https://dev.mysql.com/doc/refman/5.7/en/mysqld-safe.html#option_mysqld_safe_malloc-lib" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/5.7/en/mysqld-safe.html#option_mysqld_safe_malloc-lib</a><br><a href="https://dev.mysql.com/doc/refman/5.7/en/innodb-parameters.html" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/5.7/en/innodb-parameters.html</a><br><a href="https://blog.csdn.net/zml3721/article/details/79090983" target="_blank" rel="noopener">https://blog.csdn.net/zml3721/article/details/79090983</a><br><a href="https://www.jianshu.com/p/0d628b2f7476" target="_blank" rel="noopener">https://www.jianshu.com/p/0d628b2f7476</a><br><a href="https://www.jb51.net/article/103843.htm" target="_blank" rel="noopener">https://www.jb51.net/article/103843.htm</a><br><a href="https://blog.pythian.com/manage-multiple-mysql-binary-installations-with-systemd/" target="_blank" rel="noopener">https://blog.pythian.com/manage-multiple-mysql-binary-installations-with-systemd/</a><br><a href="https://www.linuxidc.com/Linux/2017-10/147829.htm" target="_blank" rel="noopener">https://www.linuxidc.com/Linux/2017-10/147829.htm</a><br><a href="https://blog.csdn.net/l1028386804/article/details/87996449" target="_blank" rel="noopener">https://blog.csdn.net/l1028386804/article/details/87996449</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jaychang.cn/2019/07/07/buntu18-04-Nginx-Lua-GraphicsMagick图片缩放/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jay Chang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/default_avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jay Chang's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/07/07/buntu18-04-Nginx-Lua-GraphicsMagick图片缩放/" itemprop="url">Ubuntu18.04 Nginx+Lua+GraphicsMagick图片缩放</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-07T21:18:00+08:00">
+                2019-07-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux-Server/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux Server</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/07/07/buntu18-04-Nginx-Lua-GraphicsMagick图片缩放/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/07/07/buntu18-04-Nginx-Lua-GraphicsMagick图片缩放/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3,311
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>自己搭建的图片服务器，有图片缩放的需求，大致思路是可以使用nginx调用lua，使用GraphicMagick的命令来做图片缩放</p>
+<h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><h2 id="文件夹规划"><a href="#文件夹规划" class="headerlink" title="文件夹规划"></a>文件夹规划</h2><p>lua.jaychang.cn(如/var/filebase)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">jaychang@nginx:~$ tree /var/filebase/</span><br><span class="line">/var/filebase/</span><br><span class="line">├── avatar.png</span><br><span class="line">├── cache</span><br><span class="line">│   └── thumb</span><br><span class="line">│       ├── avatar.png_100x100.png</span><br><span class="line">│       └── upload</span><br><span class="line">│           ├── 1.png_100x100.png #固定高和宽</span><br><span class="line">│           ├── 1.png_400-.png # 定高</span><br><span class="line">│           └── 1.png_800-.png # 定宽</span><br><span class="line">└── upload</span><br><span class="line">    ├── 1.png</span><br><span class="line">4 directories, 8 files</span><br></pre></td></tr></table></figure>
+<p>其中img.xyz.com为图片站点根目录<br>cache/thumb为缩略图存放目录<br>upload目录存放上传的图片</p>
+<h2 id="链接地址对应关系"><a href="#链接地址对应关系" class="headerlink" title="链接地址对应关系"></a>链接地址对应关系</h2><p>原图访问地址：<a href="http://img.xyz.com/upload/1.png" target="_blank" rel="noopener">http://img.xyz.com/upload/1.png</a><br>缩略图访问地址：<a href="http://img.xyz.com/upload/1.png_100x100.png" target="_blank" rel="noopener">http://img.xyz.com/upload/1.png_100x100.png</a> 即为宽100,高100<br>自动宽地址: <a href="http://img.xyz.com/upload/1.png_-400.png" target="_blank" rel="noopener">http://img.xyz.com/upload/1.png_-400.png</a> 用”-“表示自动,即为高400,宽自动<br>自动高地址: <a href="http://img.xyz.com/upload/1.png_800-.jpg" target="_blank" rel="noopener">http://img.xyz.com/upload/1.png_800-.jpg</a> 用”-“表示自动,即为宽800,高自动</p>
+<h2 id="访问流程"><a href="#访问流程" class="headerlink" title="访问流程"></a>访问流程</h2><p>首先判断缩略图是否存在，如存在则直接显示缩略图；<br>缩略图不存在,则判断原图是否存在，如原图存在则拼接graphicsmagick(gm)命令,生成并显示缩略图,否则返回404</p>
+<h1 id="所需软件"><a href="#所需软件" class="headerlink" title="所需软件"></a>所需软件</h1><ul>
+<li>lua-5.3.5.tar.gz</li>
+<li>LuaJIT-2.0.5.tar.gz</li>
+<li>nginx-1.14.2.tar.gz</li>
+<li>nginx模块：lua-nginx-module-0.10.15.tar.gz<blockquote>
+<p>lua-nginx-module 依赖于 LuaJIT 和 ngx_devel_kit。LuaJIT 需要安装，ngx_devel_kit 只需下载源码包，在 Nginx 编译时指定 ngx_devel_kit 目录</p>
+</blockquote>
+</li>
+<li>nginx模块：nginx-http-concat</li>
+<li>nginx模块：ngx_devel_kit</li>
+<li>nginx模块：nginx-http-concat</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">curl -R -O http://www.lua.org/ftp/lua-5.3.5.tar.gz</span><br><span class="line">curl -R -O http://luajit.org/download/LuaJIT-2.0.5.tar.gz</span><br><span class="line">curl -R -O http://nginx.org/download/nginx-1.14.2.tar.gz</span><br><span class="line">curl -R -O https://github.com/openresty/lua-nginx-module/archive/v0.10.15.tar.gz</span><br><span class="line">curl -R -O https://github.com/openresty/lua-resty-core/archive/v0.1.17.tar.gz</span><br><span class="line">curl -R -O https://github.com/simpl/ngx_devel_kit/archive/v0.3.0.tar.gz</span><br><span class="line">git clone git@github.com:alibaba/nginx-http-concat.git</span><br></pre></td></tr></table></figure>
+<h1 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">apt-get install -y gcc g++ make</span><br><span class="line"></span><br><span class="line">apt-get install libreadline-dev libpcre3 libpcre3-dev openssl libssl-dev zlib1g zlib1g-dev libgeoip-dev -y</span><br></pre></td></tr></table></figure>
+<h1 id="编译安装Lua-LuaJIT"><a href="#编译安装Lua-LuaJIT" class="headerlink" title="编译安装Lua LuaJIT"></a>编译安装Lua LuaJIT</h1><h2 id="编译安装Lua"><a href="#编译安装Lua" class="headerlink" title="编译安装Lua"></a>编译安装Lua</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl -R -O http://www.lua.org/ftp/lua-5.3.5.tar.gz</span><br><span class="line">tar zxf lua-5.3.5.tar.gz</span><br><span class="line">cd lua-5.3.5</span><br><span class="line">make linux test</span><br></pre></td></tr></table></figure>
+<h2 id="编译安装LuaJIT"><a href="#编译安装LuaJIT" class="headerlink" title="编译安装LuaJIT"></a>编译安装LuaJIT</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">curl -R -O http://luajit.org/download/LuaJIT-2.0.5.tar.gz</span><br><span class="line">tar -zxvf LuaJIT-2.0.5.tar.gz</span><br><span class="line">cd LuaJIT-2.0.5</span><br><span class="line">make -j2 &amp;&amp; make install</span><br><span class="line">export LUAJIT_LIB=/usr/local/lib</span><br><span class="line">export LUAJIT_INC=/usr/local/include/luajit-2.0</span><br><span class="line">echo &quot;/usr/local/lib&quot; &gt; /etc/ld.so.conf.d/usr_local_lib.conf</span><br><span class="line">ldconfig</span><br></pre></td></tr></table></figure>
+<h1 id="安装GraphicsMagick"><a href="#安装GraphicsMagick" class="headerlink" title="安装GraphicsMagick"></a>安装GraphicsMagick</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt install -y graphicsmagick</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>直接用apt来安装的话，可以免去安装 jpg,png 等图片库依赖</p>
+</blockquote>
+<h1 id="创建用户及相应目录"><a href="#创建用户及相应目录" class="headerlink" title="创建用户及相应目录"></a>创建用户及相应目录</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">groupadd nginx &amp;&amp; useradd nginx -g nginx -s /sbin/nologin -M</span><br><span class="line"></span><br><span class="line">mkdir -p /var/tmp/nginx/client_body_temp</span><br><span class="line">mkdir -p /var/tmp/nginx/uwsgi_temp</span><br></pre></td></tr></table></figure>
+<p>创建用户也可以用以下命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">groupadd nginx &amp;&amp; useradd nginx -g nginx -s /bin/false -M</span><br></pre></td></tr></table></figure></p>
+<h1 id="编译安装nginx"><a href="#编译安装nginx" class="headerlink" title="编译安装nginx"></a>编译安装nginx</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr/local/nginx \</span><br><span class="line">--user=nginx --group=nginx \</span><br><span class="line">--sbin-path=/usr/sbin/nginx \</span><br><span class="line">--with-pcre \</span><br><span class="line">--with-http_realip_module \</span><br><span class="line">--with-http_gzip_static_module \</span><br><span class="line">--with-http_stub_status_module \</span><br><span class="line">--with-http_v2_module \</span><br><span class="line">--with-http_flv_module \</span><br><span class="line">--with-http_ssl_module \</span><br><span class="line">--with-http_addition_module \</span><br><span class="line">--with-http_geoip_module \</span><br><span class="line">--add-module=/usr/local/src/lua-nginx-module-0.10.15 \</span><br><span class="line">--add-module=/usr/local/src/ngx_devel_kit-0.3.0 \</span><br><span class="line">--add-module=/usr/local/src/nginx-http-concat \</span><br><span class="line">--http-scgi-temp-path=/var/tmp/nginx/cgi_temp \</span><br><span class="line">--http-client-body-temp-path=/var/tmp/nginx/client_body_temp \</span><br><span class="line">--http-proxy-temp-path=/var/tmp/nginx/proxy_temp \</span><br><span class="line">--http-uwsgi-temp-path=/var/tmp/nginx/uwsgi_temp \</span><br><span class="line">--http-fastcgi-temp-path=/var/tmp/nginx/fastcgi_temp \</span><br><span class="line">--http-log-path=/var/log/nginx/access.log \</span><br><span class="line">--error-log-path=/var/log/nginx/error.log</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make -j 2 &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+<p> 注意：动态加载模块，Nginx官方的load_module指令,详细文档<a href="http://nginx.org/en/docs/ngx_core_module.html#load_module" target="_blank" rel="noopener">参考1</a><br>和 <a href="https://www.nginx.com/resources/wiki/extending/converting/#compiling-dynamic" target="_blank" rel="noopener">参考2</a><br>还有–with-http_spdy_module 已经改为–with-http_v2_module了<br>,如果不用geo的话，编译的时候可以不加–with-http_geoip_module，可以不安装libgeoip-dev</p>
+<h1 id="测试nginx"><a href="#测试nginx" class="headerlink" title="测试nginx"></a>测试nginx</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx -t</span><br></pre></td></tr></table></figure>
+<p>如果出现以下错误(没有报错就不用做以下操作了)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu:/usr/local/src/nginx-1.14.2# nginx -t</span><br><span class="line">nginx: error while loading shared libraries: libluajit-5.1.so.2: cannot open shared object file: No such file or directory</span><br></pre></td></tr></table></figure></p>
+<p>执行以下命令即可<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;/usr/local/lib&quot; &gt; /etc/ld.so.conf.d/usr_local_lib.conf</span><br><span class="line">ldconfig</span><br></pre></td></tr></table></figure></p>
+<h1 id="修改nginx-conf配置文件"><a href="#修改nginx-conf配置文件" class="headerlink" title="修改nginx.conf配置文件"></a>修改nginx.conf配置文件</h1><p>将nginx.conf配置文件中的<strong>server{}段</strong>配置注释掉</p>
+<p>加一行配置，以便读取/usr/local/tengine/conf.d目录下所有后缀为.conf的配置文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">include ../conf.d/*.conf;</span><br></pre></td></tr></table></figure></p>
+<p>可以参考如下配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">user nginx;</span><br><span class="line">worker_processes 4;</span><br><span class="line">worker_cpu_affinity 1000 0100 0010 0001;</span><br><span class="line">error_log /var/log/nginx/error.log error;</span><br><span class="line">pid /usr/local/nginx/logs/nginx.pid;</span><br><span class="line">worker_rlimit_nofile 65535;</span><br><span class="line">events</span><br><span class="line">&#123;</span><br><span class="line">	use epoll;</span><br><span class="line">	worker_connections 65535;</span><br><span class="line">&#125;</span><br><span class="line">http</span><br><span class="line">&#123;</span><br><span class="line">   lua_load_resty_core off;</span><br><span class="line">   limit_conn_zone $binary_remote_addr zone=one:10m;</span><br><span class="line">   limit_conn_zone $server_name zone=perserver:10m;</span><br><span class="line">	include mime.types;</span><br><span class="line">	include fastcgi.conf;</span><br><span class="line">	default_type application/octet-stream;</span><br><span class="line">	charset utf-8;</span><br><span class="line">	server_names_hash_bucket_size 128;</span><br><span class="line">	client_header_buffer_size 32k;</span><br><span class="line">	large_client_header_buffers 4 64k;</span><br><span class="line">	sendfile on;</span><br><span class="line">	autoindex off;</span><br><span class="line">	tcp_nopush on;</span><br><span class="line">	tcp_nodelay on;</span><br><span class="line">	keepalive_timeout 120;</span><br><span class="line">    </span><br><span class="line">	fastcgi_connect_timeout 60;</span><br><span class="line">	fastcgi_send_timeout 60;</span><br><span class="line">	fastcgi_read_timeout 60;</span><br><span class="line">	fastcgi_buffer_size 128k;</span><br><span class="line">	fastcgi_buffers 8 128k;</span><br><span class="line">	fastcgi_busy_buffers_size 128k;</span><br><span class="line">	fastcgi_temp_file_write_size 128k;</span><br><span class="line">    </span><br><span class="line">	gzip on;</span><br><span class="line">	gzip_min_length 1k;</span><br><span class="line">	gzip_buffers 4 16k;</span><br><span class="line">	gzip_http_version 1.0;</span><br><span class="line">	gzip_comp_level 2;</span><br><span class="line">	gzip_types text/plain application/x-javascript text/css application/xml;</span><br><span class="line">	gzip_vary on;</span><br><span class="line"></span><br><span class="line">	log_format main &apos;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &apos;</span><br><span class="line">	&apos;$status $body_bytes_sent &quot;$http_referer&quot; &apos;</span><br><span class="line">	&apos;&quot;$http_user_agent&quot; $http_x_forwarded_for&apos;;</span><br><span class="line"></span><br><span class="line">	client_max_body_size 10m;</span><br><span class="line"></span><br><span class="line">	include ../conf.d/*.conf;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>注意：lua_load_resty_core off;如果不加会有以下错误</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">nginx: [alert] detected a LuaJIT version which is not OpenResty&apos;s; many optimizations will be disabled and performance will be compromised (see https://github.com/openresty/luajit2 for OpenResty&apos;s LuaJIT or, even better, consider using the OpenResty releases from https://openresty.org/en/download.html)</span><br><span class="line">nginx: [error] lua_load_resty_core failed to load the resty.core module from https://github.com/openresty/lua-resty-core; ensure you are using an OpenResty release from https://openresty.org/en/download.html (rc: 2, reason: module &apos;resty.core&apos; not found:</span><br><span class="line">        no field package.preload[&apos;resty.core&apos;]</span><br><span class="line">        no file &apos; /usr/local/lib/lua-resty-core-0.1.17/lib/resty/core.lua&apos;</span><br><span class="line">        no file &apos;./resty/core.lua&apos;</span><br><span class="line">        no file &apos;/usr/local/share/luajit-2.0.5/resty/core.lua&apos;</span><br><span class="line">        no file &apos;/usr/local/share/lua/5.1/resty/core.lua&apos;</span><br><span class="line">        no file &apos;/usr/local/share/lua/5.1/resty/core/init.lua&apos;</span><br><span class="line">        no file &apos;./resty/core.so&apos;</span><br><span class="line">        no file &apos;/usr/local/lib/lua/5.1/resty/core.so&apos;</span><br><span class="line">        no file &apos;/usr/local/lib/lua/5.1/loadall.so&apos;</span><br><span class="line">        no file &apos;./resty.so&apos;</span><br><span class="line">        no file &apos;/usr/local/lib/lua/5.1/resty.so&apos;</span><br><span class="line">        no file &apos;/usr/local/lib/lua/5.1/loadall.so&apos;)</span><br></pre></td></tr></table></figure>
+<h1 id="创建放图片的目录"><a href="#创建放图片的目录" class="headerlink" title="创建放图片的目录"></a>创建放图片的目录</h1><p>目录规划</p>
+<ul>
+<li>/var/www 放网页,css,js等资源</li>
+<li>/var/fielbase 放图片</li>
+<li>/var/filebase/upload 上传的图片放这里</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /var/filebase/upload </span><br><span class="line">mkdir -p /var/filebase/cache/thumb</span><br><span class="line">chown -R nginx:nginx /var/filebase</span><br></pre></td></tr></table></figure>
+<h1 id="配置站点配置文件"><a href="#配置站点配置文件" class="headerlink" title="配置站点配置文件"></a>配置站点配置文件</h1><p>在/usr/local/tengine/conf.d目录下创建demo.conf</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"># 定义lua缩略图支持的图片尺寸及开关</span><br><span class="line">init_by_lua &apos;</span><br><span class="line">    image_sizes_check = true</span><br><span class="line">    image_sizes = &#123;&quot;800x800&quot;, &quot;400x400&quot;,&quot;200x200&quot;,&quot;100x100&quot;, &quot;-800&quot;, &quot;-400&quot;, &quot;-200&quot;,&quot;-100&quot;, &quot;800-&quot;, &quot;400-&quot;, &quot;200-&quot;,&quot;100-&quot;&#125;</span><br><span class="line">&apos;;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">    listen   80;</span><br><span class="line">    servername img.xyz.com;</span><br><span class="line">    index index.php index.html index.htm;</span><br><span class="line"></span><br><span class="line">    set $root_path &apos;/var/www&apos;;</span><br><span class="line">    root $root_path;</span><br><span class="line"></span><br><span class="line">   # /lua仅用于测试，可去掉</span><br><span class="line">	 location /lua &#123;</span><br><span class="line">		default_type &apos;text/plain&apos;;</span><br><span class="line">        content_by_lua &apos;ngx.say(&quot;hello, ttlsa lua&quot;)&apos;;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    # 这里也是需要根据实际情况修改的，这里的是用了rewrite</span><br><span class="line">    location / &#123;</span><br><span class="line">        try_files $uri $uri/ /index.php?$args;</span><br><span class="line"></span><br><span class="line">        # add support for img which has query params,</span><br><span class="line">        # like:  xxx.jpg?a=b&amp;c=d_750x750.jpg</span><br><span class="line">        if ($args ~* &quot;^([^_]+)_(\d+)+x(\d+)+\.(jpg|jpeg|gif|png)$&quot;) &#123;</span><br><span class="line">            set $w $2;</span><br><span class="line">            set $h $3;</span><br><span class="line">            set $img_ext $4;</span><br><span class="line"></span><br><span class="line">            # rewrite ^\?(.*)$ _$&#123;w&#125;x$&#123;h&#125;.$img_ext? last;</span><br><span class="line">            rewrite ([^.]*).(jpg|jpeg|png|gif)$  $1.$2_$&#123;w&#125;x$&#123;h&#125;.$img_ext? permanent;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    # set var for thumb pic</span><br><span class="line">    set $upload_path /var/filebase;</span><br><span class="line">    set $img_original_root  $upload_path;# original root;</span><br><span class="line">    set $img_thumbnail_root $upload_path/cache/thumb;</span><br><span class="line">    set $img_file $img_thumbnail_root$uri;</span><br><span class="line"></span><br><span class="line">    # like：/xx/xx/xx.jpg_100-.jpg or /xx/xx/xx.jpg_-100.jpg</span><br><span class="line">    location ~* ^(.+\.(jpg|jpeg|gif|png))_((\d+\-)|(\-\d+))\.(jpg|jpeg|gif|png)$ &#123;</span><br><span class="line">            root $img_thumbnail_root;    # root path for croped img</span><br><span class="line">            set $img_size $3;</span><br><span class="line"></span><br><span class="line">            if (!-f $img_file) &#123;    # if file not exists</span><br><span class="line">                    add_header X-Powered-By &apos;Nginx+Lua+GraphicsMagick By Botao&apos;;  #  header for test</span><br><span class="line">                    add_header file-path $request_filename;    #  header for test</span><br><span class="line">                    set $request_filepath $img_original_root$1;    # origin_img full path：/document_root/1.gif</span><br><span class="line">                    set $img_size $3;    # img width or height size depends on uri</span><br><span class="line">                    set $img_ext $2;    # file ext</span><br><span class="line">                    content_by_lua_file /usr/local/nginx/lua/autoSize.lua;    # load lua</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    # like: /xx/xx/xx.jpg_100x100.jpg</span><br><span class="line">    location ~* ^(.+\.(jpg|jpeg|gif|png))_(\d+)+x(\d+)+\.(jpg|jpeg|gif|png)$ &#123;</span><br><span class="line">            root $img_thumbnail_root;    # root path for croped img</span><br><span class="line"></span><br><span class="line">            if (!-f $img_file) &#123;    # if file not exists</span><br><span class="line">                    add_header X-Powered-By &apos;Nginx+Lua+GraphicsMagick By Botao&apos;;  #  header for test</span><br><span class="line">                    add_header file-path $request_filename;    #  header for test</span><br><span class="line">                    set $request_filepath $img_original_root$1;    # origin_img file path</span><br><span class="line">                    set $img_width $3;    # img width</span><br><span class="line">                    set $img_height $4;    # height</span><br><span class="line">                    set $img_ext $5;    # file ext</span><br><span class="line">                    content_by_lua_file /usr/local/nginx/lua/cropSize.lua;    # load lua</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    # if need (all go there)</span><br><span class="line">    location ~* /upload &#123;</span><br><span class="line">            root $img_original_root;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    location ~ /\.ht &#123;</span><br><span class="line">        deny all;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="lua脚本"><a href="#lua脚本" class="headerlink" title="lua脚本"></a>lua脚本</h1><ul>
+<li>/usr/local/tengine/lua/autoSize.lua</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line">-- 根据输入长或宽的尺寸自动裁切图片大小</span><br><span class="line"></span><br><span class="line">-- 检测路径是否目录</span><br><span class="line">local function is_dir(sPath)</span><br><span class="line">    if type(sPath) ~= &quot;string&quot; then return false end</span><br><span class="line"></span><br><span class="line">    local response = os.execute(&quot;cd &quot; .. sPath)</span><br><span class="line">    if response == 0 then</span><br><span class="line">        return true</span><br><span class="line">    end</span><br><span class="line">    return false</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 文件是否存在</span><br><span class="line">function file_exists(name)</span><br><span class="line">    local f = io.open(name, &quot;r&quot;)</span><br><span class="line">    if f ~= nil then io.close(f) return true else return false end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 获取文件路径</span><br><span class="line">function getFileDir(filename)</span><br><span class="line">    return string.match(filename, &quot;(.+)/[^/]*%.%w+$&quot;) --*nix system</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 获取文件名</span><br><span class="line">function strippath(filename)</span><br><span class="line">    return string.match(filename, &quot;.+/([^/]*%.%w+)$&quot;) -- *nix system</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">--去除扩展名</span><br><span class="line">function stripextension(filename)</span><br><span class="line">    local idx = filename:match(&quot;.+()%.%w+$&quot;)</span><br><span class="line">    if (idx) then</span><br><span class="line">        return filename:sub(1, idx - 1)</span><br><span class="line">    else</span><br><span class="line">        return filename</span><br><span class="line">    end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">--获取扩展名</span><br><span class="line">function getExtension(filename)</span><br><span class="line">    return filename:match(&quot;.+%.(%w+)$&quot;)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">function getImgSize(img)</span><br><span class="line"></span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 判断尺寸是否合法</span><br><span class="line">-- check image size</span><br><span class="line">function table.contains(table, element)</span><br><span class="line">   for _, value in pairs(table) do</span><br><span class="line">      if value == element then</span><br><span class="line">         return true</span><br><span class="line">      end</span><br><span class="line">   end</span><br><span class="line">   return false</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">if image_sizes_check</span><br><span class="line">then</span><br><span class="line">    if not table.contains(image_sizes, ngx.var.img_size)</span><br><span class="line">    then</span><br><span class="line">        ngx.exit(404);</span><br><span class="line">    end</span><br><span class="line">end</span><br><span class="line">-- check image end</span><br><span class="line"></span><br><span class="line">-- 开始执行</span><br><span class="line">-- ngx.log(ngx.ERR, getFileDir(ngx.var.img_file));</span><br><span class="line"></span><br><span class="line">local gm_path = &apos;gm&apos;</span><br><span class="line"></span><br><span class="line">-- check image dir</span><br><span class="line">if not is_dir(getFileDir(ngx.var.img_file)) then</span><br><span class="line">    os.execute(&quot;mkdir -p &quot; .. getFileDir(ngx.var.img_file))</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 获取高宽 100!或!100模式</span><br><span class="line">local uri = ngx.var.img_size</span><br><span class="line">local width = string.sub(uri,1,1)</span><br><span class="line">local height = 0</span><br><span class="line"></span><br><span class="line">if width == &quot;-&quot; then</span><br><span class="line">  width = 0</span><br><span class="line">  height = string.sub(uri,2,string.len(uri))</span><br><span class="line">else</span><br><span class="line">  width = string.sub(uri,1,string.len(uri)-1)</span><br><span class="line">  height = 0</span><br><span class="line">end</span><br><span class="line">-- ngx.log(ngx.ERR,uri)</span><br><span class="line">-- ngx.log(ngx.ERR,width)</span><br><span class="line">-- ngx.log(ngx.ERR,height)</span><br><span class="line">-- ngx.log(ngx.ERR,ngx.var.img_file);</span><br><span class="line">-- ngx.log(ngx.ERR,ngx.var.request_filepath);</span><br><span class="line">-- 裁剪后保证等比缩图 （缺点：裁剪了图片的一部分）</span><br><span class="line">-- 如: gm convert autoSize.jpg -resize x200 -quality 100 +profile &quot;*&quot; autoSize.jpg_-200.jpg</span><br><span class="line">if (file_exists(ngx.var.request_filepath)) then</span><br><span class="line">    local cmd = gm_path .. &apos; convert -auto-orient &apos; .. ngx.var.request_filepath</span><br><span class="line">    if height == 0 then</span><br><span class="line">        cmd = cmd .. &quot; -resize &quot; .. width .. &quot;x&quot; ..  &quot;&quot;</span><br><span class="line">    else</span><br><span class="line">        cmd = cmd .. &quot; -resize &quot; .. &quot;x&quot; .. height .. &quot;&quot;</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">-- 由于压缩后比较模糊,默认图片质量为100,请根据自己情况修改quality</span><br><span class="line">    cmd = cmd .. &quot; -quality 100&quot;</span><br><span class="line">    cmd = cmd .. &quot; +profile \&quot;*\&quot; &quot; .. ngx.var.img_file;</span><br><span class="line">    ngx.log(ngx.ERR, cmd);</span><br><span class="line">    os.execute(cmd);</span><br><span class="line">    ngx.exec(ngx.var.uri);</span><br><span class="line">else</span><br><span class="line">    ngx.exit(ngx.HTTP_NOT_FOUND);</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<ul>
+<li>/usr/local/tengine/lua/cropSize.lua</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line">-- 根据输入长和宽的尺寸裁切图片</span><br><span class="line"></span><br><span class="line">-- 检测路径是否目录</span><br><span class="line">local function is_dir(sPath)</span><br><span class="line">    if type(sPath) ~= &quot;string&quot; then return false end</span><br><span class="line"></span><br><span class="line">    local response = os.execute(&quot;cd &quot; .. sPath)</span><br><span class="line">    if response == 0 then</span><br><span class="line">        return true</span><br><span class="line">    end</span><br><span class="line">    return false</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 文件是否存在</span><br><span class="line">function file_exists(name)</span><br><span class="line">    local f = io.open(name, &quot;r&quot;)</span><br><span class="line">    if f ~= nil then io.close(f) return true else return false end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 获取文件路径</span><br><span class="line">function getFileDir(filename)</span><br><span class="line">    return string.match(filename, &quot;(.+)/[^/]*%.%w+$&quot;) --*nix system</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 获取文件名</span><br><span class="line">function strippath(filename)</span><br><span class="line">    return string.match(filename, &quot;.+/([^/]*%.%w+)$&quot;) -- *nix system</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">--去除扩展名</span><br><span class="line">function stripextension(filename)</span><br><span class="line">    local idx = filename:match(&quot;.+()%.%w+$&quot;)</span><br><span class="line">    if (idx) then</span><br><span class="line">        return filename:sub(1, idx - 1)</span><br><span class="line">    else</span><br><span class="line">        return filename</span><br><span class="line">    end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">--获取扩展名</span><br><span class="line">function getExtension(filename)</span><br><span class="line">    return filename:match(&quot;.+%.(%w+)$&quot;)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 判断尺寸是否合法</span><br><span class="line">-- 待切割的图片尺寸</span><br><span class="line">local img_width_height = ngx.var.img_width .. &quot;x&quot; .. ngx.var.img_height;</span><br><span class="line">-- check image size</span><br><span class="line">function table.contains(table, element)</span><br><span class="line">   for _, value in pairs(table) do</span><br><span class="line">      if value == element then</span><br><span class="line">         return true</span><br><span class="line">      end</span><br><span class="line">   end</span><br><span class="line">   return false</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">if image_sizes_check</span><br><span class="line">then</span><br><span class="line">    if not table.contains(image_sizes, img_width_height)</span><br><span class="line">    then</span><br><span class="line">        ngx.exit(404);</span><br><span class="line">    end</span><br><span class="line">end</span><br><span class="line">-- check image end</span><br><span class="line"></span><br><span class="line">-- 开始执行</span><br><span class="line">-- ngx.log(ngx.ERR, getFileDir(ngx.var.img_file));</span><br><span class="line"></span><br><span class="line">local gm_path = &apos;gm&apos;</span><br><span class="line"></span><br><span class="line">-- check image dir</span><br><span class="line">if not is_dir(getFileDir(ngx.var.img_file)) then</span><br><span class="line">    os.execute(&quot;mkdir -p &quot; .. getFileDir(ngx.var.img_file))</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">--  ngx.log(ngx.ERR,ngx.var.img_file);</span><br><span class="line">--  ngx.log(ngx.ERR,ngx.var.request_filepath);</span><br><span class="line"></span><br><span class="line">-- 裁剪后保证等比缩图 （缺点：裁剪了图片的一部分）</span><br><span class="line">-- gm convert cropSize.jpg -thumbnail 300x300^ -gravity center -extent 300x300 -quality 100 +profile &quot;*&quot; cropSize.jpg_300x300.jpg</span><br><span class="line">if (file_exists(ngx.var.request_filepath)) then</span><br><span class="line">    local cmd = gm_path .. &apos; convert -auto-orient &apos; .. ngx.var.request_filepath</span><br><span class="line">    cmd = cmd .. &quot; -thumbnail &quot; .. ngx.var.img_width .. &quot;x&quot; .. ngx.var.img_height .. &quot;^&quot;</span><br><span class="line">    cmd = cmd .. &quot; -gravity center -extent &quot; .. ngx.var.img_width .. &quot;x&quot; .. ngx.var.img_height</span><br><span class="line"></span><br><span class="line">    -- 由于压缩后比较模糊,默认图片质量为100,请根据自己情况修改quality</span><br><span class="line">    cmd = cmd .. &quot; -quality 100&quot;</span><br><span class="line">    cmd = cmd .. &quot; +profile \&quot;*\&quot; &quot; .. ngx.var.img_file;</span><br><span class="line">--  ngx.log(ngx.ERR, cmd);</span><br><span class="line">    os.execute(cmd);</span><br><span class="line">    ngx.exec(ngx.var.uri);</span><br><span class="line">else</span><br><span class="line">    ngx.exit(ngx.HTTP_NOT_FOUND);</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>然后 nginx -s reload下</p>
+<h1 id="测试效果"><a href="#测试效果" class="headerlink" title="测试效果"></a>测试效果</h1><p>在/var/filebase/upload目录，放1张图片</p>
+<p><img src="\images\pasted-21.png" alt="upload successful"><br>原图</p>
+<p><img src="\images\pasted-22.png" alt="upload successful"><br>100x100</p>
+<p><img src="\images\pasted-23.png" alt="upload successful"><br>由于我们开启了image_sizes_check，不支持的尺寸会返回404</p>
+<p><img src="\images\pasted-24.png" alt="upload successful"><br>固定定宽高自适应</p>
+<p><img src="\images\pasted-25.png" alt="upload successful"><br>查看服务器上生成的文件</p>
+<p>PS:这里有个问题，就是图片缩放后，图片的方向跟原先不一致的问题，后来笔者查了下GraphicsMagick资料，关于图片缩放后改变图片方向的问题，可以用-auto-orient参数可以来解决的,可以写成”gm convert -auto-orient “</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="https://github.com/botaozhao/nginx-lua-GraphicsMagick" target="_blank" rel="noopener">https://github.com/botaozhao/nginx-lua-GraphicsMagick</a><br><a href="https://www.fanhaobai.com/2017/09/lua-in-nginx.html" target="_blank" rel="noopener">https://www.fanhaobai.com/2017/09/lua-in-nginx.html</a><br><a href="https://github.com/openresty/lua-nginx-module/issues/1533" target="_blank" rel="noopener">https://github.com/openresty/lua-nginx-module/issues/1533</a><br><a href="https://github.com/openresty/lua-nginx-module/pull/1501#issuecomment-486123650" target="_blank" rel="noopener">https://github.com/openresty/lua-nginx-module/pull/1501#issuecomment-486123650</a><br><a href="https://github.com/openresty/lua-resty-core/issues/248" target="_blank" rel="noopener">https://github.com/openresty/lua-resty-core/issues/248</a><br><a href="https://segmentfault.com/a/1190000011093243" target="_blank" rel="noopener">https://segmentfault.com/a/1190000011093243</a><br><a href="https://github.com/yanue/nginx-lua-GraphicsMagick/blob/master/nginx-install.md" target="_blank" rel="noopener">https://github.com/yanue/nginx-lua-GraphicsMagick/blob/master/nginx-install.md</a><br><a href="http://www.icode9.com/content-3-77987.html" target="_blank" rel="noopener">http://www.icode9.com/content-3-77987.html</a><br><a href="https://my.oschina.net/ranhai/blog/1797454" target="_blank" rel="noopener">https://my.oschina.net/ranhai/blog/1797454</a><br><a href="https://www.twblogs.net/a/5bafdb372b7177781a0f64d7/zh-cn" target="_blank" rel="noopener">https://www.twblogs.net/a/5bafdb372b7177781a0f64d7/zh-cn</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jaychang.cn/2019/06/10/Ubuntu18-04-安装tengine/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jay Chang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/default_avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jay Chang's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/06/10/Ubuntu18-04-安装tengine/" itemprop="url">Ubuntu18.04 Tengine+Lua+GraphicsMagick图片缩放</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-10T21:36:00+08:00">
+                2019-06-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux-Server/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux Server</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/06/10/Ubuntu18-04-安装tengine/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2019/06/10/Ubuntu18-04-安装tengine/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,952
+                </span>
+              
+
+              
+
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>自己搭建的图片服务器，有图片缩放的需求，大致思路是可以使用nginx调用lua，使用GraphicMagick的命令来做图片缩放</p>
+<h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><h2 id="文件夹规划"><a href="#文件夹规划" class="headerlink" title="文件夹规划"></a>文件夹规划</h2><p>lua.jaychang.cn(如/var/filebase)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">jaychang@tengine:~$ tree /var/filebase/</span><br><span class="line">/var/filebase/</span><br><span class="line">├── avatar.png</span><br><span class="line">├── cache</span><br><span class="line">│   └── thumb</span><br><span class="line">│       ├── avatar.png_100x100.png</span><br><span class="line">│       └── upload</span><br><span class="line">│           ├── 1.png_100x100.png #固定高和宽</span><br><span class="line">│           ├── 1.png_400-.png # 定高</span><br><span class="line">│           └── 1.png_800-.png # 定宽</span><br><span class="line">└── upload</span><br><span class="line">    ├── 1.png</span><br><span class="line">4 directories, 8 files</span><br></pre></td></tr></table></figure>
+<p>其中img.xyz.com为图片站点根目录<br>cache/thumb为缩略图存放目录<br>upload目录存放上传的图片</p>
+<h2 id="链接地址对应关系"><a href="#链接地址对应关系" class="headerlink" title="链接地址对应关系"></a>链接地址对应关系</h2><p>原图访问地址：<a href="http://img.xyz.com/upload/1.png" target="_blank" rel="noopener">http://img.xyz.com/upload/1.png</a><br>缩略图访问地址：<a href="http://img.xyz.com/upload/1.png_100x100.png" target="_blank" rel="noopener">http://img.xyz.com/upload/1.png_100x100.png</a> 即为宽100,高100<br>自动宽地址: <a href="http://img.xyz.com/upload/1.png_-400.png" target="_blank" rel="noopener">http://img.xyz.com/upload/1.png_-400.png</a> 用”-“表示自动,即为高400,宽自动<br>自动高地址: <a href="http://img.xyz.com/upload/1.png_800-.jpg" target="_blank" rel="noopener">http://img.xyz.com/upload/1.png_800-.jpg</a> 用”-“表示自动,即为宽800,高自动</p>
+<h2 id="访问流程"><a href="#访问流程" class="headerlink" title="访问流程"></a>访问流程</h2><p>首先判断缩略图是否存在，如存在则直接显示缩略图；<br>缩略图不存在,则判断原图是否存在，如原图存在则拼接graphicsmagick(gm)命令,生成并显示缩略图,否则返回404</p>
+<h1 id="所需软件"><a href="#所需软件" class="headerlink" title="所需软件"></a>所需软件</h1><ul>
+<li>lua-5.3.5.tar.gz</li>
+<li>LuaJIT-2.0.5.tar.gz</li>
+<li>tengine-2.3.0.tar.gz</li>
+</ul>
+<h1 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">apt-get install -y gcc g++ make</span><br><span class="line"></span><br><span class="line">apt-get install libreadline-dev libpcre3 libpcre3-dev openssl libssl-dev zlib1g zlib1g-dev libgeoip-dev -y</span><br></pre></td></tr></table></figure>
+<h1 id="编译安装Lua-LuaJIT"><a href="#编译安装Lua-LuaJIT" class="headerlink" title="编译安装Lua LuaJIT"></a>编译安装Lua LuaJIT</h1><h2 id="编译安装Lua"><a href="#编译安装Lua" class="headerlink" title="编译安装Lua"></a>编译安装Lua</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl -R -O http://www.lua.org/ftp/lua-5.3.5.tar.gz</span><br><span class="line">tar zxf lua-5.3.5.tar.gz</span><br><span class="line">cd lua-5.3.5</span><br><span class="line">make linux test</span><br></pre></td></tr></table></figure>
+<h2 id="编译安装LuaJIT"><a href="#编译安装LuaJIT" class="headerlink" title="编译安装LuaJIT"></a>编译安装LuaJIT</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">curl -R -O http://luajit.org/download/LuaJIT-2.0.5.tar.gz</span><br><span class="line">tar -zxvf LuaJIT-2.0.5.tar.gz</span><br><span class="line">cd LuaJIT-2.0.5</span><br><span class="line">make -j2</span><br><span class="line">export LUAJIT_LIB=/usr/local/lib</span><br><span class="line">export LUAJIT_INC=/usr/local/include/luajit-2.0</span><br><span class="line">ln -s /usr/local/lib/libluajit-5.1.so.2 /lib64/libluajit-5.1.so.2</span><br></pre></td></tr></table></figure>
+<h1 id="安装GraphicsMagick"><a href="#安装GraphicsMagick" class="headerlink" title="安装GraphicsMagick"></a>安装GraphicsMagick</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/1.3/GraphicsMagick-1.3.31.tar.gz</span><br><span class="line">tar xzvf GraphicsMagick-1.3.31.tar.gz</span><br><span class="line">cd GraphicsMagick-1.3.31</span><br><span class="line">./configure --prefix=/usr/local/GraphicsMagick --enable-shared</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+<h1 id="创建用户及相应目录"><a href="#创建用户及相应目录" class="headerlink" title="创建用户及相应目录"></a>创建用户及相应目录</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">groupadd nginx &amp;&amp; useradd nginx -g nginx -s /sbin/nologin -M</span><br><span class="line"></span><br><span class="line">mkdir -p /var/tmp/tengine/client_body_temp</span><br><span class="line">mkdir -p /var/tmp/tengine/uwsgi_temp</span><br></pre></td></tr></table></figure>
+<p>创建用户也可以用以下命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">groupadd nginx &amp;&amp; useradd nginx -g nginx -s /bin/false -M</span><br></pre></td></tr></table></figure></p>
+<h1 id="编译安装tengine"><a href="#编译安装tengine" class="headerlink" title="编译安装tengine"></a>编译安装tengine</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr/local/tengine \</span><br><span class="line">--user=nginx --group=nginx \</span><br><span class="line">--sbin-path=/usr/sbin/nginx \</span><br><span class="line">--with-pcre \</span><br><span class="line">--with-http_realip_module \</span><br><span class="line">--with-http_gzip_static_module \</span><br><span class="line">--with-http_stub_status_module \</span><br><span class="line">--with-http_v2_module \</span><br><span class="line">--with-http_lua_module \</span><br><span class="line">--with-http_flv_module \</span><br><span class="line">--with-http_ssl_module \</span><br><span class="line">--with-http_addition_module \</span><br><span class="line">--with-http_geoip_module \</span><br><span class="line">--http-scgi-temp-path=/var/tmp/tengine/cgi_temp \</span><br><span class="line">--http-client-body-temp-path=/var/tmp/tengine/client_body_temp \</span><br><span class="line">--http-proxy-temp-path=/var/tmp/tengine/proxy_temp \</span><br><span class="line">--http-uwsgi-temp-path=/var/tmp/tengine/uwsgi_temp \</span><br><span class="line">--http-fastcgi-temp-path=/var/tmp/tengine/fastcgi_temp \</span><br><span class="line">--http-log-path=/var/log/tengine/access.log \</span><br><span class="line">--error-log-path=/var/log/tengine/error.log</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make -j 2 &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+<p> 注意：在Tengine-2.3.0版本后废弃Tengine的dso_tool工具以及dso配置指令，若之前有使用Tengine的dso功能、则可以切换到Nginx官方的load_module指令,详细文档<a href="http://nginx.org/en/docs/ngx_core_module.html#load_module" target="_blank" rel="noopener">参考1</a><br>和 <a href="https://www.nginx.com/resources/wiki/extending/converting/#compiling-dynamic" target="_blank" rel="noopener">参考2</a><br>还有–with-http_spdy_module 已经改为–with-http_v2_module了<br>,如果不用geo的话，编译的时候可以不加–with-http_geoip_module，可以不安装libgeoip-dev</p>
+<h1 id="测试tengine"><a href="#测试tengine" class="headerlink" title="测试tengine"></a>测试tengine</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /usr/local/tengine</span><br><span class="line">./sbin/nginx -t</span><br></pre></td></tr></table></figure>
+<p>如果出现以下错误(没有报错就不用做以下操作了)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">jaychang@tengine:/usr/local/tengine/sbin$ ./nginx -t</span><br><span class="line">./nginx: error while loading shared libraries: libluajit-5.1.so.2: cannot open shared object file: No such file or directory</span><br></pre></td></tr></table></figure></p>
+<p>查找下位置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">jaychang@tengine:/usr/local/tengine/sbin$ sudo whereis libluajit-5.1.so.2</span><br><span class="line">libluajit-5.1.so: /usr/local/lib/libluajit-5.1.so /usr/local/lib/libluajit-5.1.so.2</span><br></pre></td></tr></table></figure></p>
+<p>修改/etc/ld.so.conf,添加“/usr/local/lib”<br>vi /etc/ld.so.conf<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">include /etc/ld.so.conf.d/*.conf</span><br><span class="line">/usr/local/lib</span><br></pre></td></tr></table></figure></p>
+<p>然后执行下ldconfig<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldconfig</span><br></pre></td></tr></table></figure></p>
+<h1 id="修改nginx-conf配置文件"><a href="#修改nginx-conf配置文件" class="headerlink" title="修改nginx.conf配置文件"></a>修改nginx.conf配置文件</h1><p>将nginx.conf配置文件中的<strong>server{}段</strong>配置注释掉</p>
+<p>加一行配置，以便读取/usr/local/tengine/conf.d目录下所有后缀为.conf的配置文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">include ../conf.d/*.conf;</span><br></pre></td></tr></table></figure></p>
+<p>可以参考如下配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">user nginx;</span><br><span class="line">worker_processes 4;</span><br><span class="line">worker_cpu_affinity 1000 0100 0010 0001;</span><br><span class="line">error_log /var/log/tengine/error.log error;</span><br><span class="line">pid /usr/local/tengine/logs/nginx.pid;</span><br><span class="line">worker_rlimit_nofile 65535;</span><br><span class="line">events</span><br><span class="line">&#123;</span><br><span class="line">	use epoll;</span><br><span class="line">	worker_connections 65535;</span><br><span class="line">&#125;</span><br><span class="line">http</span><br><span class="line">&#123;</span><br><span class="line">   limit_conn_zone $binary_remote_addr zone=one:10m;</span><br><span class="line">   limit_conn_zone $server_name zone=perserver:10m;</span><br><span class="line">	include mime.types;</span><br><span class="line">	include fastcgi.conf;</span><br><span class="line">	default_type application/octet-stream;</span><br><span class="line">	charset utf-8;</span><br><span class="line">	server_names_hash_bucket_size 128;</span><br><span class="line">	client_header_buffer_size 32k;</span><br><span class="line">	large_client_header_buffers 4 64k;</span><br><span class="line">	sendfile on;</span><br><span class="line">	autoindex off;</span><br><span class="line">	tcp_nopush on;</span><br><span class="line">	tcp_nodelay on;</span><br><span class="line">	keepalive_timeout 120;</span><br><span class="line">    </span><br><span class="line">	fastcgi_connect_timeout 60;</span><br><span class="line">	fastcgi_send_timeout 60;</span><br><span class="line">	fastcgi_read_timeout 60;</span><br><span class="line">	fastcgi_buffer_size 128k;</span><br><span class="line">	fastcgi_buffers 8 128k;</span><br><span class="line">	fastcgi_busy_buffers_size 128k;</span><br><span class="line">	fastcgi_temp_file_write_size 128k;</span><br><span class="line">    </span><br><span class="line">	gzip on;</span><br><span class="line">	gzip_min_length 1k;</span><br><span class="line">	gzip_buffers 4 16k;</span><br><span class="line">	gzip_http_version 1.0;</span><br><span class="line">	gzip_comp_level 2;</span><br><span class="line">	gzip_types text/plain application/x-javascript text/css application/xml;</span><br><span class="line">	gzip_vary on;</span><br><span class="line"></span><br><span class="line">	log_format main &apos;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &apos;</span><br><span class="line">	&apos;$status $body_bytes_sent &quot;$http_referer&quot; &apos;</span><br><span class="line">	&apos;&quot;$http_user_agent&quot; $http_x_forwarded_for&apos;;</span><br><span class="line"></span><br><span class="line">	client_max_body_size 10m;</span><br><span class="line"></span><br><span class="line">	include ../conf.d/*.conf;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h1 id="创建放图片的目录"><a href="#创建放图片的目录" class="headerlink" title="创建放图片的目录"></a>创建放图片的目录</h1><p>目录规划</p>
+<ul>
+<li>/var/www 放网页,css,js等资源</li>
+<li>/var/fielbase 放图片</li>
+<li>/var/filebase/upload 上传的图片放这里</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /var/filebase/upload </span><br><span class="line">mkdir -p /var/filebase/cache/thumb</span><br><span class="line">chown -R nginx:nginx /var/filebase</span><br></pre></td></tr></table></figure>
+<h1 id="配置站点配置文件"><a href="#配置站点配置文件" class="headerlink" title="配置站点配置文件"></a>配置站点配置文件</h1><p>在/usr/local/tengine/conf.d目录下创建demo.conf</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"># 定义lua缩略图支持的图片尺寸及开关</span><br><span class="line">init_by_lua &apos;</span><br><span class="line">    image_sizes_check = true</span><br><span class="line">    image_sizes = &#123;&quot;800x800&quot;, &quot;400x400&quot;,&quot;200x200&quot;,&quot;100x100&quot;, &quot;-800&quot;, &quot;-400&quot;, &quot;-200&quot;,&quot;-100&quot;, &quot;800-&quot;, &quot;400-&quot;, &quot;200-&quot;,&quot;100-&quot;&#125;</span><br><span class="line">&apos;;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">    listen   80;</span><br><span class="line">    servername img.xyz.com;</span><br><span class="line">    index index.php index.html index.htm;</span><br><span class="line"></span><br><span class="line">    set $root_path &apos;/var/www&apos;;</span><br><span class="line">    root $root_path;</span><br><span class="line"></span><br><span class="line">   # /lua仅用于测试，可去掉</span><br><span class="line">	 location /lua &#123;</span><br><span class="line">		default_type &apos;text/plain&apos;;</span><br><span class="line">        content_by_lua &apos;ngx.say(&quot;hello, ttlsa lua&quot;)&apos;;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    # 这里也是需要根据实际情况修改的，这里的是用了rewrite</span><br><span class="line">    location / &#123;</span><br><span class="line">        try_files $uri $uri/ /index.php?$args;</span><br><span class="line"></span><br><span class="line">        # add support for img which has query params,</span><br><span class="line">        # like:  xxx.jpg?a=b&amp;c=d_750x750.jpg</span><br><span class="line">        if ($args ~* &quot;^([^_]+)_(\d+)+x(\d+)+\.(jpg|jpeg|gif|png)$&quot;) &#123;</span><br><span class="line">            set $w $2;</span><br><span class="line">            set $h $3;</span><br><span class="line">            set $img_ext $4;</span><br><span class="line"></span><br><span class="line">            # rewrite ^\?(.*)$ _$&#123;w&#125;x$&#123;h&#125;.$img_ext? last;</span><br><span class="line">            rewrite ([^.]*).(jpg|jpeg|png|gif)$  $1.$2_$&#123;w&#125;x$&#123;h&#125;.$img_ext? permanent;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    # set var for thumb pic</span><br><span class="line">    set $upload_path /var/filebase;</span><br><span class="line">    set $img_original_root  $upload_path;# original root;</span><br><span class="line">    set $img_thumbnail_root $upload_path/cache/thumb;</span><br><span class="line">    set $img_file $img_thumbnail_root$uri;</span><br><span class="line"></span><br><span class="line">    # like：/xx/xx/xx.jpg_100-.jpg or /xx/xx/xx.jpg_-100.jpg</span><br><span class="line">    location ~* ^(.+\.(jpg|jpeg|gif|png))_((\d+\-)|(\-\d+))\.(jpg|jpeg|gif|png)$ &#123;</span><br><span class="line">            root $img_thumbnail_root;    # root path for croped img</span><br><span class="line">            set $img_size $3;</span><br><span class="line"></span><br><span class="line">            if (!-f $img_file) &#123;    # if file not exists</span><br><span class="line">                    add_header X-Powered-By &apos;Nginx+Lua+GraphicsMagick By Botao&apos;;  #  header for test</span><br><span class="line">                    add_header file-path $request_filename;    #  header for test</span><br><span class="line">                    set $request_filepath $img_original_root$1;    # origin_img full path：/document_root/1.gif</span><br><span class="line">                    set $img_size $3;    # img width or height size depends on uri</span><br><span class="line">                    set $img_ext $2;    # file ext</span><br><span class="line">                    content_by_lua_file /usr/local/tengine/lua/autoSize.lua;    # load lua</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    # like: /xx/xx/xx.jpg_100x100.jpg</span><br><span class="line">    location ~* ^(.+\.(jpg|jpeg|gif|png))_(\d+)+x(\d+)+\.(jpg|jpeg|gif|png)$ &#123;</span><br><span class="line">            root $img_thumbnail_root;    # root path for croped img</span><br><span class="line"></span><br><span class="line">            if (!-f $img_file) &#123;    # if file not exists</span><br><span class="line">                    add_header X-Powered-By &apos;Nginx+Lua+GraphicsMagick By Botao&apos;;  #  header for test</span><br><span class="line">                    add_header file-path $request_filename;    #  header for test</span><br><span class="line">                    set $request_filepath $img_original_root$1;    # origin_img file path</span><br><span class="line">                    set $img_width $3;    # img width</span><br><span class="line">                    set $img_height $4;    # height</span><br><span class="line">                    set $img_ext $5;    # file ext</span><br><span class="line">                    content_by_lua_file /usr/local/tengine/lua/cropSize.lua;    # load lua</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    # if need (all go there)</span><br><span class="line">    location ~* /upload &#123;</span><br><span class="line">            root $img_original_root;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    location ~ /\.ht &#123;</span><br><span class="line">        deny all;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="lua脚本"><a href="#lua脚本" class="headerlink" title="lua脚本"></a>lua脚本</h1><ul>
+<li>/usr/local/tengine/lua/autoSize.lua</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line">-- 根据输入长或宽的尺寸自动裁切图片大小</span><br><span class="line"></span><br><span class="line">-- 检测路径是否目录</span><br><span class="line">local function is_dir(sPath)</span><br><span class="line">    if type(sPath) ~= &quot;string&quot; then return false end</span><br><span class="line"></span><br><span class="line">    local response = os.execute(&quot;cd &quot; .. sPath)</span><br><span class="line">    if response == 0 then</span><br><span class="line">        return true</span><br><span class="line">    end</span><br><span class="line">    return false</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 文件是否存在</span><br><span class="line">function file_exists(name)</span><br><span class="line">    local f = io.open(name, &quot;r&quot;)</span><br><span class="line">    if f ~= nil then io.close(f) return true else return false end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 获取文件路径</span><br><span class="line">function getFileDir(filename)</span><br><span class="line">    return string.match(filename, &quot;(.+)/[^/]*%.%w+$&quot;) --*nix system</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 获取文件名</span><br><span class="line">function strippath(filename)</span><br><span class="line">    return string.match(filename, &quot;.+/([^/]*%.%w+)$&quot;) -- *nix system</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">--去除扩展名</span><br><span class="line">function stripextension(filename)</span><br><span class="line">    local idx = filename:match(&quot;.+()%.%w+$&quot;)</span><br><span class="line">    if (idx) then</span><br><span class="line">        return filename:sub(1, idx - 1)</span><br><span class="line">    else</span><br><span class="line">        return filename</span><br><span class="line">    end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">--获取扩展名</span><br><span class="line">function getExtension(filename)</span><br><span class="line">    return filename:match(&quot;.+%.(%w+)$&quot;)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">function getImgSize(img)</span><br><span class="line"></span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 判断尺寸是否合法</span><br><span class="line">-- check image size</span><br><span class="line">function table.contains(table, element)</span><br><span class="line">   for _, value in pairs(table) do</span><br><span class="line">      if value == element then</span><br><span class="line">         return true</span><br><span class="line">      end</span><br><span class="line">   end</span><br><span class="line">   return false</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">if image_sizes_check</span><br><span class="line">then</span><br><span class="line">    if not table.contains(image_sizes, ngx.var.img_size)</span><br><span class="line">    then</span><br><span class="line">        ngx.exit(404);</span><br><span class="line">    end</span><br><span class="line">end</span><br><span class="line">-- check image end</span><br><span class="line"></span><br><span class="line">-- 开始执行</span><br><span class="line">-- ngx.log(ngx.ERR, getFileDir(ngx.var.img_file));</span><br><span class="line"></span><br><span class="line">local gm_path = &apos;gm&apos;</span><br><span class="line"></span><br><span class="line">-- check image dir</span><br><span class="line">if not is_dir(getFileDir(ngx.var.img_file)) then</span><br><span class="line">    os.execute(&quot;mkdir -p &quot; .. getFileDir(ngx.var.img_file))</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 获取高宽 100!或!100模式</span><br><span class="line">local uri = ngx.var.img_size</span><br><span class="line">local width = string.sub(uri,1,1)</span><br><span class="line">local height = 0</span><br><span class="line"></span><br><span class="line">if width == &quot;-&quot; then</span><br><span class="line">  width = 0</span><br><span class="line">  height = string.sub(uri,2,string.len(uri))</span><br><span class="line">else</span><br><span class="line">  width = string.sub(uri,1,string.len(uri)-1)</span><br><span class="line">  height = 0</span><br><span class="line">end</span><br><span class="line">-- ngx.log(ngx.ERR,uri)</span><br><span class="line">-- ngx.log(ngx.ERR,width)</span><br><span class="line">-- ngx.log(ngx.ERR,height)</span><br><span class="line">-- ngx.log(ngx.ERR,ngx.var.img_file);</span><br><span class="line">-- ngx.log(ngx.ERR,ngx.var.request_filepath);</span><br><span class="line">-- 裁剪后保证等比缩图 （缺点：裁剪了图片的一部分）</span><br><span class="line">-- 如: gm convert autoSize.jpg -resize x200 -quality 100 +profile &quot;*&quot; autoSize.jpg_-200.jpg</span><br><span class="line">if (file_exists(ngx.var.request_filepath)) then</span><br><span class="line">    local cmd = gm_path .. &apos; convert -auto-orient &apos; .. ngx.var.request_filepath</span><br><span class="line">    if height == 0 then</span><br><span class="line">        cmd = cmd .. &quot; -resize &quot; .. width .. &quot;x&quot; ..  &quot;&quot;</span><br><span class="line">    else</span><br><span class="line">        cmd = cmd .. &quot; -resize &quot; .. &quot;x&quot; .. height .. &quot;&quot;</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">-- 由于压缩后比较模糊,默认图片质量为100,请根据自己情况修改quality</span><br><span class="line">    cmd = cmd .. &quot; -quality 100&quot;</span><br><span class="line">    cmd = cmd .. &quot; +profile \&quot;*\&quot; &quot; .. ngx.var.img_file;</span><br><span class="line">    ngx.log(ngx.ERR, cmd);</span><br><span class="line">    os.execute(cmd);</span><br><span class="line">    ngx.exec(ngx.var.uri);</span><br><span class="line">else</span><br><span class="line">    ngx.exit(ngx.HTTP_NOT_FOUND);</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<ul>
+<li>/usr/local/tengine/lua/cropSize.lua</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line">-- 根据输入长和宽的尺寸裁切图片</span><br><span class="line"></span><br><span class="line">-- 检测路径是否目录</span><br><span class="line">local function is_dir(sPath)</span><br><span class="line">    if type(sPath) ~= &quot;string&quot; then return false end</span><br><span class="line"></span><br><span class="line">    local response = os.execute(&quot;cd &quot; .. sPath)</span><br><span class="line">    if response == 0 then</span><br><span class="line">        return true</span><br><span class="line">    end</span><br><span class="line">    return false</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 文件是否存在</span><br><span class="line">function file_exists(name)</span><br><span class="line">    local f = io.open(name, &quot;r&quot;)</span><br><span class="line">    if f ~= nil then io.close(f) return true else return false end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 获取文件路径</span><br><span class="line">function getFileDir(filename)</span><br><span class="line">    return string.match(filename, &quot;(.+)/[^/]*%.%w+$&quot;) --*nix system</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 获取文件名</span><br><span class="line">function strippath(filename)</span><br><span class="line">    return string.match(filename, &quot;.+/([^/]*%.%w+)$&quot;) -- *nix system</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">--去除扩展名</span><br><span class="line">function stripextension(filename)</span><br><span class="line">    local idx = filename:match(&quot;.+()%.%w+$&quot;)</span><br><span class="line">    if (idx) then</span><br><span class="line">        return filename:sub(1, idx - 1)</span><br><span class="line">    else</span><br><span class="line">        return filename</span><br><span class="line">    end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">--获取扩展名</span><br><span class="line">function getExtension(filename)</span><br><span class="line">    return filename:match(&quot;.+%.(%w+)$&quot;)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">-- 判断尺寸是否合法</span><br><span class="line">-- 待切割的图片尺寸</span><br><span class="line">local img_width_height = ngx.var.img_width .. &quot;x&quot; .. ngx.var.img_height;</span><br><span class="line">-- check image size</span><br><span class="line">function table.contains(table, element)</span><br><span class="line">   for _, value in pairs(table) do</span><br><span class="line">      if value == element then</span><br><span class="line">         return true</span><br><span class="line">      end</span><br><span class="line">   end</span><br><span class="line">   return false</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">if image_sizes_check</span><br><span class="line">then</span><br><span class="line">    if not table.contains(image_sizes, img_width_height)</span><br><span class="line">    then</span><br><span class="line">        ngx.exit(404);</span><br><span class="line">    end</span><br><span class="line">end</span><br><span class="line">-- check image end</span><br><span class="line"></span><br><span class="line">-- 开始执行</span><br><span class="line">-- ngx.log(ngx.ERR, getFileDir(ngx.var.img_file));</span><br><span class="line"></span><br><span class="line">local gm_path = &apos;gm&apos;</span><br><span class="line"></span><br><span class="line">-- check image dir</span><br><span class="line">if not is_dir(getFileDir(ngx.var.img_file)) then</span><br><span class="line">    os.execute(&quot;mkdir -p &quot; .. getFileDir(ngx.var.img_file))</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">--  ngx.log(ngx.ERR,ngx.var.img_file);</span><br><span class="line">--  ngx.log(ngx.ERR,ngx.var.request_filepath);</span><br><span class="line"></span><br><span class="line">-- 裁剪后保证等比缩图 （缺点：裁剪了图片的一部分）</span><br><span class="line">-- gm convert cropSize.jpg -thumbnail 300x300^ -gravity center -extent 300x300 -quality 100 +profile &quot;*&quot; cropSize.jpg_300x300.jpg</span><br><span class="line">if (file_exists(ngx.var.request_filepath)) then</span><br><span class="line">    local cmd = gm_path .. &apos; convert -auto-orient &apos; .. ngx.var.request_filepath</span><br><span class="line">    cmd = cmd .. &quot; -thumbnail &quot; .. ngx.var.img_width .. &quot;x&quot; .. ngx.var.img_height .. &quot;^&quot;</span><br><span class="line">    cmd = cmd .. &quot; -gravity center -extent &quot; .. ngx.var.img_width .. &quot;x&quot; .. ngx.var.img_height</span><br><span class="line"></span><br><span class="line">    -- 由于压缩后比较模糊,默认图片质量为100,请根据自己情况修改quality</span><br><span class="line">    cmd = cmd .. &quot; -quality 100&quot;</span><br><span class="line">    cmd = cmd .. &quot; +profile \&quot;*\&quot; &quot; .. ngx.var.img_file;</span><br><span class="line">--  ngx.log(ngx.ERR, cmd);</span><br><span class="line">    os.execute(cmd);</span><br><span class="line">    ngx.exec(ngx.var.uri);</span><br><span class="line">else</span><br><span class="line">    ngx.exit(ngx.HTTP_NOT_FOUND);</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>然后 nginx -s reload下</p>
+<h1 id="测试效果"><a href="#测试效果" class="headerlink" title="测试效果"></a>测试效果</h1><p>在/var/filebase/upload目录，放1张图片</p>
+<p><img src="\images\pasted-21.png" alt="upload successful"><br>原图</p>
+<p><img src="\images\pasted-22.png" alt="upload successful"><br>100x100</p>
+<p><img src="\images\pasted-23.png" alt="upload successful"><br>由于我们开启了image_sizes_check，不支持的尺寸会返回404</p>
+<p><img src="\images\pasted-24.png" alt="upload successful"><br>固定定宽高自适应</p>
+<p><img src="\images\pasted-25.png" alt="upload successful"><br>查看服务器上生成的文件</p>
+<p>PS:这里有个问题，就是图片缩放后，图片的方向跟原先不一致的问题，后来笔者查了下GraphicsMagick资料，关于图片缩放后改变图片方向的问题，可以用-auto-orient参数可以来解决的,可以写成”gm convert -auto-orient “</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="https://github.com/botaozhao/nginx-lua-GraphicsMagick" target="_blank" rel="noopener">https://github.com/botaozhao/nginx-lua-GraphicsMagick</a><br><a href="https://github.com/yanue/nginx-lua-GraphicsMagick/blob/master/nginx-install.md" target="_blank" rel="noopener">https://github.com/yanue/nginx-lua-GraphicsMagick/blob/master/nginx-install.md</a><br><a href="http://www.icode9.com/content-3-77987.html" target="_blank" rel="noopener">http://www.icode9.com/content-3-77987.html</a><br><a href="https://my.oschina.net/ranhai/blog/1797454" target="_blank" rel="noopener">https://my.oschina.net/ranhai/blog/1797454</a><br><a href="https://www.twblogs.net/a/5bafdb372b7177781a0f64d7/zh-cn" target="_blank" rel="noopener">https://www.twblogs.net/a/5bafdb372b7177781a0f64d7/zh-cn</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://jaychang.cn/2019/05/15/Ubuntu 18.04 Docker Swarm集群搭建/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1691,188 +2452,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://jaychang.cn/2017/08/27/【Spring-Cloud微服务全家桶】01之服务注册、服务发现-Eureka、Consul作为服务注册中心/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jay Chang">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/default_avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Jay Chang's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/08/27/【Spring-Cloud微服务全家桶】01之服务注册、服务发现-Eureka、Consul作为服务注册中心/" itemprop="url">【Spring Cloud微服务全家桶】01之服务注册、服务发现(Eureka、Consul作为服务注册中心)</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-27T16:09:54+08:00">
-                2017-08-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Spring-Cloud/" itemprop="url" rel="index">
-                    <span itemprop="name">Spring Cloud</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/08/27/【Spring-Cloud微服务全家桶】01之服务注册、服务发现-Eureka、Consul作为服务注册中心/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2017/08/27/【Spring-Cloud微服务全家桶】01之服务注册、服务发现-Eureka、Consul作为服务注册中心/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  2,423
-                </span>
-              
-
-              
-
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="何为微服务？"><a href="#何为微服务？" class="headerlink" title="何为微服务？"></a>何为微服务？</h1><p>Martin Fowler的《微服务》译文：<a href="https://skyao.gitbooks.io/learning-microservice/content/definition/Martin-Fowler/microservices.html" target="_blank" rel="noopener">https://skyao.gitbooks.io/learning-microservice/content/definition/Martin-Fowler/microservices.html</a></p>
-<p>Martin Fowler的《微服务》原文：<a href="https://martinfowler.com/articles/microservices.html" target="_blank" rel="noopener">https://martinfowler.com/articles/microservices.html</a></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/08/27/【Spring-Cloud微服务全家桶】01之服务注册、服务发现-Eureka、Consul作为服务注册中心/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1922,7 +2506,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-count">21</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2088,7 +2672,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2022</span>
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2023</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
